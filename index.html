@@ -76,6 +76,13 @@
   .paper { position: fixed; z-index: 6; width: 120px; padding: 8px; background: #f5ecd6; color: #3b2f22; font-size: 11px; line-height: 1.4; border-radius: 3px; box-shadow: 0 4px 14px rgba(0,0,0,0.4); pointer-events: none; overflow: hidden; max-height: 70px; }
   .smokeText { position: fixed; z-index: 6; transform: translate(-50%, 0); color: rgba(220, 220, 230, 0.9); font-size: 14px; max-width: 260px; text-align: center; pointer-events: none; text-shadow: 0 0 8px rgba(255,255,255,0.4); }
 
+  /* 상단을 스르륵 지나가는 한 줄 */
+  #quote { position: fixed; left: 0; right: 0; top: 44px; height: 32px; overflow: hidden; pointer-events: none; z-index: 4; }
+  #quoteText { position: absolute; top: 0; left: 100%; white-space: nowrap; font-size: 15px; letter-spacing: .02em; color: rgba(255, 240, 214, 0.92); text-shadow: 0 1px 10px rgba(0,0,0,0.8), 0 0 24px rgba(255,180,90,0.25); opacity: 0; }
+  #quoteText.go { animation: quoteDrift var(--qdur, 22s) linear forwards; }
+  @keyframes quoteDrift { 0% { transform: translateX(0); opacity: 0; } 6% { opacity: 1; } 94% { opacity: 1; } 100% { transform: translateX(calc(-100vw - 100%)); opacity: 0; } }
+  @media (max-width: 720px) { #quote { top: 40px; } #quoteText { font-size: 13px; } }
+
   /* 사람들 */
   #online { color: var(--dim); white-space: nowrap; }
   #emotes { display: flex; align-items: center; gap: 4px; padding: 0 8px 8px; flex-wrap: wrap; }
@@ -196,6 +203,7 @@
 <div id="presence" class="panel" aria-live="polite"><i></i><b id="presenceN">–</b><span>접속 중</span></div>
 <div id="hint">드래그로 둘러보기 · 휠을 내리면 3인칭<br>WASD·방향키로 걷기 · 스페이스 점프 · H 메뉴 접기</div>
 
+<div id="quote" aria-live="polite"><span id="quoteText"></span></div>
 <div id="chatLog" aria-live="polite"></div>
 <div id="hud">
   <form id="chat" class="panel" autocomplete="off">
@@ -843,6 +851,60 @@ function wake() {
 ['pointermove', 'pointerdown', 'keydown', 'wheel', 'touchstart'].forEach((ev) => window.addEventListener(ev, wake, { passive: true }));
 wake();
 
+// 1분에 한 번, 마음을 녹이는 한 줄이 상단을 스르륵 지나간다
+const QUOTES = [
+  '오늘 하루도 여기까지 온 당신, 정말 잘했어요.',
+  '불이 잦아들어도 온기는 남아요. 당신의 하루도 그래요.',
+  '천천히 가도 괜찮아요. 숲은 서두르지 않아요.',
+  '울고 싶은 날엔 울어도 돼요. 별은 그래도 떠 있어요.',
+  '당신이 애쓴 걸 아무도 몰라도, 당신은 알잖아요.',
+  '잠시 멈춰도 길은 사라지지 않아요.',
+  '오늘의 당신은 어제의 당신이 바라던 사람이에요.',
+  '모닥불 앞에선 누구나 똑같이 따뜻해요.',
+  '힘들었던 하루를 여기 내려놓고 가세요.',
+  '당신의 속도가 당신에게 맞는 속도예요.',
+  '별똥별이 떨어지는 건 끝이 아니라 누군가의 소원이에요.',
+  '괜찮지 않아도 괜찮아요. 여기선 그래도 돼요.',
+  '작은 불씨 하나가 밤을 견디게 해요. 당신도 누군가의 불씨예요.',
+  '지금 이 순간, 아무것도 하지 않아도 충분해요.',
+  '마음이 추운 날엔 가까이 와요. 불은 넉넉해요.',
+  '당신은 생각보다 훨씬 많은 사람에게 소중해요.',
+  '오늘 버텨 준 당신에게 고마워요.',
+  '어둠이 깊을수록 별은 더 또렷해요.',
+  '쉬는 것도 용기예요.',
+  '당신의 눈물은 약함이 아니라 마음이 살아 있다는 증거예요.',
+  '누군가에게 들은 다정한 말, 오늘은 자신에게 해 주세요.',
+  '길을 잃은 게 아니라 새 길을 보고 있는 거예요.',
+  '당신이 있어서 이 숲이 조금 더 따뜻해졌어요.',
+  '내일 걱정은 내일의 당신에게 맡겨요. 꽤 믿을 만한 사람이거든요.',
+  '바람이 지나가듯, 이 마음도 지나가요.',
+  '잘 자요. 불은 제가 지킬게요.',
+  '서툴러도 돼요. 처음부터 잘하는 사람은 없어요.',
+  '당신이 오늘 한 작은 친절이 어딘가에서 빛나고 있어요.',
+  '혼자인 것 같아도, 같은 하늘을 보는 사람이 있어요.',
+  '깊게 숨 쉬어요. 이 공기는 당신 거예요.',
+  '아무 말 없이 함께 있는 것도 위로예요.',
+  '지친 건 게으른 게 아니라 열심히 살았다는 뜻이에요.',
+  '당신의 마음에도 이 불빛만큼의 온기가 있어요.',
+  '괜찮아요, 하고 말해 주는 사람이 없다면 제가 할게요. 괜찮아요.',
+  '좋은 날은 꼭 다시 와요. 그때까지 여기 있어요.',
+  '오늘 밤만큼은 아무것도 증명하지 않아도 돼요.',
+  '당신이 흘린 땀은 어딘가에서 꽃이 되고 있어요.',
+  '느리게 타는 장작이 가장 오래 남아요.',
+  '실수한 하루도 당신의 하루예요. 안아 주세요.',
+  '여기 앉아 있는 동안은 세상이 기다려 줄 거예요.'
+];
+let quoteOrder = [], quoteIdx = 0;
+function showQuote() {
+  if (!quoteOrder.length || quoteIdx >= quoteOrder.length) { quoteOrder = [...QUOTES].sort(() => Math.random() - 0.5); quoteIdx = 0; }
+  const el = $('#quoteText');
+  el.textContent = quoteOrder[quoteIdx++];
+  el.style.setProperty('--qdur', Math.max(18, 8 + el.textContent.length * 0.55) + 's');
+  el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');
+}
+setTimeout(showQuote, 15000);
+setInterval(showQuote, 60000);
+
 // 랜덤 멜로디 켜기/끄기
 const MELODY_KEY = 'charles-forest.melody';
 state.melody = true;
@@ -993,34 +1055,57 @@ const animals = [];
 const animalGLTF = {};
 const clearOf = (x, z, r) => Math.hypot(x, z) > r;
 
+// 충돌용 원(나무·바위·텐트 등). 사람·동물은 매 프레임 이 원 밖으로 밀려난다
+const obstacles = [];
+const addObstacle = (x, z, r) => obstacles.push({ x, z, r });
 function scatter(model, count, rMin, rMax, sMin, sMax, opts = {}) {
   for (let i = 0; i < count; i++) {
     const a = rand(0, Math.PI * 2), r = rand(rMin, rMax);
     const x = Math.cos(a) * r, z = Math.sin(a) * r;
     if (z < -11 && !opts.lakeOk) { i--; continue; }
     const m = model.clone();
+    const s = rand(sMin, sMax);
     m.position.set(x, 0, z);
     m.rotation.y = rand(0, 6.28);
-    m.scale.setScalar(rand(sMin, sMax));
+    m.scale.setScalar(s);
     scene.add(m);
+    if (opts.hit) addObstacle(x, z, opts.hit * s);
   }
 }
+function resolveCircle(pos, radius, skipSelf) {
+  let pushed = false;
+  const push = (ox, oz, orad) => {
+    const dx = pos.x - ox, dz = pos.z - oz;
+    const d = Math.hypot(dx, dz), min = radius + orad;
+    if (d >= min || d < 1e-4) return;
+    pos.x += dx / d * (min - d); pos.z += dz / d * (min - d);
+    pushed = true;
+  };
+  for (const o of obstacles) push(o.x, o.z, o.r);
+  for (const ch of allChars) { if (ch === skipSelf || !ch.group.visible && !ch.isMe) continue; push(ch.pos.x, ch.pos.z, 0.38); }
+  for (const an of animals) { if (an === skipSelf) continue; push(an.pos.x, an.pos.z, 0.3); }
+  return pushed;
+}
+const insideObstacle = (x, z, pad = 0) => obstacles.some((o) => Math.hypot(x - o.x, z - o.z) < o.r + pad);
 
 async function buildForest() {
   const names = ['tree', 'tree-high', 'tent', 'rocks-low', 'rocks-high', 'stones', 'plant', 'patch-grass', 'fence', 'flag'];
   const g = {};
   await Promise.all(names.map(async (n) => { g[n] = (await loadGLB(FOREST + n + '.glb')).scene; }));
   procGroup.visible = false;
-  scatter(g['tree'], 55, 7.5, 45, 2.0, 3.0);
-  scatter(g['tree-high'], 35, 9, 45, 2.2, 3.4);
-  scatter(g['rocks-low'], 10, 6, 30, 1.2, 2.2);
-  scatter(g['rocks-high'], 5, 12, 35, 1.4, 2.4);
-  scatter(g['stones'], 12, 4.5, 20, 1.0, 1.8);
+  obstacles.length = 0;
+  scatter(g['tree'], 55, 7.5, 45, 2.0, 3.0, { hit: 0.22 });
+  scatter(g['tree-high'], 35, 9, 45, 2.2, 3.4, { hit: 0.22 });
+  scatter(g['rocks-low'], 10, 6, 30, 1.2, 2.2, { hit: 0.45 });
+  scatter(g['rocks-high'], 5, 12, 35, 1.4, 2.4, { hit: 0.45 });
+  scatter(g['stones'], 12, 4.5, 20, 1.0, 1.8, { hit: 0.35 });
   scatter(g['plant'], 40, 3.2, 16, 1.6, 2.6);
   scatter(g['patch-grass'], 30, 3.5, 18, 1.5, 2.5);
   const tent = g['tent'].clone(); tent.position.set(-4.8, 0, -0.6); tent.rotation.y = 0.55; tent.scale.setScalar(2.6); scene.add(tent);
+  addObstacle(-4.8, -0.6, 1.5);
   const flag = g['flag'].clone(); flag.position.set(-3.2, 0, -2.2); flag.scale.setScalar(2.2); scene.add(flag);
-  for (let i = 0; i < 4; i++) { const f = g['fence'].clone(); f.position.set(4.2 + i * 1.1 * 0.9, 0, -3.4 + i * 0.55); f.rotation.y = -0.5; f.scale.setScalar(2.0); scene.add(f); }
+  addObstacle(-3.2, -2.2, 0.2);
+  for (let i = 0; i < 4; i++) { const fx = 4.2 + i * 1.1 * 0.9, fz = -3.4 + i * 0.55; const f = g['fence'].clone(); f.position.set(fx, 0, fz); f.rotation.y = -0.5; f.scale.setScalar(2.0); scene.add(f); addObstacle(fx, fz, 0.55); }
 }
 
 async function buildAnimals() {
@@ -1065,10 +1150,11 @@ function updateAnimals(dt) {
       const step = Math.min(d, an.speed * dt);
       an.pos.x += dx / d * step; an.pos.z += dz / d * step;
       an.model.rotation.y += wrapAngle(Math.atan2(dx, dz) - an.model.rotation.y) * Math.min(1, dt * 6);
+      if (resolveCircle(an.pos, 0.3, an) && insideObstacle(an.target.x, an.target.z, 0.3)) { an.state = 'idle'; an.timer = rand(0.5, 2); animalPlay(an, 'idle'); }
     } else if (an.timer <= 0) {
       let tx, tz, tries = 0;
       do { const a = rand(0, Math.PI * 2), r = rand(1.5, 4); tx = an.pos.x + Math.cos(a) * r; tz = an.pos.z + Math.sin(a) * r; tries++; }
-      while ((!clearOf(tx, tz, 3.2) || Math.hypot(tx, tz) > 10 || tz < -10) && tries < 12);
+      while ((!clearOf(tx, tz, 3.2) || Math.hypot(tx, tz) > 10 || tz < -10 || insideObstacle(tx, tz, 0.3)) && tries < 12);
       if (tries < 12) { an.target.set(tx, 0, tz); an.state = 'walk'; animalPlay(an, 'walk'); }
       else an.timer = rand(1, 3);
     } else {
@@ -1416,6 +1502,7 @@ canvas.addEventListener('pointerup', (e) => {
   const r = Math.hypot(x, z);
   if (r < 1.3) { x = x / r * 1.3; z = z / r * 1.3; }
   if (r > 9) { x = x / r * 9; z = z / r * 9; }
+  if (insideObstacle(x, z, 0.38)) { toast('거기는 갈 수 없어요'); return; }
   me.walkTo(x, z);
   net.updateMe({ x, z, seat: -1 });
 });
@@ -1713,6 +1800,8 @@ function frame() {
   updateFlying(dt);
   audio.tick(dt);
   me.update(dt);
+  // 충돌: 나무·바위·텐트·다른 사람·동물 밖으로 밀어내기 (앉아 있을 땐 제외)
+  if (me.seat < 0 && resolveCircle(me.pos, 0.38, me) && insideObstacle(me.target.x, me.target.z, 0.38)) me.target.copy(me.pos);
   for (const [, o] of others) o.ch.update(dt);
   net.tick(dt);
   updateAnimals(dt);
@@ -1750,7 +1839,7 @@ function frame() {
 updateUI();
 frame();
 // 점검용 (콘솔에서 상태 확인)
-window.charlesForest = { state, cam, me, animals, meteors, launchMeteor, audio };
+window.charlesForest = { state, cam, me, animals, meteors, launchMeteor, audio, obstacles, showQuote };
 </script>
 </body>
 </html>

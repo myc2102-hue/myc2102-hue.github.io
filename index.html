@@ -112,6 +112,10 @@
   #gateName { width: min(300px, 80vw); padding: 12px 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.3); background: rgba(10,16,28,0.6); color: var(--text); font: inherit; font-size: 16px; text-align: center; outline: none; }
   #gateName:focus { border-color: var(--accent); }
   #gateName.shake { animation: shake .4s; border-color: #ff7a7a; }
+  #avatars { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; max-width: 420px; }
+  .av { width: 42px; height: 42px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.18); background: rgba(10,16,28,0.55); font-size: 22px; line-height: 1; cursor: pointer; padding: 0; transition: transform .15s, border-color .15s; }
+  .av:hover { transform: translateY(-2px); }
+  .av[aria-checked="true"] { border-color: var(--accent); background: rgba(255,178,90,0.25); box-shadow: 0 0 14px rgba(255,178,90,0.4); }
   @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 
   /* 채팅 */
@@ -166,6 +170,21 @@
     <div id="gateFallback">모여봐요<br>찰스의 숲</div>
     <p id="gateTag">숲속 호숫가 모닥불 앞에서 잠시 쉬어 가세요</p>
     <input id="gateName" type="text" maxlength="12" placeholder="숲에서 쓸 이름을 적어 주세요" autocomplete="nickname" aria-label="숲에서 쓸 이름">
+    <div id="avatars" role="radiogroup" aria-label="모습 고르기">
+      <button type="button" class="av" data-avatar="human" title="사람">🧑</button>
+      <button type="button" class="av" data-avatar="fox" title="여우">🦊</button>
+      <button type="button" class="av" data-avatar="bunny" title="토끼">🐰</button>
+      <button type="button" class="av" data-avatar="deer" title="사슴">🦌</button>
+      <button type="button" class="av" data-avatar="cat" title="고양이">🐱</button>
+      <button type="button" class="av" data-avatar="dog" title="강아지">🐶</button>
+      <button type="button" class="av" data-avatar="chick" title="병아리">🐥</button>
+      <button type="button" class="av" data-avatar="koala" title="코알라">🐨</button>
+      <button type="button" class="av" data-avatar="panda" title="판다">🐼</button>
+      <button type="button" class="av" data-avatar="penguin" title="펭귄">🐧</button>
+      <button type="button" class="av" data-avatar="pig" title="돼지">🐷</button>
+      <button type="button" class="av" data-avatar="polar" title="북극곰">🐻‍❄️</button>
+      <button type="button" class="av" data-avatar="beaver" title="비버">🦫</button>
+    </div>
     <button id="enter">Google 계정으로 입장</button>
     <p id="gateNote">Google 로그인한 사람끼리 모닥불을 나눠요 · 소리가 함께 켜집니다</p>
   </div>
@@ -969,6 +988,7 @@ const loadGLB = (p) => new Promise((res, rej) => gltfLoader.load(p, res, undefin
 const FOREST = 'assets/models/forest/', PETS = 'assets/models/pets/';
 const ANIMALS = ['fox', 'bunny', 'deer', 'cat', 'dog', 'chick', 'koala', 'panda', 'penguin', 'pig', 'polar', 'beaver'];
 const animals = [];
+const animalGLTF = {};
 const clearOf = (x, z, r) => Math.hypot(x, z) > r;
 
 function scatter(model, count, rMin, rMax, sMin, sMax, opts = {}) {
@@ -1002,8 +1022,9 @@ async function buildForest() {
 }
 
 async function buildAnimals() {
-  const loaded = {};
+  const loaded = animalGLTF;
   await Promise.all(ANIMALS.map(async (n) => { loaded[n] = await loadGLB(PETS + 'animal-' + n + '.glb'); }));
+  for (const ch of allChars) ch.attachModel();
   const picks = [...ANIMALS].sort(() => Math.random() - 0.5).slice(0, 9).concat(['fox', 'bunny', 'deer']);
   for (const n of picks) {
     const src = loaded[n];
@@ -1155,9 +1176,11 @@ const allChars = new Set();
 const ARCHER_SCALE = 1.6;
 
 class Character {
-  constructor(color, isMe) {
+  constructor(color, isMe, avatar = 'human') {
     this.group = new THREE.Group();
     this.color = color;
+    this.avatar = ANIMALS.includes(avatar) ? avatar : 'human';
+    this.eyeY = 1.05; this.seatY = 0.3;
     this.mat = new THREE.MeshStandardMaterial({ color, roughness: 0.85 });
     this.body = new THREE.Mesh(bodyGeo, this.mat); this.body.position.y = 0.45;
     this.head = new THREE.Mesh(headGeo, skinMat); this.head.position.y = 0.96;
@@ -1169,7 +1192,7 @@ class Character {
     this.seat = -1; this.yaw = 0; this.walkT = 0; this.isMe = isMe; this.jumpY = 0; this.vy = 0;
     this.model = null; this.mixer = null; this.clips = {}; this.cur = null; this.anim = '';
     allChars.add(this);
-    if (archer.gltf) this.attachModel();
+    this.attachModel();
     this.tag = document.createElement('div');
     this.tag.className = 'tag';
     this.tag.innerHTML = `<div class="bb"></div><div class="em"></div><div class="nm${isMe ? ' me' : ''}"></div>`;
@@ -1179,21 +1202,46 @@ class Character {
   setName(n) { this.nm.textContent = n; }
   setColor(c) { this.color = c; this.mat.color.set(c); if (this.bodyMat) this.bodyMat.map = archer.bodyTex[hueIndexOf(c)]; }
   attachModel() {
-    if (this.model || !archer.gltf) return;
-    const m = SkeletonUtils.clone(archer.gltf.scene);
-    m.scale.setScalar(ARCHER_SCALE);
+    if (this.model) return;
+    let m, anims;
+    if (this.avatar === 'human') {
+      if (!archer.gltf) return;
+      m = SkeletonUtils.clone(archer.gltf.scene);
+      m.scale.setScalar(ARCHER_SCALE);
+      m.traverse((o) => {
+        if (!o.isMesh) return;
+        o.frustumCulled = false;
+        if (o.name === 'body-mesh') { this.bodyMat = o.material.clone(); this.bodyMat.map = archer.bodyTex[hueIndexOf(this.color)]; o.material = this.bodyMat; }
+      });
+      anims = archer.gltf.animations;
+      this.eyeY = 1.12; this.seatY = 0.42; this.isAnimal = false;
+    } else {
+      const src = animalGLTF[this.avatar];
+      if (!src) return;
+      m = src.scene.clone();
+      const s = 0.44;
+      m.scale.setScalar(s);
+      m.position.y = 0.3 * s;
+      m.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });
+      anims = src.animations;
+      this.eyeY = 0.78; this.seatY = 0.44; this.isAnimal = true;
+    }
     m.rotation.y = Math.PI; // Kenney 모델 정면은 -Z
-    m.traverse((o) => {
-      if (!o.isMesh) return;
-      o.frustumCulled = false;
-      if (o.name === 'body-mesh') { this.bodyMat = o.material.clone(); this.bodyMat.map = archer.bodyTex[hueIndexOf(this.color)]; o.material = this.bodyMat; }
-    });
     this.model = m;
     this.capsule.visible = false;
     this.group.add(m);
     this.mixer = new THREE.AnimationMixer(m);
-    for (const c of archer.gltf.animations) this.clips[c.name] = this.mixer.clipAction(c);
+    for (const c of anims) this.clips[c.name] = this.mixer.clipAction(c);
     this.play('idle');
+  }
+  setAvatar(av) {
+    av = ANIMALS.includes(av) ? av : 'human';
+    if (av === this.avatar && this.model) return;
+    if (this.model) { this.group.remove(this.model); this.mixer.stopAllAction(); }
+    this.model = null; this.mixer = null; this.clips = {}; this.cur = null; this.anim = ''; this.bodyMat = null;
+    this.avatar = av; this.eyeY = 1.05; this.seatY = 0.3; this.isAnimal = false;
+    this.capsule.visible = true;
+    this.attachModel();
   }
   play(name, once = false) {
     const next = this.clips[name];
@@ -1209,9 +1257,13 @@ class Character {
   say(text) { this.bb.textContent = text; this.bb.classList.remove('on'); void this.bb.offsetWidth; this.bb.classList.add('on'); }
   emote(e) {
     this.em.textContent = e; this.em.classList.remove('on'); void this.em.offsetWidth; this.em.classList.add('on');
-    if (this.model && this.seat < 0 && this.jumpY <= 0) { this.emoteUntil = state.time + 1.6; this.play(e === '😴' ? 'crouch' : 'emote-yes'); }
+    if (this.model && this.seat < 0 && this.jumpY <= 0) {
+      this.emoteUntil = state.time + 1.6;
+      if (this.isAnimal) this.play(e === '🎵' ? 'dance' : e === '😴' ? 'eat' : 'gesture-positive');
+      else this.play(e === '😴' ? 'crouch' : 'emote-yes');
+    }
   }
-  headWorld() { return new THREE.Vector3(this.pos.x, this.group.position.y + 1.0, this.pos.z); }
+  headWorld() { return new THREE.Vector3(this.pos.x, this.group.position.y + this.eyeY - 0.1, this.pos.z); }
   update(dt) {
     const dx = this.target.x - this.pos.x, dz = this.target.z - this.pos.z;
     const dist = Math.hypot(dx, dz);
@@ -1225,19 +1277,22 @@ class Character {
     const seated = this.seat >= 0 && !moving;
     if (seated) this.yaw = Math.atan2(-this.pos.x, -this.pos.z);
     if (this.jumpY > 0) { this.vy -= 9.8 * dt; this.jumpY += this.vy * dt; if (this.jumpY <= 0) { this.jumpY = 0; this.vy = 0; } }
-    const baseY = this.model ? (seated ? 0.42 : 0) : (seated ? 0.3 : (moving ? Math.abs(Math.sin(this.walkT)) * 0.05 : 0));
+    const baseY = this.model ? (seated ? this.seatY : 0) : (seated ? 0.3 : (moving ? Math.abs(Math.sin(this.walkT)) * 0.05 : 0));
     this.group.position.set(this.pos.x, baseY + this.jumpY, this.pos.z);
     this.group.rotation.y += wrapAngle(this.yaw - this.group.rotation.y) * Math.min(1, dt * 10);
     if (this.model) {
       this.mixer.update(dt);
-      if (this.jumpY > 0) this.play('jump');
+      if (this.isAnimal) {
+        if (moving) this.play('walk');
+        else if (!(this.emoteUntil > state.time)) this.play('idle');
+      } else if (this.jumpY > 0) this.play('jump');
       else if (seated) this.play('sit');
       else if (moving) this.play('walk');
       else if (!(this.emoteUntil > state.time)) this.play('idle');
     } else {
       this.body.scale.y += ((seated ? 0.72 : 1) - this.body.scale.y) * Math.min(1, dt * 8);
     }
-    projV.set(this.pos.x, this.group.position.y + 1.25, this.pos.z).project(camera);
+    projV.set(this.pos.x, this.group.position.y + this.eyeY + 0.15, this.pos.z).project(camera);
     if (projV.z > 1 || projV.z < -1 || (this.isMe && !this.group.visible)) { this.tag.style.display = 'none'; return; }
     this.tag.style.display = '';
     const x = (projV.x + 1) / 2 * innerWidth, y = (1 - projV.y) / 2 * innerHeight;
@@ -1265,8 +1320,14 @@ let meInfo = { name: randomName(), color: pick(PALETTE) };
 try { const s = JSON.parse(localStorage.getItem(ME_KEY) || 'null'); if (s && s.name && s.color) meInfo = s; } catch (e) { /* 저장소 없음 */ }
 const saveMe = () => { try { localStorage.setItem(ME_KEY, JSON.stringify(meInfo)); } catch (e) { /* 저장소 없음 */ } };
 saveMe();
-const me = new Character(meInfo.color, true);
+if (!meInfo.avatar) meInfo.avatar = 'human';
+const me = new Character(meInfo.color, true, meInfo.avatar);
 me.setName(meInfo.name);
+// 대문의 모습 고르기
+const avatarBtns = [...document.querySelectorAll('#avatars .av')];
+function markAvatar() { for (const b of avatarBtns) b.setAttribute('aria-checked', b.dataset.avatar === meInfo.avatar ? 'true' : 'false'); }
+markAvatar();
+for (const b of avatarBtns) b.addEventListener('click', () => { meInfo.avatar = b.dataset.avatar; saveMe(); markAvatar(); me.setAvatar(meInfo.avatar); });
 {
   const a = Math.PI / 2 + rand(-0.6, 0.6), r = rand(3.6, 4.4);
   me.place(Math.cos(a) * r, Math.sin(a) * r);
@@ -1437,7 +1498,7 @@ const net = {
       D.onValue(D.ref(db, '.info/serverTimeOffset'), (s) => { this.offset = s.val() || 0; });
       this.joinedAt = this.now();
 
-      await D.set(this.meRef, { name: meInfo.name, color: meInfo.color, x: me.pos.x, z: me.pos.z, seat: -1, at: D.serverTimestamp() });
+      await D.set(this.meRef, { name: meInfo.name, color: meInfo.color, avatar: meInfo.avatar, x: me.pos.x, z: me.pos.z, seat: -1, at: D.serverTimestamp() });
       D.onDisconnect(this.meRef).remove();
       this.on = true;
 
@@ -1460,7 +1521,7 @@ const net = {
           const p = all[uid];
           let o = others.get(uid);
           if (!o) {
-            o = { ch: new Character(p.color || '#ccc', false), seat: -1, sayAt: 0, emoteAt: 0 };
+            o = { ch: new Character(p.color || '#ccc', false, p.avatar || 'human'), seat: -1, sayAt: 0, emoteAt: 0 };
             o.ch.place(p.x || 0, p.z || 3);
             others.set(uid, o);
             if (this.now() - this.joinedAt > 3000) toast(`${clean(p.name) || '누군가'} 님이 모닥불 앞에 왔어요`);
@@ -1468,6 +1529,7 @@ const net = {
           const pname = clean(String(p.name || '').slice(0, 16));
           o.ch.setName(pname);
           if (p.color) o.ch.setColor(p.color);
+          if ((p.avatar || 'human') !== o.ch.avatar) o.ch.setAvatar(p.avatar || 'human');
           const seat = typeof p.seat === 'number' ? p.seat : -1;
           if (seat >= 0) { if (o.seat !== seat) o.ch.sit(seat); }
           else if (typeof p.x === 'number') o.ch.walkTo(p.x, p.z);
@@ -1598,7 +1660,7 @@ function updateCamera(dt) {
   const third = cam.thirdPerson;
   cam.tilt = third ? clamp(cam.tilt, 0.05, 1.25) : clamp(cam.tilt, -0.7, 0.7);
   const seated = me.seat >= 0 && Math.hypot(me.target.x - me.pos.x, me.target.z - me.pos.z) < 0.05;
-  camHead.set(me.pos.x, (seated ? (me.model ? 0.42 : 0.3) : 0) + (me.model ? 1.12 : 1.05) + me.jumpY, me.pos.z);
+  camHead.set(me.pos.x, (seated ? me.seatY : 0) + me.eyeY + me.jumpY, me.pos.z);
   if (third) {
     const h = Math.cos(cam.tilt) * cam.dist, v = Math.sin(cam.tilt) * cam.dist;
     camGoal.set(camHead.x - Math.sin(cam.yaw) * h, camHead.y + v, camHead.z - Math.cos(cam.yaw) * h);

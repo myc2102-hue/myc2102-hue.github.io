@@ -47,7 +47,14 @@
   .mix input[type=range] { width: 100%; accent-color: var(--accent); }
   .mix select { background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 8px; padding: 4px 6px; }
 
-  #hint { position: fixed; right: 14px; top: 12px; font-size: 12px; color: var(--dim); z-index: 5; transition: opacity .6s; text-align: right; line-height: 1.5; }
+  #presence { position: fixed; right: 14px; top: 12px; z-index: 5; display: flex; align-items: center; gap: 7px; padding: 6px 12px; font-size: 13px; color: var(--dim); transition: opacity .6s; }
+  #presence i { width: 8px; height: 8px; border-radius: 50%; background: #5ddc7a; box-shadow: 0 0 8px #5ddc7a; animation: pulse 2s ease-in-out infinite; }
+  #presence.off i { background: #8a8a8a; box-shadow: none; animation: none; }
+  #presence b { color: var(--text); font-size: 15px; font-weight: 700; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+  body.idle #presence { opacity: 0.18; }
+  body.cinema #presence { opacity: 0; }
+  #hint { position: fixed; right: 14px; top: 50px; font-size: 12px; color: var(--dim); z-index: 5; transition: opacity .6s; text-align: right; line-height: 1.5; }
   #title { position: fixed; left: 16px; top: 12px; z-index: 5; font-size: 14px; letter-spacing: .02em; color: var(--dim); transition: opacity .6s; }
   #title b { color: var(--text); font-weight: 600; }
 
@@ -165,6 +172,7 @@
 </div>
 
 <div id="title"><b>모여봐요 찰스의 숲</b> · 불멍</div>
+<div id="presence" class="panel" aria-live="polite"><i></i><b id="presenceN">–</b><span>접속 중</span></div>
 <div id="hint">드래그로 둘러보기 · 휠을 내리면 3인칭<br>WASD·방향키로 걷기 · 스페이스 점프 · H 메뉴 접기</div>
 
 <div id="chatLog" aria-live="polite"></div>
@@ -1361,6 +1369,14 @@ const ROOM = 'lake';
 const FUEL_PER_MS = 100 / 420 / 1000;
 const decayed = (fuel, at, now) => clamp(fuel - Math.max(0, now - at) * FUEL_PER_MS, 0, 100);
 
+// 우상단 실시간 접속자 수
+function setPresence(n) {
+  const el = $('#presence');
+  if (n === null) { el.classList.add('off'); $('#presenceN').textContent = '–'; el.lastElementChild.textContent = '오프라인'; return; }
+  el.classList.remove('off'); $('#presenceN').textContent = n; el.lastElementChild.textContent = n === 1 ? '명 · 혼자' : '명 접속 중';
+}
+setPresence(null);
+
 const net = {
   on: false, uid: null, offset: 0, joinedAt: 0, lastSent: '', sendTimer: 0, ready: null, user: null,
   now() { return Date.now() + this.offset; },
@@ -1465,6 +1481,7 @@ const net = {
         for (const [uid, o] of others) if (!all[uid]) { o.ch.dispose(); others.delete(uid); }
         const n = others.size + 1;
         $('#online').textContent = n === 1 ? '혼자' : `모닥불 앞 ${n}명`;
+        setPresence(n);
       });
 
       // 사건들 (장작·오로라·고민·악기)
@@ -1485,6 +1502,7 @@ const net = {
       this.on = false;
       const why = (e && (e.code || e.message || String(e))).replace(/^auth\//, '').slice(0, 40);
       $('#online').textContent = `혼자 (연결 안 됨: ${why})`;
+      setPresence(null);
       if (e && e.code === 'auth/popup-closed-by-user') { toast('로그인 창이 닫혔어요. 다시 눌러 주세요'); return false; }
       if (e && e.code === 'auth/unauthorized-domain') { toast('이 주소는 로그인 허용 목록에 없어요'); return false; }
       toast('연결이 안 돼 혼자 불멍해요');

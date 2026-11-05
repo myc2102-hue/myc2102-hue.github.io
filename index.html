@@ -125,8 +125,11 @@
   #gateName:focus { border-color: var(--accent); }
   #gateName.shake { animation: shake .4s; border-color: #ff7a7a; }
   #avatarTag { margin: 4px 0 -4px; font-size: 13px; color: rgba(255,245,225,0.8); text-shadow: 0 2px 10px rgba(0,0,0,0.6); }
-  #avatars { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; max-width: 420px; }
-  .av { width: 42px; height: 42px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.18); background: rgba(10,16,28,0.55); font-size: 22px; line-height: 1; cursor: pointer; padding: 0; transition: transform .15s, border-color .15s; }
+  #avatars { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+  #avatars .row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; max-width: min(520px, 90vw); }
+  .av { width: 44px; height: 44px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.18); background: rgba(10,16,28,0.55); cursor: pointer; padding: 0; overflow: hidden; transition: transform .15s, border-color .15s; }
+  .av img { width: 100%; height: 100%; object-fit: cover; image-rendering: auto; display: block; }
+  @media (max-width: 480px) { .av { width: 38px; height: 38px; } }
   .av:hover { transform: translateY(-2px); }
   .av[aria-checked="true"] { border-color: var(--accent); background: rgba(255,178,90,0.25); box-shadow: 0 0 14px rgba(255,178,90,0.4); }
   @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
@@ -184,21 +187,7 @@
     <p id="gateTag">숲속 호숫가 모닥불 앞에서 잠시 쉬어 가세요</p>
     <input id="gateName" type="text" maxlength="12" placeholder="숲에서 쓸 이름을 적어 주세요" autocomplete="nickname" aria-label="숲에서 쓸 이름">
     <p id="avatarTag">접속하실 캐릭터를 골라주세요</p>
-    <div id="avatars" role="radiogroup" aria-label="접속하실 캐릭터를 골라주세요">
-      <button type="button" class="av" data-avatar="human" title="사람">🧑</button>
-      <button type="button" class="av" data-avatar="fox" title="여우">🦊</button>
-      <button type="button" class="av" data-avatar="bunny" title="토끼">🐰</button>
-      <button type="button" class="av" data-avatar="deer" title="사슴">🦌</button>
-      <button type="button" class="av" data-avatar="cat" title="고양이">🐱</button>
-      <button type="button" class="av" data-avatar="dog" title="강아지">🐶</button>
-      <button type="button" class="av" data-avatar="chick" title="병아리">🐥</button>
-      <button type="button" class="av" data-avatar="koala" title="코알라">🐨</button>
-      <button type="button" class="av" data-avatar="panda" title="판다">🐼</button>
-      <button type="button" class="av" data-avatar="penguin" title="펭귄">🐧</button>
-      <button type="button" class="av" data-avatar="pig" title="돼지">🐷</button>
-      <button type="button" class="av" data-avatar="polar" title="북극곰">🐻‍❄️</button>
-      <button type="button" class="av" data-avatar="beaver" title="비버">🦫</button>
-    </div>
+    <div id="avatars" role="radiogroup" aria-label="접속하실 캐릭터를 골라주세요"></div>
     <button id="enter">Google 계정으로 입장</button>
     <p id="gateNote">Google 로그인한 사람끼리 모닥불을 나눠요 · 소리가 함께 켜집니다</p>
   </div>
@@ -244,10 +233,10 @@
       <summary><svg class="gear" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.7 7.7 0 0 0-1.7-1l-.4-2.7h-4l-.4 2.7a7.7 7.7 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.7 7.7 0 0 0 1.7 1l.4 2.7h4l.4-2.7a7.7 7.7 0 0 0 1.7-1l2.5 1 2-3.5-2.3-1.6zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg> 설정</summary>
       <div class="mix">
         <label for="myName">이름</label><input id="myName" type="text" maxlength="16" placeholder="숲속 이름">
-        <label for="mFire">모닥불</label><input id="mFire" type="range" min="0" max="1" step="0.01" value="0.7">
-        <label for="mCricket">밤벌레</label><input id="mCricket" type="range" min="0" max="1" step="0.01" value="0.5">
-        <label for="mWind">바람</label><input id="mWind" type="range" min="0" max="1" step="0.01" value="0.4">
-        <label for="mBgm">배경 음악</label><input id="mBgm" type="range" min="0" max="1" step="0.01" value="0.35">
+        <label for="mFire">모닥불</label><input id="mFire" type="range" min="0" max="1" step="0.01" value="0.45">
+        <label for="mCricket">밤벌레</label><input id="mCricket" type="range" min="0" max="1" step="0.01" value="0.35">
+        <label for="mWind">바람</label><input id="mWind" type="range" min="0" max="1" step="0.01" value="0.25">
+        <label for="mBgm">배경 음악</label><input id="mBgm" type="range" min="0" max="1" step="0.01" value="0.85">
         <label for="sleep">수면 타이머</label>
         <select id="sleep">
           <option value="0">끄기</option>
@@ -789,9 +778,9 @@ function updateSoundButton() {
 }
 
 /* ================= 믹서·저장 ================= */
-const MIX_KEY = 'charles-forest.mixer';
+const MIX_KEY = 'charles-forest.mixer.v2'; // v2: 배경 음악이 가장 잘 들리는 기본값
 const mixIds = { fire: 'mFire', cricket: 'mCricket', wind: 'mWind', bgm: 'mBgm' };
-const mixScale = { fire: 0.9, cricket: 0.22, wind: 0.5, bgm: 0.5 };
+const mixScale = { fire: 0.9, cricket: 0.22, wind: 0.5, bgm: 0.75 };
 function applyMixer() {
   if (!audio.started) return;
   for (const k in mixIds) audio.g[k].gain.setTargetAtTime(Number($('#' + mixIds[k]).value) * mixScale[k], audio.ctx.currentTime, 0.1);
@@ -1171,8 +1160,13 @@ function updateAnimals(dt) {
 buildForest().catch((e) => console.warn('숲 모델 읽기 실패, 기본 숲 유지', e));
 buildAnimals().catch((e) => console.warn('동물 모델 읽기 실패', e));
 
-// 사람 캐릭터(Mini Forest character-archer): 옷 색을 8가지 색조로 돌려 서로 구분
-const archer = { gltf: null, bodyTex: [], headTex: null };
+// 사람 캐릭터(Kenney Mini Forest 궁수 + Mini Characters 12명): 옷 색을 8가지 색조로 돌려 서로 구분
+const CHARS = 'assets/models/chars/';
+const HUMANS = ['archer', 'female-a', 'female-b', 'female-c', 'female-d', 'female-e', 'female-f', 'male-a', 'male-b', 'male-c', 'male-d', 'male-e', 'male-f'];
+const HUMAN_LABEL = { archer: '궁수', 'female-a': '여성 A', 'female-b': '여성 B', 'female-c': '여성 C', 'female-d': '여성 D', 'female-e': '여성 E', 'female-f': '여성 F', 'male-a': '남성 A', 'male-b': '남성 B', 'male-c': '남성 C', 'male-d': '남성 D', 'male-e': '남성 E', 'male-f': '남성 F' };
+const ANIMAL_LABEL = { fox: '여우', bunny: '토끼', deer: '사슴', cat: '고양이', dog: '강아지', chick: '병아리', koala: '코알라', panda: '판다', penguin: '펭귄', pig: '돼지', polar: '북극곰', beaver: '비버' };
+const humanGLTF = {}, humanLoading = {};
+const hueSets = new Map();
 const HUE_SHIFTS = [0, 45, 90, 135, 180, 225, 270, 315];
 function hueTexture(image, deg) {
   const c = document.createElement('canvas'); c.width = image.width; c.height = image.height;
@@ -1183,18 +1177,25 @@ function hueTexture(image, deg) {
   t.flipY = false; t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter;
   return t;
 }
-async function buildArcher() {
-  const gltf = await loadGLB(FOREST + 'character-archer.glb');
-  let baseMat = null;
-  gltf.scene.traverse((o) => { if (o.isMesh && !baseMat) baseMat = o.material; });
-  const img = baseMat && baseMat.map && baseMat.map.image;
-  if (!img) throw new Error('colormap 없음');
-  archer.headTex = baseMat.map;
-  archer.bodyTex = HUE_SHIFTS.map((d) => hueTexture(img, d));
-  archer.gltf = gltf;
-  for (const ch of allChars) ch.attachModel();
+// 사람 모델은 고른 것만 읽는다 (13명 전부 받으면 3MB)
+function loadHuman(name) {
+  if (humanGLTF[name]) return Promise.resolve(humanGLTF[name]);
+  if (!humanLoading[name]) {
+    const path = name === 'archer' ? FOREST + 'character-archer.glb' : CHARS + 'character-' + name + '.glb';
+    humanLoading[name] = loadGLB(path).then((gltf) => {
+      let baseMat = null;
+      gltf.scene.traverse((o) => { if (o.isMesh && !baseMat) baseMat = o.material; });
+      const img = baseMat && baseMat.map && baseMat.map.image;
+      if (!img) throw new Error('colormap 없음');
+      if (!hueSets.has(img)) hueSets.set(img, HUE_SHIFTS.map((d) => hueTexture(img, d)));
+      gltf.bodyTex = hueSets.get(img);
+      humanGLTF[name] = gltf;
+      for (const ch of allChars) if (ch.avatar === name) ch.attachModel();
+      return gltf;
+    }).catch((e) => { console.warn('사람 모델 읽기 실패, 기본 캐릭터 유지', name, e); delete humanLoading[name]; });
+  }
+  return humanLoading[name];
 }
-buildArcher().catch((e) => console.warn('사람 모델 읽기 실패, 기본 캐릭터 유지', e));
 function hueIndexOf(color) {
   const i = PALETTE.indexOf(color);
   if (i >= 0) return i % HUE_SHIFTS.length;
@@ -1266,13 +1267,14 @@ const wrapAngle = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 const labelsEl = $('#labels');
 const projV = new THREE.Vector3();
 const allChars = new Set();
+const normalizeAvatar = (av) => (ANIMALS.includes(av) || HUMANS.includes(av)) ? av : 'archer';
 const ARCHER_SCALE = 1.6;
 
 class Character {
   constructor(color, isMe, avatar = 'human') {
     this.group = new THREE.Group();
     this.color = color;
-    this.avatar = ANIMALS.includes(avatar) ? avatar : 'human';
+    this.avatar = normalizeAvatar(avatar);
     this.eyeY = 1.05; this.seatY = 0.3;
     this.mat = new THREE.MeshStandardMaterial({ color, roughness: 0.85 });
     this.body = new THREE.Mesh(bodyGeo, this.mat); this.body.position.y = 0.45;
@@ -1293,20 +1295,22 @@ class Character {
     this.bb = this.tag.querySelector('.bb'); this.em = this.tag.querySelector('.em'); this.nm = this.tag.querySelector('.nm');
   }
   setName(n) { this.nm.textContent = n; }
-  setColor(c) { this.color = c; this.mat.color.set(c); if (this.bodyMat) this.bodyMat.map = archer.bodyTex[hueIndexOf(c)]; }
+  setColor(c) { this.color = c; this.mat.color.set(c); if (this.bodyMat && this.bodyTexSet) this.bodyMat.map = this.bodyTexSet[hueIndexOf(c)]; }
   attachModel() {
     if (this.model) return;
     let m, anims;
-    if (this.avatar === 'human') {
-      if (!archer.gltf) return;
-      m = SkeletonUtils.clone(archer.gltf.scene);
+    if (HUMANS.includes(this.avatar)) {
+      const src = humanGLTF[this.avatar];
+      if (!src) { loadHuman(this.avatar); return; }
+      m = SkeletonUtils.clone(src.scene);
       m.scale.setScalar(ARCHER_SCALE);
+      this.bodyTexSet = src.bodyTex;
       m.traverse((o) => {
         if (!o.isMesh) return;
         o.frustumCulled = false;
-        if (o.name === 'body-mesh') { this.bodyMat = o.material.clone(); this.bodyMat.map = archer.bodyTex[hueIndexOf(this.color)]; o.material = this.bodyMat; }
+        if (o.name === 'body-mesh') { this.bodyMat = o.material.clone(); this.bodyMat.map = this.bodyTexSet[hueIndexOf(this.color)]; o.material = this.bodyMat; }
       });
-      anims = archer.gltf.animations;
+      anims = src.animations;
       this.eyeY = 1.12; this.seatY = 0.42; this.isAnimal = false;
     } else {
       const src = animalGLTF[this.avatar];
@@ -1328,10 +1332,10 @@ class Character {
     this.play('idle');
   }
   setAvatar(av) {
-    av = ANIMALS.includes(av) ? av : 'human';
+    av = normalizeAvatar(av);
     if (av === this.avatar && this.model) return;
     if (this.model) { this.group.remove(this.model); this.mixer.stopAllAction(); }
-    this.model = null; this.mixer = null; this.clips = {}; this.cur = null; this.anim = ''; this.bodyMat = null;
+    this.model = null; this.mixer = null; this.clips = {}; this.cur = null; this.anim = ''; this.bodyMat = null; this.bodyTexSet = null;
     this.avatar = av; this.eyeY = 1.05; this.seatY = 0.3; this.isAnimal = false;
     this.capsule.visible = true;
     this.attachModel();
@@ -1413,11 +1417,26 @@ let meInfo = { name: randomName(), color: pick(PALETTE) };
 try { const s = JSON.parse(localStorage.getItem(ME_KEY) || 'null'); if (s && s.name && s.color) meInfo = s; } catch (e) { /* 저장소 없음 */ }
 const saveMe = () => { try { localStorage.setItem(ME_KEY, JSON.stringify(meInfo)); } catch (e) { /* 저장소 없음 */ } };
 saveMe();
-if (!meInfo.avatar) meInfo.avatar = 'human';
+meInfo.avatar = normalizeAvatar(meInfo.avatar);
 const me = new Character(meInfo.color, true, meInfo.avatar);
 me.setName(meInfo.name);
-// 대문의 모습 고르기
-const avatarBtns = [...document.querySelectorAll('#avatars .av')];
+// 대문의 모습 고르기: 사람 13명 + 동물 12종, 미리보기 그림 버튼
+const avatarBtns = [];
+{
+  const box = $('#avatars');
+  const mkRow = (list, label, img) => {
+    const row = document.createElement('div'); row.className = 'row';
+    for (const n of list) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'av'; b.dataset.avatar = n; b.title = label[n] || n; b.setAttribute('role', 'radio');
+      const im = document.createElement('img'); im.src = img(n); im.alt = label[n] || n; im.loading = 'lazy';
+      b.appendChild(im); row.appendChild(b); avatarBtns.push(b);
+    }
+    box.appendChild(row);
+  };
+  mkRow(HUMANS, HUMAN_LABEL, (n) => `assets/models/previews/character-${n}.png`);
+  mkRow(ANIMALS, ANIMAL_LABEL, (n) => `assets/models/previews/animal-${n}.png`);
+}
 function markAvatar() { for (const b of avatarBtns) b.setAttribute('aria-checked', b.dataset.avatar === meInfo.avatar ? 'true' : 'false'); }
 markAvatar();
 for (const b of avatarBtns) b.addEventListener('click', () => { meInfo.avatar = b.dataset.avatar; saveMe(); markAvatar(); me.setAvatar(meInfo.avatar); });
@@ -1615,7 +1634,7 @@ const net = {
           const p = all[uid];
           let o = others.get(uid);
           if (!o) {
-            o = { ch: new Character(p.color || '#ccc', false, p.avatar || 'human'), seat: -1, sayAt: 0, emoteAt: 0 };
+            o = { ch: new Character(p.color || '#ccc', false, p.avatar || 'archer'), seat: -1, sayAt: 0, emoteAt: 0 };
             o.ch.place(p.x || 0, p.z || 3);
             others.set(uid, o);
             if (this.now() - this.joinedAt > 3000) toast(`${clean(p.name) || '누군가'} 님이 모닥불 앞에 왔어요`);
@@ -1623,7 +1642,7 @@ const net = {
           const pname = clean(String(p.name || '').slice(0, 16));
           o.ch.setName(pname);
           if (p.color) o.ch.setColor(p.color);
-          if ((p.avatar || 'human') !== o.ch.avatar) o.ch.setAvatar(p.avatar || 'human');
+          if (normalizeAvatar(p.avatar) !== o.ch.avatar) o.ch.setAvatar(p.avatar);
           const seat = typeof p.seat === 'number' ? p.seat : -1;
           if (seat >= 0) { if (o.seat !== seat) o.ch.sit(seat); }
           else if (typeof p.x === 'number') o.ch.walkTo(p.x, p.z);

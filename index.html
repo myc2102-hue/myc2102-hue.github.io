@@ -77,11 +77,16 @@
   .smokeText { position: fixed; z-index: 6; transform: translate(-50%, 0); color: rgba(220, 220, 230, 0.9); font-size: 14px; max-width: 260px; text-align: center; pointer-events: none; text-shadow: 0 0 8px rgba(255,255,255,0.4); }
 
   /* 상단을 스르륵 지나가는 한 줄 */
-  #quote { position: fixed; left: 0; right: 0; top: 44px; height: 32px; overflow: hidden; pointer-events: none; z-index: 4; }
-  #quoteText { position: absolute; top: 0; left: 100%; white-space: nowrap; font-size: 15px; letter-spacing: .02em; color: rgba(255, 240, 214, 0.92); text-shadow: 0 1px 10px rgba(0,0,0,0.8), 0 0 24px rgba(255,180,90,0.25); opacity: 0; }
-  #quoteText.go { animation: quoteDrift var(--qdur, 22s) linear forwards; }
-  @keyframes quoteDrift { 0% { transform: translateX(0); opacity: 0; } 6% { opacity: 1; } 94% { opacity: 1; } 100% { transform: translateX(calc(-100vw - 100%)); opacity: 0; } }
-  @media (max-width: 720px) { #quote { top: 40px; } #quoteText { font-size: 13px; } }
+  #quote { position: fixed; left: 0; right: 0; top: 26%; pointer-events: none; z-index: 4; display: flex; justify-content: center; }
+  #quoteText { max-width: min(680px, 84vw); text-align: center; font-size: 19px; line-height: 1.6; letter-spacing: .02em; color: rgba(255, 240, 214, 0.95); text-shadow: 0 1px 12px rgba(0,0,0,0.85), 0 0 28px rgba(255,180,90,0.3); opacity: 0; will-change: transform, opacity, filter; }
+  #quoteText.go { animation: quoteBreath var(--qdur, 10s) ease-in-out forwards; }
+  @keyframes quoteBreath {
+    0% { opacity: 0; transform: translateY(14px) scale(0.94); filter: blur(8px); }
+    14% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    70% { opacity: 1; transform: translateY(-4px) scale(1.01); filter: blur(0); }
+    100% { opacity: 0; transform: translateY(-46px) scale(1.08); filter: blur(14px); }
+  }
+  @media (max-width: 720px) { #quote { top: 22%; } #quoteText { font-size: 15px; } }
 
   /* 사람들 */
   #online { color: var(--dim); white-space: nowrap; }
@@ -851,7 +856,7 @@ function wake() {
 ['pointermove', 'pointerdown', 'keydown', 'wheel', 'touchstart'].forEach((ev) => window.addEventListener(ev, wake, { passive: true }));
 wake();
 
-// 1분에 한 번, 마음을 녹이는 한 줄이 상단을 스르륵 지나간다
+// 30초에 한 번, 마음을 녹이는 한 줄이 가운데서 스르륵 떠올랐다 연기처럼 사라진다
 const QUOTES = [
   '오늘 하루도 여기까지 온 당신, 정말 잘했어요.',
   '불이 잦아들어도 온기는 남아요. 당신의 하루도 그래요.',
@@ -899,11 +904,11 @@ function showQuote() {
   if (!quoteOrder.length || quoteIdx >= quoteOrder.length) { quoteOrder = [...QUOTES].sort(() => Math.random() - 0.5); quoteIdx = 0; }
   const el = $('#quoteText');
   el.textContent = quoteOrder[quoteIdx++];
-  el.style.setProperty('--qdur', Math.max(18, 8 + el.textContent.length * 0.55) + 's');
+  el.style.setProperty('--qdur', Math.min(14, 7 + el.textContent.length * 0.12) + 's');
   el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');
 }
-setTimeout(showQuote, 15000);
-setInterval(showQuote, 60000);
+setTimeout(showQuote, 12000);
+setInterval(showQuote, 30000);
 
 // 랜덤 멜로디 켜기/끄기
 const MELODY_KEY = 'charles-forest.melody';

@@ -1481,9 +1481,10 @@ const net = {
       toast('모닥불에 연결됐어요');
       return true;
     } catch (e) {
-      console.warn('함께 있기 연결 실패', e);
+      console.error('함께 있기 연결 실패', e);
       this.on = false;
-      $('#online').textContent = '혼자 (연결 안 됨)';
+      const why = (e && (e.code || e.message || String(e))).replace(/^auth\//, '').slice(0, 40);
+      $('#online').textContent = `혼자 (연결 안 됨: ${why})`;
       if (e && e.code === 'auth/popup-closed-by-user') { toast('로그인 창이 닫혔어요. 다시 눌러 주세요'); return false; }
       if (e && e.code === 'auth/unauthorized-domain') { toast('이 주소는 로그인 허용 목록에 없어요'); return false; }
       toast('연결이 안 돼 혼자 불멍해요');

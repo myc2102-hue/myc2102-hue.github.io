@@ -134,12 +134,13 @@
   .av[aria-checked="true"] { border-color: var(--accent); background: rgba(255,178,90,0.25); box-shadow: 0 0 14px rgba(255,178,90,0.4); }
   @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 
-  /* 채팅 */
-  #chat { display: flex; gap: 6px; padding: 8px; }
+  /* 아래 줄: 가방 + 채팅 */
+  #bottomBar { display: flex; align-items: center; gap: 8px; padding: 6px 8px; }
+  #chat { display: flex; gap: 6px; flex: 1 1 150px; min-width: 120px; }
   #chatText { flex: 1; min-width: 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: rgba(0,0,0,0.3); color: var(--text); font: inherit; font-size: 14px; }
   #chatText:focus { outline: none; border-color: rgba(255,178,90,0.6); }
   #chat .btn { flex: 0 0 auto; }
-  #chatLog { position: fixed; left: 16px; top: 44px; z-index: 5; display: flex; flex-direction: column; gap: 4px; max-width: min(320px, 60vw); pointer-events: none; transition: opacity .6s; }
+  #chatLog { position: fixed; left: 16px; top: 190px; z-index: 5; display: flex; flex-direction: column; gap: 4px; max-width: min(320px, 60vw); pointer-events: none; transition: opacity .6s; }
   #chatLog div { font-size: 13px; color: var(--text); text-shadow: 0 1px 4px rgba(0,0,0,0.9); animation: logfade 12s forwards; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   #chatLog b { color: var(--accent); font-weight: 600; }
   @keyframes logfade { 0%, 75% { opacity: .95; } 100% { opacity: 0; } }
@@ -159,23 +160,35 @@
   body.mobile #title, body.mobile #moveHint, body.mobile #hint { display: none; }
   body.mobile #hud { left: 0; right: 0; width: auto; transform: none; bottom: 0; display: block; pointer-events: none; }
   body.mobile #hud > * { pointer-events: auto; }
+  body.mobile #hud #prompt:not([data-on]) { pointer-events: none; }
   body.mobile #statusPanel { position: fixed; left: 50%; top: 10px; transform: translateX(-50%); width: min(400px, calc(100% - 210px)); border-radius: 12px; }
   body.mobile #status { padding: 5px 10px; font-size: 11px; gap: 6px; }
   body.mobile #online, body.mobile #sleepInfo, body.mobile .gl { display: none; }
   body.mobile #vitals { padding: 0 10px 5px; font-size: 12px; gap: 8px; }
-  body.mobile #chatLog { top: 100px; left: 12px; max-width: 48vw; }
-  body.mobile #bag { position: fixed; left: 50%; bottom: 150px; transform: translateX(-50%); width: min(360px, calc(100% - 24px)); padding: 6px; min-height: 44px; justify-content: center; }
-  body.mobile #bag .slot { width: 42px; height: 42px; font-size: 21px; }
+  body.mobile #chatLog { top: 130px; left: 12px; max-width: 48vw; }
+  body.mobile #rank { left: 10px; top: 10px; width: 132px; padding: 6px 8px; font-size: 10px; }
+  body.mobile #rank .hd { font-size: 10px; margin-bottom: 2px; }
+  body.mobile #rank li { grid-template-columns: 14px 1fr auto; gap: 4px; }
+  body.mobile #rank li .t { font-size: 9px; }
+  body.mobile #statusPanel { left: 150px; right: 104px; width: auto; transform: none; }
+  body.mobile #bottomBar { position: fixed; left: 12px; right: 12px; bottom: 150px; padding: 5px 6px; gap: 6px; }
+  body.mobile #bag { max-width: 60%; min-height: 42px; }
+  body.mobile #bag .slot { width: 40px; height: 40px; font-size: 20px; }
   body.mobile #bag .slot .k { display: none; }
-  body.mobile #prompt { position: fixed; left: 50%; bottom: 206px; transform: translateX(-50%); font-size: 15px; padding: 11px 20px; }
+  body.mobile #chat { flex: 1 1 110px; min-width: 100px; }
+  body.mobile #chat .btn { padding: 8px 10px; font-size: 13px; }
+  body.mobile #chatText { font-size: 16px; padding: 8px 10px; min-width: 0; }
+  body.mobile.chat-open #bag { display: none; }
+  body.mobile.chat-open #bottomBar { bottom: 8px; z-index: 8; }
+  body.mobile #prompt { position: fixed; left: auto; right: max(18px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 78px); transform: none; width: 64px; height: 64px; padding: 0; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; gap: 1px; font-size: 10px; opacity: .45; background: var(--panel); border-color: var(--line); }
+  body.mobile #prompt[data-on] { opacity: 1; background: rgba(255,150,60,0.3); border-color: rgba(255,170,90,0.6); }
   body.mobile #prompt kbd { display: none; }
-  body.mobile #chat { position: fixed; left: 0; right: 0; bottom: 0; border-radius: 14px 14px 0 0; padding: 10px max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); z-index: 8; display: none; }
-  body.mobile.chat-open #chat { display: flex; }
-  body.mobile #chatText { font-size: 16px; }
-  body.mobile #menuPanel { position: fixed; left: 12px; right: 12px; bottom: 150px; max-height: calc(100% - 180px); overflow-y: auto; display: none; z-index: 7; }
+  body.mobile #promptIco { font-size: 24px; }
+  body.mobile #promptText { max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  body.mobile #menuPanel { position: fixed; left: 12px; right: 100px; bottom: 150px; max-height: calc(100% - 180px); overflow-y: auto; display: none; z-index: 7; }
   body.mobile.menu-open #menuPanel { display: block; }
-  body.mobile.menu-open #bag, body.mobile.menu-open #prompt { display: none; }
-  body.mobile #hudToggle { display: flex; right: max(18px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 78px); }
+  body.mobile.menu-open #bottomBar { display: none; }
+  body.mobile #hudToggle { display: flex; right: max(18px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 152px); }
   body.mobile #joy, body.mobile #tbtns { display: block; }
   #joy { position: fixed; left: max(18px, env(safe-area-inset-left)); bottom: max(18px, env(safe-area-inset-bottom)); width: 124px; height: 124px; border-radius: 50%; border: 1px solid var(--line); background: rgba(10,16,28,0.35); z-index: 6; touch-action: none; }
   #joyKnob { position: absolute; left: 50%; top: 50%; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 50%; background: rgba(241,233,216,0.55); border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 2px 10px rgba(0,0,0,0.4); pointer-events: none; }
@@ -184,11 +197,9 @@
   .tb { position: absolute; right: 0; bottom: 0; border-radius: 50%; border: 1px solid var(--line); background: var(--panel); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: var(--text); font: inherit; display: flex; align-items: center; justify-content: center; touch-action: manipulation; padding: 0; cursor: pointer; }
   .tb:active { background: rgba(255,178,90,0.35); }
   #jumpBtn { width: 64px; height: 64px; font-size: 26px; }
-  #chatBtn { width: 46px; height: 46px; font-size: 20px; right: 76px; bottom: 9px; }
   @media (orientation: landscape) and (max-height: 500px) {
-    body.mobile #bag { bottom: max(14px, env(safe-area-inset-bottom)); width: min(360px, calc(100% - 320px)); }
-    body.mobile #prompt { bottom: 72px; }
-    body.mobile #menuPanel { bottom: 14px; left: 150px; right: 150px; max-height: calc(100% - 80px); }
+    body.mobile #bottomBar { bottom: max(14px, env(safe-area-inset-bottom)); left: 150px; right: 100px; }
+    body.mobile #menuPanel { bottom: 14px; left: 150px; right: 100px; max-height: calc(100% - 80px); }
   }
 
   /* 생존 게이지 */
@@ -210,20 +221,34 @@
   #hint { top: 90px; }
 
   /* 가방 */
-  #bag { display: flex; align-items: center; gap: 6px; padding: 8px; overflow-x: auto; min-height: 48px; }
+  #bag { display: flex; align-items: center; gap: 6px; padding: 0; overflow-x: auto; min-height: 48px; flex: 0 1 auto; max-width: 62%; scrollbar-width: none; }
+  #bag::-webkit-scrollbar { display: none; }
   #bag .slot { position: relative; flex: 0 0 auto; width: 48px; height: 48px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255,255,255,0.06); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; line-height: 1; padding: 0; color: var(--text); transition: background .2s, transform .15s; }
   #bag .slot:hover { background: rgba(255,255,255,0.14); transform: translateY(-2px); }
   #bag .slot .n { position: absolute; right: 3px; bottom: 2px; font-size: 11px; font-weight: 700; color: var(--text); text-shadow: 0 1px 3px #000, 0 0 2px #000; }
   #bag .slot .k { position: absolute; left: 4px; top: 2px; font-size: 9px; color: var(--dim); }
   .bd { position: absolute; left: 2px; bottom: 1px; font-size: 13px; line-height: 1; }
-  #bag .empty { font-size: 12px; color: var(--dim); padding: 6px 4px; }
+  #bag .empty { font-size: 12px; color: var(--dim); padding: 6px 4px; white-space: nowrap; }
+
+  /* 생존 랭킹 (좌상단) */
+  #rank { position: fixed; left: 16px; top: 40px; z-index: 5; width: 184px; padding: 8px 10px; font-size: 12px; transition: opacity .6s; }
+  #rank .hd { font-size: 11px; color: var(--dim); margin-bottom: 4px; letter-spacing: .04em; }
+  #rank ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  #rank li { display: grid; grid-template-columns: 18px 1fr auto; gap: 6px; align-items: center; color: var(--dim); }
+  #rank li .no { text-align: center; font-size: 11px; }
+  #rank li .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+  #rank li .t { font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 11px; }
+  #rank li.me .nm { color: var(--accent); font-weight: 600; }
+  body.idle #rank { opacity: 0.18; }
+  body.cinema #rank { opacity: 0; }
   .ic { display: inline-flex; align-items: center; justify-content: center; width: 1em; height: 1em; }
   .ic svg { width: 100%; height: 100%; }
 
   /* 상호작용 버튼 (F) */
   #prompt { align-self: center; padding: 9px 16px; font-size: 14px; border-radius: 999px; display: none; align-items: center; gap: 8px; cursor: pointer; white-space: nowrap; border: 1px solid rgba(255,170,90,0.45); background: rgba(255,150,60,0.22); color: var(--text); font: inherit; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-  #prompt[data-on] { display: flex; }
+  #prompt[data-on], body.mobile #prompt { display: flex; }
   #prompt kbd { font: inherit; font-size: 11px; padding: 1px 6px; border: 1px solid var(--line); border-radius: 6px; background: rgba(255,255,255,0.08); }
+  #promptIco { font-size: 18px; line-height: 1; }
   @media (max-width: 720px), (max-height: 620px) { #prompt kbd { display: none; } }
 
   /* 추위·배고픔 화면 효과, 쓰러짐 */
@@ -290,6 +315,7 @@
 </div>
 
 <div id="title"><b>모여봐요 찰스의 숲</b> · 불멍</div>
+<div id="rank" class="panel" aria-label="생존 랭킹"><div class="hd">🏕 생존 랭킹</div><ol id="rankList"></ol></div>
 <div id="presence" class="panel" aria-live="polite"><i></i><b id="presenceN">–</b><span>접속 중</span></div>
 <div id="wallet" class="panel" title="골드 · 5분 접속마다 자동 지급, 매점에서 쓰고 벌어요"><span>🪙</span><b id="goldN">0</b><small id="inflN"></small></div>
 <div id="hint">드래그로 둘러보기 · 휠을 내리면 3인칭<br>WASD·방향키로 걷기 · 스페이스 점프 · H 메뉴 접기 · 터치 화면은 조이스틱<br>F 로 나무 치기·사냥·매점 · 숫자키로 가방 쓰기</div>
@@ -297,15 +323,12 @@
 <div id="quote" aria-live="polite"><span id="quoteText"></span></div>
 <div id="chatLog" aria-live="polite"></div>
 <div id="hud">
-  <button id="prompt" type="button"><kbd>F</kbd><span id="promptText"></span></button>
-  <form id="chat" class="panel" autocomplete="off">
-    <input id="chatText" type="text" maxlength="60" placeholder="말풍선으로 이야기해요 · Enter" aria-label="채팅">
-    <button class="btn primary" type="submit">보내기</button>
-  </form>
+  <button id="prompt" type="button"><span id="promptIco">⚔️</span><kbd>F</kbd><span id="promptText"></span></button>
   <div class="panel" id="statusPanel">
     <div id="status">
       <span><span class="gl">불 상태 </span><b id="stateName">적정 불</b></span>
       <span id="fuelBar"><i id="fuelFill"></i></span>
+      <span id="clock" title="숲의 시간 · 하루는 24분"><span id="clockIco">🌙</span><span class="gl" id="clockTxt"> 밤</span></span>
       <span id="online">혼자</span>
       <span id="sleepInfo" hidden></span>
     </div>
@@ -314,7 +337,6 @@
       <span class="gauge" id="gWarm" title="추위 · 모닥불 곁에서 따뜻해져요. 바닥나면 쓰러져요"><span>🔥<span class="gl"> 추위</span></span><span class="bar"><i id="warmFill"></i></span></span>
     </div>
   </div>
-  <div id="bag" class="panel" aria-label="가방"></div>
   <div class="panel" id="menuPanel">
     <div id="actions" class="primaryRow">
       <button class="btn primary" id="btnLog">장작 넣기</button>
@@ -352,11 +374,18 @@
       </div>
     </details>
   </div>
+  <div class="panel" id="bottomBar">
+    <div id="bag" aria-label="가방"></div>
+    <form id="chat" autocomplete="off">
+      <input id="chatText" type="text" maxlength="60" placeholder="이야기하기 · Enter" aria-label="채팅">
+      <button class="btn primary" type="submit">전송</button>
+    </form>
+  </div>
 </div>
 
 <button class="btn panel" id="hudToggle" aria-label="메뉴 접기/펼치기" title="메뉴 접기/펼치기 (H)">MENU</button>
 <div id="joy" aria-hidden="true"><div id="joyKnob"></div></div>
-<div id="tbtns"><button class="tb" id="chatBtn" type="button" aria-label="채팅">💬</button><button class="tb" id="jumpBtn" type="button" aria-label="점프">⇧</button></div>
+<div id="tbtns"><button class="tb" id="jumpBtn" type="button" aria-label="점프">⇧</button></div>
 <button class="btn panel" id="exitCinema">화면을 누르거나 ESC · 불멍 모드 나가기</button>
 <div id="dim"></div>
 <div id="cold"></div><div id="hungry"></div><div id="ghostFx"></div>
@@ -389,6 +418,10 @@ import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 const $ = (s) => document.querySelector(s);
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const rand = (a = 0, b = 1) => a + Math.random() * (b - a);
+// 숲·동물 배치는 고정 시드로 뽑아 모든 접속자가 같은 숲을 본다(나무·동물 번호를 서버에서 공유하기 위해)
+function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const forestRng = mulberry32(20261117);
+const frand = (a = 0, b = 1) => a + forestRng() * (b - a);
 
 /* ================= 상태 ================= */
 const state = { fuel: 65, aurora: 0, cinema: false, cinemaAngle: 0, sleepEnd: 0, time: 0, uiTick: 0 };
@@ -418,7 +451,6 @@ const cam = {
 };
 
 /* ================= 빛 ================= */
-scene.add(new THREE.HemisphereLight(0x1b2b4d, 0x070c08, 0.25));
 const moonLight = new THREE.DirectionalLight(0x9fb4ff, 0.3);
 moonLight.position.set(-60, 90, -140);
 scene.add(moonLight);
@@ -550,6 +582,7 @@ glow.position.set(0, 0.7, 0);
 scene.add(glow);
 
 /* ================= 하늘 ================= */
+let stars, moon, moonHalo;
 {
   const N = 2600, M = 7000;
   const pos = new Float32Array((N + M) * 3), col = new Float32Array((N + M) * 3);
@@ -576,16 +609,69 @@ scene.add(glow);
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
   geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-  const stars = new THREE.Points(geo, new THREE.PointsMaterial({ size: 1.7, sizeAttenuation: false, vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+  stars = new THREE.Points(geo, new THREE.PointsMaterial({ size: 1.7, sizeAttenuation: false, vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
   scene.add(stars);
 
-  const moon = new THREE.Mesh(new THREE.SphereGeometry(6, 20, 20), new THREE.MeshBasicMaterial({ color: 0xe9eeff, fog: false }));
+  moon = new THREE.Mesh(new THREE.SphereGeometry(6, 20, 20), new THREE.MeshBasicMaterial({ color: 0xe9eeff, fog: false }));
   moon.position.set(-150, 190, -400);
   scene.add(moon);
-  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex, color: 0x8ea2ff, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
-  halo.position.copy(moon.position);
-  halo.scale.setScalar(70);
-  scene.add(halo);
+  moonHalo = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex, color: 0x8ea2ff, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+  moonHalo.position.copy(moon.position);
+  moonHalo.scale.setScalar(70);
+  scene.add(moonHalo);
+}
+// 해: 낮에만 보이는 원반과 빛
+const sun = new THREE.Mesh(new THREE.SphereGeometry(9, 20, 20), new THREE.MeshBasicMaterial({ color: 0xfff1c0, fog: false }));
+scene.add(sun);
+const sunHalo = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex, color: 0xffd99a, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+sunHalo.scale.setScalar(160); scene.add(sunHalo);
+const sunLight = new THREE.DirectionalLight(0xfff0d0, 0);
+scene.add(sunLight);
+
+/* ================= 낮·밤 주기 =================
+ * 하루 = 24분(현실 1분 = 숲 1시간), 모두 같은 시계(서버 시각)를 쓴다. 06시 해 뜸, 18시 해 짐.
+ * 밤에는 추위가 빨리, 낮에는 천천히 깎인다. */
+const DAY_MIN = 24;
+const dayClock = () => ((net.now() / 60000) % DAY_MIN + DAY_MIN) % DAY_MIN / DAY_MIN * 24; // 0~24 시
+const dayPhase = (h = dayClock()) => h < 5 ? 'night' : h < 7.5 ? 'dawn' : h < 17 ? 'day' : h < 19.5 ? 'dusk' : 'night';
+const PHASE_LABEL = { night: '밤', dawn: '아침', day: '낮', dusk: '저녁' };
+// 햇빛 세기 0(밤)~1(한낮): 06시·18시 가 0.5
+const sunUp = (h = dayClock()) => clamp((Math.sin((h - 6) / 24 * Math.PI * 2) + 0.18) / 1.18, 0, 1);
+const SKY = { night: new THREE.Color(0x03070c), dawn: new THREE.Color(0x5a3a4a), day: new THREE.Color(0x8fc4ee), dusk: new THREE.Color(0x7a3f2e) };
+const FOG = { night: new THREE.Color(0x04090e), day: new THREE.Color(0x9fcbe6), dawn: new THREE.Color(0x6b4a52), dusk: new THREE.Color(0x7d4a39) };
+const hemi = new THREE.HemisphereLight(0x1b2b4d, 0x070c08, 0.25);
+const HEMI_SKY = { night: new THREE.Color(0x1b2b4d), day: new THREE.Color(0xbfdcff), gold: new THREE.Color(0xffb070) };
+const HEMI_GROUND = { night: new THREE.Color(0x070c08), day: new THREE.Color(0x4a6a3a) };
+scene.add(hemi);
+const _c1 = new THREE.Color(), _c2 = new THREE.Color();
+function updateDaylight() {
+  const h = dayClock(), up = sunUp(h);
+  // 지평선 근처(해 뜨고 질 때)에는 붉은 기운
+  const gold = clamp(1 - Math.abs(up - 0.5) * 2.6, 0, 1);
+  const morning = h < 12;
+  _c1.copy(SKY.night).lerp(SKY.day, up).lerp(morning ? SKY.dawn : SKY.dusk, gold * 0.75);
+  scene.background.copy(_c1);
+  _c2.copy(FOG.night).lerp(FOG.day, up).lerp(morning ? FOG.dawn : FOG.dusk, gold * 0.7);
+  scene.fog.color.copy(_c2);
+  scene.fog.density = 0.014 - 0.004 * up;
+  hemi.color.copy(HEMI_SKY.night).lerp(HEMI_SKY.day, up).lerp(HEMI_SKY.gold, gold * 0.6);
+  hemi.groundColor.copy(HEMI_GROUND.night).lerp(HEMI_GROUND.day, up);
+  hemi.intensity = 0.25 + 0.9 * up;
+  // 해 위치: 동(+x)에서 떠서 서(-x)로. 각도는 06시 0 → 12시 정점 → 18시 지평선
+  const ang = (h - 6) / 12 * Math.PI;
+  const sx = Math.cos(ang) * 420, sy = Math.sin(ang) * 300, sz = -160;
+  sun.position.set(sx, sy, sz); sunHalo.position.copy(sun.position);
+  sun.visible = sunHalo.visible = sy > -30;
+  sunHalo.material.opacity = 0.25 + 0.4 * gold;
+  sun.material.color.setRGB(1, 0.95 - 0.35 * gold, 0.78 - 0.5 * gold);
+  sunLight.position.set(sx, Math.max(sy, 20), sz);
+  sunLight.intensity = 1.6 * up;
+  sunLight.color.setRGB(1, 0.94 - 0.3 * gold, 0.82 - 0.45 * gold);
+  moonLight.intensity = 0.3 * (1 - up);
+  stars.material.opacity = clamp(1 - up * 1.6, 0, 1);
+  moon.visible = moonHalo.visible = up < 0.6;
+  moonHalo.material.opacity = 0.3 * clamp(1 - up * 1.6, 0, 1);
+  renderer.toneMappingExposure = 1.15 - 0.25 * up;
 }
 
 /* ================= 파티클 ================= */
@@ -1011,7 +1097,7 @@ function toggleMenu(force) {
 $('#hudToggle').addEventListener('click', () => toggleMenu());
 window.addEventListener('resize', applyLayout);
 if (coarseMQ.addEventListener) coarseMQ.addEventListener('change', applyLayout);
-$('#chatBtn').addEventListener('click', () => { document.body.classList.remove('menu-open'); syncMenuBtn(); document.body.classList.add('chat-open'); $('#chatText').focus(); });
+$('#chatText').addEventListener('focus', () => { document.body.classList.remove('menu-open'); syncMenuBtn(); document.body.classList.add('chat-open'); });
 $('#chatText').addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== $('#chatText')) document.body.classList.remove('chat-open'); }, 150));
 $('#jumpBtn').addEventListener('pointerdown', (e) => { e.preventDefault(); unlock(); doJump(); });
 
@@ -1287,7 +1373,7 @@ $('#enter').addEventListener('click', async () => {
   btn.disabled = true;
   const ok = await net.connect();
   if (ok === false) { btn.textContent = label; btn.disabled = false; entering = false; gateName.classList.remove('shake'); void gateName.offsetWidth; gateName.classList.add('shake'); gateName.focus(); return; }
-  surv.spawnAt = state.time;
+  surv.spawnAt = state.time; if (!net.on) surv.since = net.now();
   gate.classList.add('hide');
   burst(30, 0);
   setTimeout(() => gate.remove(), 1600);
@@ -1317,20 +1403,20 @@ function addShopObstacles() {
 }
 function scatter(model, count, rMin, rMax, sMin, sMax, opts = {}) {
   for (let i = 0; i < count; i++) {
-    const a = rand(0, Math.PI * 2), r = rand(rMin, rMax);
+    const a = frand(0, Math.PI * 2), r = frand(rMin, rMax);
     const x = Math.cos(a) * r, z = Math.sin(a) * r;
     if (z < -11 && !opts.lakeOk) { i--; continue; }
     if (Math.hypot(x - SHOP.x, z - SHOP.z) < 2.8) { i--; continue; }
     const m = model.clone();
-    const s = rand(sMin, sMax);
+    const s = frand(sMin, sMax);
     m.position.set(x, 0, z);
-    m.rotation.y = rand(0, 6.28);
+    m.rotation.y = frand(0, 6.28);
     m.scale.setScalar(s);
     scene.add(m);
     if (opts.hit) addObstacle(x, z, opts.hit * s);
     if (opts.tree) {
       const idx = trees.length;
-      trees.push({ model: m, x, z, r: (opts.hit || 0.22) * s, hp: 3, rest: 0, wob: 0 });
+      trees.push({ model: m, x, z, r: (opts.hit || 0.22) * s, hp: 3, rest: 0, restUntil: 0, wob: 0 });
       m.traverse((o) => { o.userData.tree = idx; });
       pickables.push(m);
     }
@@ -1338,7 +1424,8 @@ function scatter(model, count, rMin, rMax, sMin, sMax, opts = {}) {
 }
 function updateTrees(dt) {
   for (const t of trees) {
-    if (t.rest > 0) t.rest -= dt;
+    if (t.restUntil > 0) { t.rest = Math.max(0, (t.restUntil - net.now()) / 1000); if (t.rest <= 0) { t.restUntil = 0; t.hp = 3; } }
+    else if (t.rest > 0) t.rest -= dt;
     if (t.wob > 0) {
       t.wob = Math.max(0, t.wob - dt * 1.6);
       t.model.rotation.z = Math.sin(state.time * 28) * 0.05 * t.wob;
@@ -1391,52 +1478,69 @@ async function buildAnimals() {
   const loaded = animalGLTF;
   await Promise.all(ANIMALS.map(async (n) => { loaded[n] = await loadGLB(PETS + 'animal-' + n + '.glb'); }));
   for (const ch of allChars) ch.attachModel();
-  const picks = [...ANIMALS].sort(() => Math.random() - 0.5).slice(0, 7).concat(['fox', 'bunny', 'deer', 'polar', 'pig']);
+  const picks = ['cat', 'dog', 'chick', 'koala', 'panda', 'penguin', 'beaver'].concat(['fox', 'bunny', 'deer', 'polar', 'pig']);
   for (const n of picks) {
     const src = loaded[n];
     const model = src.scene.clone();
-    const s = rand(0.28, 0.36);
+    const s = frand(0.28, 0.36);
     model.scale.setScalar(s);
     let x, z;
-    do { const a = rand(0, Math.PI * 2), r = rand(3.6, 9); x = Math.cos(a) * r; z = Math.sin(a) * r; } while (z < -10);
+    do { const a = frand(0, Math.PI * 2), r = frand(3.6, 9); x = Math.cos(a) * r; z = Math.sin(a) * r; } while (z < -10);
     model.position.set(x, 0.3 * s, z);
-    model.rotation.y = rand(0, 6.28);
+    model.rotation.y = frand(0, 6.28);
     scene.add(model);
     const mixer = new THREE.AnimationMixer(model);
     const clips = {};
     for (const c of src.animations) clips[c.name] = mixer.clipAction(c);
-    const an = { model, mixer, clips, s, pos: model.position, target: new THREE.Vector3(x, 0, z), state: 'idle', timer: rand(1, 6), cur: null, speed: rand(0.55, 0.9), seed: rand(0, 1000), name: n, hp: HUNT[n] ? HUNT[n].hp : 0, dead: false, respawn: 0, deathT: 0 };
+    const an = { model, mixer, clips, s, pos: model.position, target: new THREE.Vector3(x, 0, z), state: 'idle', timer: frand(1, 6), cur: null, speed: frand(0.55, 0.9), seed: frand(0, 1000), name: n, hp: HUNT[n] ? HUNT[n].hp : 0, dead: false, respawn: 0, deathT: 0, at: 0, idx: animals.length };
     model.traverse((o) => { o.userData.animal = animals.length; });
     pickables.push(model);
     animalPlay(an, 'idle');
     animals.push(an);
   }
+  shared.applyPendingAnimals();
 }
 // 사냥할 수 있는 동물과 떨어지는 고기. 나머지는 치면 놀라 도망만 간다
 const HUNT = { fox: { meat: 'meat_fox', hp: 2, n: 1 }, polar: { meat: 'meat_bear', hp: 4, n: 2 }, deer: { meat: 'meat_deer', hp: 3, n: 1 }, bunny: { meat: 'meat_bunny', hp: 1, n: 1 }, pig: { meat: 'meat_pig', hp: 2, n: 1 } };
-function flee(an) {
+function flee(an, tx, tz) {
+  if (typeof tx !== 'number') [tx, tz] = fleeTarget(an);
+  an.target.set(tx, 0, tz); an.state = 'flee'; an.timer = 2.5; animalPlay(an, 'run');
+}
+function fleeTarget(an) {
   const dx = an.pos.x - me.pos.x, dz = an.pos.z - me.pos.z, d = Math.hypot(dx, dz) || 1;
   let tx = an.pos.x + dx / d * 4.5, tz = an.pos.z + dz / d * 4.5;
   const r = Math.hypot(tx, tz); if (r > 10) { tx = tx / r * 10; tz = tz / r * 10; }
   if (tz < -10) tz = -10;
-  an.target.set(tx, 0, tz); an.state = 'flee'; an.timer = 2.5; animalPlay(an, 'run');
+  return [tx, tz];
 }
-function hitAnimal(an) {
+function killAnimal(an) {
+  an.dead = true; an.deathT = 0.5; an.respawn = 45; an.state = 'dead';
+}
+async function hitAnimal(an) {
   if (an.dead) return;
   const h = HUNT[an.name];
   puff(an.pos.x, 0.5, an.pos.z, 'star', 10);
   audio.thud();
-  if (!h) { flee(an); toast(`${ANIMAL_LABEL[an.name]}은(는) 사냥감이 아니에요. 놀라서 도망가요`); return; }
-  an.hp--;
-  if (an.hp > 0) { flee(an); return; }
-  an.dead = true; an.deathT = 0.5; an.respawn = 45; an.state = 'dead';
-  setTimeout(() => gain(h.meat, h.n, an.pos.x, an.pos.z), 350);
+  if (!h) { flee(an); toast(`${ANIMAL_LABEL[an.name]}은(는) 사냥감이 아니에요. 놀라서 도망가요`); if (net.on) shared.sendAnimal(an, { s: 'flee' }); return; }
+  if (!net.on) {
+    an.hp--;
+    if (an.hp > 0) { flee(an); return; }
+    killAnimal(an);
+    setTimeout(() => gain(h.meat, h.n, an.pos.x, an.pos.z), 350);
+    return;
+  }
+  // 함께일 때: 체력은 서버에서 깎는다(동시에 쳐도 한 번만 잡힘)
+  const r = await shared.hitAnimalTx(an);
+  if (!r) return;
+  if (r.killed) setTimeout(() => gain(h.meat, h.n, an.pos.x, an.pos.z), 350);
 }
-function respawnAnimal(an) {
-  let x, z, tries = 0;
-  do { const a = rand(0, Math.PI * 2), r = rand(4, 9); x = Math.cos(a) * r; z = Math.sin(a) * r; tries++; } while ((z < -10 || insideObstacle(x, z, 0.3)) && tries < 20);
+function respawnAnimal(an, x, z) {
+  if (typeof x !== 'number') {
+    let tries = 0;
+    do { const a = rand(0, Math.PI * 2), r = rand(4, 9); x = Math.cos(a) * r; z = Math.sin(a) * r; tries++; } while ((z < -10 || insideObstacle(x, z, 0.3)) && tries < 20);
+  }
   an.dead = false; an.hp = HUNT[an.name] ? HUNT[an.name].hp : 0; an.state = 'idle'; an.timer = rand(1, 4);
-  an.model.scale.setScalar(an.s); an.model.position.set(x, 0.3 * an.s, z); an.model.visible = true; animalPlay(an, 'idle');
+  an.model.scale.setScalar(an.s); an.model.position.set(x, 0.3 * an.s, z); an.target.set(x, 0, z); an.model.visible = true; animalPlay(an, 'idle');
 }
 function animalPlay(an, name) {
   const next = an.clips[name] || an.clips.idle;
@@ -1446,6 +1550,7 @@ function animalPlay(an, name) {
   an.cur = next;
 }
 function updateAnimals(dt) {
+  const sharedMode = net.on, host = shared.isHost();
   for (const an of animals) {
     if (an.dead) {
       an.respawn -= dt;
@@ -1455,9 +1560,15 @@ function updateAnimals(dt) {
         an.model.scale.setScalar(an.s * k); an.model.position.y = 0.3 * an.s * k;
         if (an.deathT <= 0) an.model.visible = false;
       }
-      if (an.respawn <= 0) respawnAnimal(an);
+      if (an.respawn <= 0) {
+        if (!sharedMode) respawnAnimal(an);
+        else if (host) { let x, z, tries = 0; do { const a = rand(0, Math.PI * 2), r = rand(4, 9); x = Math.cos(a) * r; z = Math.sin(a) * r; tries++; } while ((z < -10 || insideObstacle(x, z, 0.3)) && tries < 20); shared.sendAnimal(an, { dead: 0, hp: HUNT[an.name] ? HUNT[an.name].hp : 0, s: 'idle', x: +x.toFixed(2), z: +z.toFixed(2), tx: +x.toFixed(2), tz: +z.toFixed(2) }); respawnAnimal(an, x, z); }
+        else an.respawn = 3;
+      }
       continue;
     }
+    // 함께일 때 호스트가 아니면 서버 결정대로만 움직인다
+    if (sharedMode && !host) { followDecision(an, dt); continue; }
     an.mixer.update(dt);
     an.timer -= dt;
     if (an.state === 'flee') {
@@ -1473,16 +1584,16 @@ function updateAnimals(dt) {
     if (an.state === 'dance') { an.state = 'idle'; an.timer = rand(1, 3); animalPlay(an, 'idle'); }
     if (an.state === 'walk') {
       const dx = an.target.x - an.pos.x, dz = an.target.z - an.pos.z, d = Math.hypot(dx, dz);
-      if (d < 0.08) { an.state = Math.random() < 0.4 ? 'eat' : 'idle'; an.timer = rand(2, 7); animalPlay(an, an.state); continue; }
+      if (d < 0.08) { an.state = Math.random() < 0.4 ? 'eat' : 'idle'; an.timer = rand(2, 7); animalPlay(an, an.state); if (sharedMode) shared.sendAnimal(an, { s: an.state }); continue; }
       const step = Math.min(d, an.speed * dt);
       an.pos.x += dx / d * step; an.pos.z += dz / d * step;
       an.model.rotation.y += wrapAngle(Math.atan2(dx, dz) - an.model.rotation.y) * Math.min(1, dt * 6);
-      if (resolveCircle(an.pos, 0.3, an) && insideObstacle(an.target.x, an.target.z, 0.3)) { an.state = 'idle'; an.timer = rand(0.5, 2); animalPlay(an, 'idle'); }
+      if (resolveCircle(an.pos, 0.3, an) && insideObstacle(an.target.x, an.target.z, 0.3)) { an.state = 'idle'; an.timer = rand(0.5, 2); animalPlay(an, 'idle'); if (sharedMode) shared.sendAnimal(an, { s: 'idle' }); }
     } else if (an.timer <= 0) {
       let tx, tz, tries = 0;
       do { const a = rand(0, Math.PI * 2), r = rand(1.5, 4); tx = an.pos.x + Math.cos(a) * r; tz = an.pos.z + Math.sin(a) * r; tries++; }
       while ((!clearOf(tx, tz, 3.2) || Math.hypot(tx, tz) > 10 || tz < -10 || insideObstacle(tx, tz, 0.3)) && tries < 12);
-      if (tries < 12) { an.target.set(tx, 0, tz); an.state = 'walk'; animalPlay(an, 'walk'); }
+      if (tries < 12) { an.target.set(tx, 0, tz); an.state = 'walk'; animalPlay(an, 'walk'); if (sharedMode) shared.sendAnimal(an, { s: 'walk', tx: +tx.toFixed(2), tz: +tz.toFixed(2) }); }
       else an.timer = rand(1, 3);
     } else {
       // 쉴 때는 천천히 모닥불 쪽을 본다 (Kenney 모델 정면은 +Z, 모델 데이터로 확인)
@@ -1490,7 +1601,96 @@ function updateAnimals(dt) {
     }
   }
 }
-buildForest().catch((e) => console.warn('숲 모델 읽기 실패, 기본 숲 유지', e));
+// 호스트가 아닌 접속자: 서버에서 받은 결정(걷기 목표·도망·쉬기)만 따라간다
+function followDecision(an, dt) {
+  an.mixer.update(dt);
+  an.timer -= dt;
+  if (an.state === 'flee' && an.timer <= 0) { an.state = 'idle'; animalPlay(an, 'idle'); }
+  if (state.aurora > 0 && an.state !== 'flee') { if (an.state !== 'dance') { an.state = 'dance'; animalPlay(an, 'dance'); } return; }
+  if (an.state === 'dance') { an.state = 'idle'; animalPlay(an, 'idle'); }
+  if (an.state === 'walk' || an.state === 'flee') {
+    const dx = an.target.x - an.pos.x, dz = an.target.z - an.pos.z, d = Math.hypot(dx, dz);
+    if (d < 0.08) { if (an.state === 'flee') { an.state = 'idle'; animalPlay(an, 'idle'); } return; }
+    const step = Math.min(d, an.speed * (an.state === 'flee' ? 2.8 : 1) * dt);
+    an.pos.x += dx / d * step; an.pos.z += dz / d * step;
+    an.model.rotation.y += wrapAngle(Math.atan2(dx, dz) - an.model.rotation.y) * Math.min(1, dt * 8);
+  } else {
+    an.model.rotation.y += wrapAngle(Math.atan2(-an.pos.x, -an.pos.z) - an.model.rotation.y) * Math.min(1, dt * 1.5);
+  }
+}
+/* 나무·동물 공유: rooms/lake/animals/{i} = {s, tx, tz, x, z, hp, dead, at, by}, rooms/lake/trees/{i} = {hp, rest(까지 ms), at}
+ * 동물 AI 는 접속자 중 uid 가 가장 작은 사람(호스트)만 돌리고 결정을 올린다. 호스트가 나가면 다음 사람이 자동으로 맡는다. */
+const shared = {
+  pendingAnimals: null, pendingTrees: null,
+  isHost() {
+    if (!net.on) return true;
+    let min = net.uid;
+    for (const uid of others.keys()) if (uid < min) min = uid;
+    return min === net.uid;
+  },
+  sendAnimal(an, fields) {
+    if (!net.on || !net.animalsRef) return;
+    an.at = net.now();
+    net.D.update(net.D.child(net.animalsRef, String(an.idx)), { x: +an.pos.x.toFixed(2), z: +an.pos.z.toFixed(2), ...fields, at: an.at, by: net.uid }).catch(() => {});
+  },
+  applyAnimal(an, v) {
+    if (!v || typeof v.at !== 'number' || v.at <= an.at) return;
+    an.at = v.at;
+    const mine = v.by === net.uid;
+    if (v.dead && !an.dead) { killAnimal(an); return; }
+    if (!v.dead && an.dead) { respawnAnimal(an, v.x, v.z); }
+    if (an.dead) return;
+    if (typeof v.hp === 'number') an.hp = v.hp;
+    // 위치가 많이 어긋나면 서버 위치로 끌어다 놓는다
+    if (!mine && typeof v.x === 'number' && Math.hypot(v.x - an.pos.x, v.z - an.pos.z) > 1.2) { an.pos.x = v.x; an.pos.z = v.z; }
+    if (mine && v.s !== 'flee') return;
+    if (v.s === 'walk' && typeof v.tx === 'number') { an.target.set(v.tx, 0, v.tz); an.state = 'walk'; animalPlay(an, 'walk'); }
+    else if (v.s === 'flee' && typeof v.tx === 'number') { if (!mine) { an.target.set(v.tx, 0, v.tz); an.state = 'flee'; an.timer = 2.5; animalPlay(an, 'run'); } }
+    else if (v.s === 'idle' || v.s === 'eat') { an.state = v.s; an.timer = rand(2, 6); animalPlay(an, v.s); }
+  },
+  applyPendingAnimals() {
+    if (this.pendingAnimals) { const all = this.pendingAnimals; this.pendingAnimals = null; for (const i in all) if (animals[i]) this.applyAnimal(animals[i], all[i]); }
+    if (this.pendingTrees) { const all = this.pendingTrees; this.pendingTrees = null; for (const i in all) if (trees[i]) this.applyTree(trees[i], all[i]); }
+  },
+  // 체력 깎기는 트랜잭션: 여럿이 동시에 쳐도 한 번만 잡히고, 잡은 사람만 고기를 받는다
+  async hitAnimalTx(an) {
+    const ref = net.D.child(net.animalsRef, String(an.idx));
+    const [tx, tz] = fleeTarget(an);
+    const now = net.now();
+    let killed = false;
+    const r = await net.D.runTransaction(ref, (cur) => {
+      const c = cur || {};
+      if (c.dead) return;
+      const hp = (typeof c.hp === 'number' ? c.hp : HUNT[an.name].hp) - 1;
+      killed = hp <= 0;
+      return { ...c, hp: Math.max(0, hp), dead: killed ? 1 : 0, s: killed ? 'dead' : 'flee', tx: +tx.toFixed(2), tz: +tz.toFixed(2), x: +an.pos.x.toFixed(2), z: +an.pos.z.toFixed(2), at: now, by: net.uid };
+    }).catch(() => ({ committed: false }));
+    if (!r.committed) return null;
+    an.at = now;
+    if (killed) killAnimal(an); else { an.hp = Math.max(0, an.hp - 1); flee(an, tx, tz); }
+    return { killed };
+  },
+  applyTree(t, v) {
+    if (!v) return;
+    const now = net.now();
+    t.restUntil = typeof v.rest === 'number' ? v.rest : 0;
+    t.rest = Math.max(0, (t.restUntil - now) / 1000);
+    t.hp = t.rest > 0 ? 0 : (typeof v.hp === 'number' ? v.hp : 3);
+  },
+  // 나무 치기도 트랜잭션: 세 번째로 친 사람이 90초 휴식을 올린다
+  async hitTreeTx(t) {
+    const ref = net.D.child(net.treesRef, String(trees.indexOf(t)));
+    const now = net.now();
+    const r = await net.D.runTransaction(ref, (cur) => {
+      const c = cur || {};
+      if (typeof c.rest === 'number' && c.rest > now) return;
+      const hp = (typeof c.hp === 'number' && !(c.rest > 0 && c.rest <= now) ? c.hp : 3) - 1;
+      return hp <= 0 ? { hp: 3, rest: now + 90000, at: now } : { hp, rest: 0, at: now };
+    }).catch(() => ({ committed: false }));
+    return r.committed;
+  }
+};
+buildForest().then(() => shared.applyPendingAnimals()).catch((e) => console.warn('숲 모델 읽기 실패, 기본 숲 유지', e));
 buildAnimals().catch((e) => console.warn('동물 모델 읽기 실패', e));
 
 // 사람 캐릭터(Kenney Mini Forest 궁수 + Mini Characters 12명): 옷 색을 8가지 색조로 돌려 서로 구분
@@ -1941,7 +2141,7 @@ const iconHTML = (k) => { const it = ITEMS[k]; return (it.icon === 'match' ? `<s
 const STARTER = { gold: 50, inv: { wood: 3, fruit: 2, match: 1 } };
 const REWARD_MS = 5 * 60000; // 접속 5분마다 골드 자동 지급
 const PROF_KEY = 'charles-forest.profile';
-const surv = { hunger: 100, warmth: 100, down: 0, warnAt: 0, outToast: false, spawnAt: 0 };
+const surv = { hunger: 100, warmth: 100, down: 0, warnAt: 0, outToast: false, spawnAt: 0, since: Date.now() };
 let prof = null;
 const freshProfile = () => ({ gold: STARTER.gold, inv: { ...STARTER.inv }, playMs: 0, rewardMs: 0, hunger: 100, warmth: 100, made: Date.now() });
 function loadLocalProfile() { try { const v = JSON.parse(localStorage.getItem(PROF_KEY) || 'null'); if (v && typeof v.gold === 'number') return { ...freshProfile(), ...v, inv: v.inv || {} }; } catch (e) { /* 저장소 없음 */ } return null; }
@@ -2029,9 +2229,10 @@ function updateSurvival(dt) {
   }
   surv.hunger = Math.max(0, surv.hunger - dt * 100 / 480);
   const out = fireOut();
-  if (out) surv.warmth = Math.max(0, surv.warmth - dt * 100 / 90);
+  const coldMul = 1.5 - sunUp() * 0.9; // 밤 1.5배 빨리, 한낮 0.6배
+  if (out) surv.warmth = Math.max(0, surv.warmth - dt * 100 / 90 * coldMul);
   else if (nearFire()) surv.warmth = Math.min(100, surv.warmth + dt * 100 / 12 * (0.4 + 0.6 * fuelF()));
-  else surv.warmth = Math.max(0, surv.warmth - dt * 100 / 180);
+  else surv.warmth = Math.max(0, surv.warmth - dt * 100 / 180 * coldMul);
   if (out && !surv.outToast) { surv.outToast = true; toast('모닥불이 꺼졌어요! 숲의 모두가 추워져요 · 성냥으로 다시 피우세요', 6000); }
   if (!out) surv.outToast = false;
   me.speedMul = (surv.hunger < 25 || surv.warmth < 25) ? 0.65 : 1;
@@ -2057,14 +2258,14 @@ function collapse(why) {
   renderWallet(); saveProfile(true);
 }
 function wakeUp() {
-  surv.down = 0; surv.spawnAt = state.time;
+  surv.down = 0; surv.spawnAt = state.time; surv.since = net.now();
   surv.hunger = Math.max(surv.hunger, 40); surv.warmth = Math.max(surv.warmth, 40);
   $('#down').removeAttribute('data-on'); $('#ghostFx').removeAttribute('data-on');
   const a = rand(0, Math.PI * 2), r = rand(1.6, 2.0);
   me.seat = -1; me.place(Math.cos(a) * r, Math.sin(a) * r);
   cam.yaw = Math.atan2(-me.pos.x, -me.pos.z);
   me.setGhost(false); me.down(false); me.walkMul = 1;
-  net.updateMe({ x: me.pos.x, z: me.pos.z, seat: -1, ghost: 0 });
+  net.updateMe({ x: me.pos.x, z: me.pos.z, seat: -1, ghost: 0, since: surv.since });
   toast('모닥불 곁에서 눈을 떴어요', 3000);
   saveProfile();
 }
@@ -2199,8 +2400,9 @@ function findTarget() {
 function updateTarget() {
   target = findTarget();
   const p = $('#prompt');
-  if (!target) { p.removeAttribute('data-on'); return; }
+  if (!target) { p.removeAttribute('data-on'); $('#promptIco').textContent = '⚔️'; $('#promptText').textContent = '공격'; return; }
   p.setAttribute('data-on', ''); $('#promptText').textContent = target.label;
+  $('#promptIco').textContent = target.kind === 'npc' ? '🛒' : target.kind === 'tree' ? '🪓' : '⚔️';
 }
 function interact(t = target) {
   if (!t || surv.down > 0) return;
@@ -2214,14 +2416,19 @@ function interact(t = target) {
   net.event('hit', { x: Number(tx.toFixed(1)), z: Number(tz.toFixed(1)), k: t.kind });
   setTimeout(() => applyHit(t), 220);
 }
-function applyHit(t) {
+async function applyHit(t) {
   if (t.kind === 'tree') {
     const tr = t.ref;
     if (tr.rest > 0) { toast('이 나무는 쉬고 있어요. 잠시 뒤에 다시 와요'); return; }
-    tr.wob = 1; tr.hp--;
+    tr.wob = 1;
     puff(tr.x, 1.2, tr.z, Math.random() < 0.5 ? 'leaf' : 'wood', 16); audio.thud();
+    if (net.on && net.treesRef) {
+      if (!(await shared.hitTreeTx(tr))) { toast('이 나무는 방금 다른 사람이 쳐서 쉬고 있어요'); return; }
+    } else {
+      tr.hp--;
+      if (tr.hp <= 0) { tr.hp = 3; tr.rest = 90; }
+    }
     gain(Math.random() < 0.55 ? 'wood' : 'fruit', 1, tr.x, tr.z);
-    if (tr.hp <= 0) { tr.hp = 3; tr.rest = 90; }
   } else if (t.kind === 'animal') hitAnimal(t.ref);
 }
 // 멀리 있는 걸 누르면 다가가서 상호작용
@@ -2323,6 +2530,7 @@ const net = {
       if (isReserved(meInfo.name) && !this.isOwner) { toast('이 이름은 숲 주인만 쓸 수 있어요'); return false; }
       const R = (p) => D.ref(db, `rooms/${ROOM}/${p}`);
       this.fireRef = R('fire'); this.playersRef = R('players'); this.eventsRef = R('events');
+      this.animalsRef = R('animals'); this.treesRef = R('trees');
       this.meRef = R('players/' + this.uid);
 
       // 지금 숲에 있는 사람과 같은 이름은 못 쓴다
@@ -2353,7 +2561,8 @@ const net = {
         renderWallet(); renderShop();
       });
 
-      await D.set(this.meRef, { name: meInfo.name, color: meInfo.color, avatar: meInfo.avatar, x: me.pos.x, z: me.pos.z, seat: -1, at: D.serverTimestamp() });
+      surv.since = this.now();
+      await D.set(this.meRef, { name: meInfo.name, color: meInfo.color, avatar: meInfo.avatar, x: me.pos.x, z: me.pos.z, seat: -1, since: surv.since, at: D.serverTimestamp() });
       D.onDisconnect(this.meRef).remove();
       this.on = true;
 
@@ -2366,6 +2575,18 @@ const net = {
         if (auroraLeft > 0 && state.aurora <= 0) { $('#btnAurora').disabled = true; }
         state.aurora = Math.max(0, auroraLeft);
         if (state.aurora <= 0) $('#btnAurora').disabled = false;
+      });
+
+      // 동물·나무 상태 공유 (모델이 아직 안 읽혔으면 보관했다가 적용)
+      D.onValue(this.animalsRef, (s) => {
+        const all = s.val() || {};
+        if (!animals.length) { shared.pendingAnimals = all; return; }
+        for (const i in all) if (animals[i]) shared.applyAnimal(animals[i], all[i]);
+      });
+      D.onValue(this.treesRef, (s) => {
+        const all = s.val() || {};
+        if (!trees.length) { shared.pendingTrees = all; return; }
+        for (const i in all) if (trees[i]) shared.applyTree(trees[i], all[i]);
       });
 
       // 사람들
@@ -2386,6 +2607,7 @@ const net = {
           if (p.color) o.ch.setColor(p.color);
           if (normalizeAvatar(p.avatar) !== o.ch.avatar) o.ch.setAvatar(p.avatar);
           o.ch.setGhost(!!p.ghost);
+          o.since = typeof p.since === 'number' ? p.since : 0; o.ghost = !!p.ghost;
           const seat = typeof p.seat === 'number' ? p.seat : -1;
           if (seat >= 0) { if (o.seat !== seat) o.ch.sit(seat); }
           else if (typeof p.x === 'number') o.ch.walkTo(p.x, p.z);
@@ -2549,7 +2771,22 @@ function updateCamera(dt) {
   if (!third) me.yaw = cam.yaw;
 }
 
+// 좌상단 생존 랭킹: 마지막으로 깨어난 뒤 버틴 시간 순 top 5
+const fmtSurv = (ms) => { const s = Math.max(0, Math.floor(ms / 1000)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return h ? `${h}시간 ${m}분` : m ? `${m}분 ${s % 60}초` : `${s}초`; };
+function renderRank() {
+  const now = net.now();
+  const rows = [{ name: meInfo.name, t: surv.down > 0 ? 0 : now - surv.since, me: true, ghost: surv.down > 0 }];
+  for (const [, o] of others) rows.push({ name: o.ch.nm.textContent, t: o.ghost || !o.since ? 0 : now - o.since, me: false, ghost: o.ghost });
+  rows.sort((a, b) => b.t - a.t);
+  const medal = ['🥇', '🥈', '🥉', '4', '5'];
+  $('#rankList').innerHTML = rows.slice(0, 5).map((r, i) => `<li${r.me ? ' class="me"' : ''}><span class="no">${medal[i]}</span><span class="nm">${r.ghost ? '👻 ' : ''}${escapeHtml(r.name)}</span><span class="t">${fmtSurv(r.t)}</span></li>`).join('');
+}
+const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 function updateUI() {
+  renderRank();
+  const h = dayClock(), ph = dayPhase(h);
+  $('#clockIco').textContent = { night: '🌙', dawn: '🌅', day: '☀️', dusk: '🌇' }[ph];
+  $('#clockTxt').textContent = ` ${PHASE_LABEL[ph]} ${String(Math.floor(h)).padStart(2, '0')}시`;
   $('#stateName').textContent = fireName(state.fuel);
   $('#stateName').classList.toggle('out', fireOut());
   $('#fuelFill').style.width = state.fuel.toFixed(0) + '%';
@@ -2581,6 +2818,7 @@ function frame() {
   glow.position.y = 0.5 + 0.5 * f;
   logMat.emissiveIntensity = (fireOut() ? 0.03 : 0.15 + 1.4 * f) * flick;
 
+  updateDaylight();
   updateParticles(dt);
   updateFlying(dt);
   audio.tick(dt);

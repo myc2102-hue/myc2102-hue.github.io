@@ -26,6 +26,18 @@
             }
           }
         },
+        "animals": {
+          "$i": {
+            ".write": "auth != null",
+            ".validate": "newData.hasChildren(['at']) && newData.child('at').isNumber()"
+          }
+        },
+        "trees": {
+          "$i": {
+            ".write": "auth != null",
+            ".validate": "newData.hasChildren(['at']) && newData.child('at').isNumber()"
+          }
+        },
         "events": {
           "$id": {
             ".write": "auth != null && !data.exists()",

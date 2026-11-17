@@ -145,32 +145,51 @@
   @keyframes logfade { 0%, 75% { opacity: .95; } 100% { opacity: 0; } }
   body.cinema #chatLog { opacity: 0; }
 
-  /* 작은 창: 메뉴 접기 버튼, 가만히 두면 UI 흐려짐 */
+  /* 작은 창·터치: MENU 시트, 가만히 두면 UI 흐려짐 */
   #hudToggle { position: fixed; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); z-index: 6; height: 36px; border-radius: 999px; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; letter-spacing: .08em; padding: 0 14px; }
   body.hud-collapsed #secondary, body.hud-collapsed #emotes, body.hud-collapsed #mixer { display: none; }
-  body.hud-collapsed #vitals { padding: 0 10px 6px; font-size: 11px; }
-  body.hud-collapsed #bag .slot { width: 40px; height: 40px; font-size: 20px; }
-  body.hud-collapsed #hud { width: min(520px, calc(100% - 92px)); left: 12px; transform: none; }
-  body.hud-collapsed #status { padding: 6px 10px; font-size: 12px; }
-  body.hud-collapsed #actions { padding: 6px; gap: 4px; }
-  body.hud-collapsed #actions .btn { padding: 8px 6px; font-size: 13px; }
-  body.idle #hud, body.idle #hint, body.idle #title, body.idle #chatLog, body.idle #hudToggle { opacity: 0.18; }
+  body.idle #hud, body.idle #hint, body.idle #title, body.idle #chatLog, body.idle #hudToggle, body.idle #joy, body.idle #tbtns { opacity: 0.18; }
   body.idle #hud:hover, body.idle #hud:focus-within { opacity: 1; }
-  #hudToggle, #hint, #title, #chatLog { transition: opacity .6s; }
-  @media (max-width: 720px), (max-height: 620px) {
-    #hudToggle { display: flex; }
-    #hint { display: none; }
-    #moveHint { display: none; }
-    .btn { min-width: 0; padding: 9px 8px; font-size: 13px; }
-    .primaryRow { padding: 6px; gap: 4px; }
-    #emotes { padding: 0 6px 6px; }
-    #chatText { padding: 8px 10px; font-size: 13px; }
-    #hud { gap: 6px; }
+  #hudToggle, #hint, #title, #chatLog, #joy, #tbtns { transition: opacity .6s; }
+  @media (max-width: 480px) { #gateArt { object-position: 50% 45%; } }
+  body.cinema #hudToggle, body.cinema #joy, body.cinema #tbtns { opacity: 0; pointer-events: none; }
+
+  /* 모바일 배치: 위 가운데 게이지, 왼쪽 아래 조이스틱, 오른쪽 아래 점프·채팅·MENU, 가운데 가방·상호작용 버튼 */
+  #joy, #tbtns { display: none; }
+  body.mobile #title, body.mobile #moveHint, body.mobile #hint { display: none; }
+  body.mobile #hud { left: 0; right: 0; width: auto; transform: none; bottom: 0; display: block; pointer-events: none; }
+  body.mobile #hud > * { pointer-events: auto; }
+  body.mobile #statusPanel { position: fixed; left: 50%; top: 10px; transform: translateX(-50%); width: min(400px, calc(100% - 210px)); border-radius: 12px; }
+  body.mobile #status { padding: 5px 10px; font-size: 11px; gap: 6px; }
+  body.mobile #online, body.mobile #sleepInfo, body.mobile .gl { display: none; }
+  body.mobile #vitals { padding: 0 10px 5px; font-size: 12px; gap: 8px; }
+  body.mobile #chatLog { top: 100px; left: 12px; max-width: 48vw; }
+  body.mobile #bag { position: fixed; left: 50%; bottom: 150px; transform: translateX(-50%); width: min(360px, calc(100% - 24px)); padding: 6px; min-height: 44px; justify-content: center; }
+  body.mobile #bag .slot { width: 42px; height: 42px; font-size: 21px; }
+  body.mobile #bag .slot .k { display: none; }
+  body.mobile #prompt { position: fixed; left: 50%; bottom: 206px; transform: translateX(-50%); font-size: 15px; padding: 11px 20px; }
+  body.mobile #prompt kbd { display: none; }
+  body.mobile #chat { position: fixed; left: 0; right: 0; bottom: 0; border-radius: 14px 14px 0 0; padding: 10px max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); z-index: 8; display: none; }
+  body.mobile.chat-open #chat { display: flex; }
+  body.mobile #chatText { font-size: 16px; }
+  body.mobile #menuPanel { position: fixed; left: 12px; right: 12px; bottom: 150px; max-height: calc(100% - 180px); overflow-y: auto; display: none; z-index: 7; }
+  body.mobile.menu-open #menuPanel { display: block; }
+  body.mobile.menu-open #bag, body.mobile.menu-open #prompt { display: none; }
+  body.mobile #hudToggle { display: flex; right: max(18px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 78px); }
+  body.mobile #joy, body.mobile #tbtns { display: block; }
+  #joy { position: fixed; left: max(18px, env(safe-area-inset-left)); bottom: max(18px, env(safe-area-inset-bottom)); width: 124px; height: 124px; border-radius: 50%; border: 1px solid var(--line); background: rgba(10,16,28,0.35); z-index: 6; touch-action: none; }
+  #joyKnob { position: absolute; left: 50%; top: 50%; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 50%; background: rgba(241,233,216,0.55); border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 2px 10px rgba(0,0,0,0.4); pointer-events: none; }
+  #joy[data-on] #joyKnob { background: rgba(255,178,90,0.8); }
+  #tbtns { position: fixed; right: max(18px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); width: 130px; height: 66px; z-index: 6; }
+  .tb { position: absolute; right: 0; bottom: 0; border-radius: 50%; border: 1px solid var(--line); background: var(--panel); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: var(--text); font: inherit; display: flex; align-items: center; justify-content: center; touch-action: manipulation; padding: 0; cursor: pointer; }
+  .tb:active { background: rgba(255,178,90,0.35); }
+  #jumpBtn { width: 64px; height: 64px; font-size: 26px; }
+  #chatBtn { width: 46px; height: 46px; font-size: 20px; right: 76px; bottom: 9px; }
+  @media (orientation: landscape) and (max-height: 500px) {
+    body.mobile #bag { bottom: max(14px, env(safe-area-inset-bottom)); width: min(360px, calc(100% - 320px)); }
+    body.mobile #prompt { bottom: 72px; }
+    body.mobile #menuPanel { bottom: 14px; left: 150px; right: 150px; max-height: calc(100% - 80px); }
   }
-  @media (max-width: 480px) {
-    #gateArt { object-position: 50% 45%; }
-  }
-  body.cinema #hudToggle { opacity: 0; pointer-events: none; }
 
   /* 생존 게이지 */
   #vitals { display: flex; gap: 10px; padding: 0 12px 8px; font-size: 12px; color: var(--dim); }
@@ -211,10 +230,17 @@
   #cold, #hungry { position: fixed; inset: 0; pointer-events: none; z-index: 4; opacity: 0; transition: opacity 1s; }
   #cold { box-shadow: inset 0 0 160px 60px rgba(70, 120, 255, 0.55); }
   #hungry { box-shadow: inset 0 0 140px 50px rgba(60, 25, 5, 0.75); }
-  #down { position: fixed; inset: 0; z-index: 9; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.72); color: var(--text); font-size: 20px; text-align: center; padding: 20px; }
+  #down { position: fixed; left: 50%; top: 72px; transform: translateX(-50%); z-index: 7; display: none; align-items: center; gap: 10px; padding: 8px 16px; border-radius: 999px; background: rgba(170,200,255,0.16); border: 1px solid rgba(190,215,255,0.4); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #e6f0ff; font-size: 13px; text-align: center; pointer-events: none; max-width: calc(100% - 24px); }
   #down[data-on] { display: flex; }
-  #down small { font-size: 13px; color: var(--dim); }
-  #down b { color: var(--accent); }
+  #down .gh { font-size: 22px; animation: ghostBob 2.4s ease-in-out infinite; }
+  #down small { font-size: 12px; color: rgba(230,240,255,0.75); }
+  #down b { color: #fff; }
+  @keyframes ghostBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+  #ghostFx { position: fixed; inset: 0; pointer-events: none; z-index: 4; opacity: 0; transition: opacity 1.2s; box-shadow: inset 0 0 180px 80px rgba(150,180,255,0.35); background: rgba(120,150,220,0.08); }
+  #ghostFx[data-on] { opacity: 1; }
+  .tag .nm.ghost { color: #cfe2ff; opacity: .8; }
+  .tag .nm.ghost::before { content: "👻 "; }
+  body.mobile #down { top: 64px; font-size: 12px; padding: 6px 12px; }
 
   /* 매점 */
   #shop { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(430px, calc(100% - 24px)); max-height: min(580px, calc(100% - 40px)); padding: 14px; z-index: 8; display: none; flex-direction: column; gap: 10px; }
@@ -266,7 +292,7 @@
 <div id="title"><b>모여봐요 찰스의 숲</b> · 불멍</div>
 <div id="presence" class="panel" aria-live="polite"><i></i><b id="presenceN">–</b><span>접속 중</span></div>
 <div id="wallet" class="panel" title="골드 · 5분 접속마다 자동 지급, 매점에서 쓰고 벌어요"><span>🪙</span><b id="goldN">0</b><small id="inflN"></small></div>
-<div id="hint">드래그로 둘러보기 · 휠을 내리면 3인칭<br>WASD·방향키로 걷기 · 스페이스 점프 · H 메뉴 접기<br>F 로 나무 치기·사냥·매점 · 숫자키로 가방 쓰기</div>
+<div id="hint">드래그로 둘러보기 · 휠을 내리면 3인칭<br>WASD·방향키로 걷기 · 스페이스 점프 · H 메뉴 접기 · 터치 화면은 조이스틱<br>F 로 나무 치기·사냥·매점 · 숫자키로 가방 쓰기</div>
 
 <div id="quote" aria-live="polite"><span id="quoteText"></span></div>
 <div id="chatLog" aria-live="polite"></div>
@@ -276,20 +302,20 @@
     <input id="chatText" type="text" maxlength="60" placeholder="말풍선으로 이야기해요 · Enter" aria-label="채팅">
     <button class="btn primary" type="submit">보내기</button>
   </form>
-  <div class="panel">
+  <div class="panel" id="statusPanel">
     <div id="status">
-      <span>불 상태 <b id="stateName">적정 불</b></span>
+      <span><span class="gl">불 상태 </span><b id="stateName">적정 불</b></span>
       <span id="fuelBar"><i id="fuelFill"></i></span>
       <span id="online">혼자</span>
       <span id="sleepInfo" hidden></span>
     </div>
     <div id="vitals">
-      <span class="gauge" id="gHunger" title="배고픔 · 바닥나면 쓰러져요. 열매나 고기를 드세요"><span>🍖 배고픔</span><span class="bar"><i id="hungerFill"></i></span></span>
-      <span class="gauge" id="gWarm" title="추위 · 모닥불 곁에서 따뜻해져요. 바닥나면 쓰러져요"><span>🔥 추위</span><span class="bar"><i id="warmFill"></i></span></span>
+      <span class="gauge" id="gHunger" title="배고픔 · 바닥나면 쓰러져요. 열매나 고기를 드세요"><span>🍖<span class="gl"> 배고픔</span></span><span class="bar"><i id="hungerFill"></i></span></span>
+      <span class="gauge" id="gWarm" title="추위 · 모닥불 곁에서 따뜻해져요. 바닥나면 쓰러져요"><span>🔥<span class="gl"> 추위</span></span><span class="bar"><i id="warmFill"></i></span></span>
     </div>
   </div>
   <div id="bag" class="panel" aria-label="가방"></div>
-  <div class="panel">
+  <div class="panel" id="menuPanel">
     <div id="actions" class="primaryRow">
       <button class="btn primary" id="btnLog">장작 넣기</button>
       <button class="btn" id="btnAurora">오로라 가루</button>
@@ -329,10 +355,12 @@
 </div>
 
 <button class="btn panel" id="hudToggle" aria-label="메뉴 접기/펼치기" title="메뉴 접기/펼치기 (H)">MENU</button>
+<div id="joy" aria-hidden="true"><div id="joyKnob"></div></div>
+<div id="tbtns"><button class="tb" id="chatBtn" type="button" aria-label="채팅">💬</button><button class="tb" id="jumpBtn" type="button" aria-label="점프">⇧</button></div>
 <button class="btn panel" id="exitCinema">화면을 누르거나 ESC · 불멍 모드 나가기</button>
 <div id="dim"></div>
-<div id="cold"></div><div id="hungry"></div>
-<div id="down" aria-live="assertive"><div id="downWhy"></div><small id="downLoss"></small><small><b id="downN">8</b>초 뒤 모닥불 곁에서 깨어나요</small></div>
+<div id="cold"></div><div id="hungry"></div><div id="ghostFx"></div>
+<div id="down" aria-live="assertive"><span class="gh">👻</span><span><span id="downWhy"></span><small id="downLoss"></small><br><small><b id="downN">15</b>초 뒤 모닥불 곁에서 깨어나요 · 그때까진 유령으로 떠다녀요</small></span></div>
 <div id="toast" role="status"></div>
 
 <div id="shop" class="panel" role="dialog" aria-label="매점">
@@ -826,6 +854,14 @@ const audio = {
     const g = ctx.createGain(); g.gain.setValueAtTime(0.9, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
     s.connect(lp).connect(g).connect(this.master); s.start(t, 0, 0.16);
   },
+  ghost() {
+    if (!this.running) return;
+    const ctx = this.ctx, t = ctx.currentTime;
+    const o = ctx.createOscillator(); o.type = 'sine';
+    o.frequency.setValueAtTime(620, t); o.frequency.exponentialRampToValueAtTime(180, t + 1.4);
+    const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.25, t + 0.2); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.5);
+    o.connect(g).connect(this.master); o.start(t); o.stop(t + 1.6);
+  },
   munch() {
     if (!this.running) return;
     const t = this.ctx.currentTime;
@@ -956,17 +992,54 @@ $('#btnAurora').addEventListener('click', () => {
 });
 $('#btnSound').addEventListener('click', () => audio.toggle());
 
-// 작은 창에서는 메뉴를 접고, 조작이 없으면 UI 를 흐리게
+// 작은 창·터치 화면은 모바일 배치(조이스틱·버튼·MENU 시트), 조작이 없으면 UI 를 흐리게
 const smallView = () => innerWidth <= 720 || innerHeight <= 620;
-let hudManual = null;
-function applyHud() {
-  const collapsed = hudManual === null ? smallView() : hudManual;
-  document.body.classList.toggle('hud-collapsed', collapsed);
-  $('#hudToggle').textContent = collapsed ? 'MENU' : '닫기';
+const coarseMQ = matchMedia('(pointer: coarse)');
+const isMobile = () => coarseMQ.matches || smallView();
+function syncMenuBtn() { $('#hudToggle').textContent = document.body.classList.contains('menu-open') ? '닫기' : 'MENU'; }
+function applyLayout() {
+  const m = isMobile();
+  document.body.classList.toggle('mobile', m);
+  if (!m) { document.body.classList.remove('menu-open', 'chat-open'); joyReset(); }
+  syncMenuBtn();
 }
-$('#hudToggle').addEventListener('click', () => { hudManual = !document.body.classList.contains('hud-collapsed'); applyHud(); });
-window.addEventListener('resize', () => { if (!smallView()) hudManual = null; applyHud(); });
-applyHud();
+function toggleMenu(force) {
+  if (document.body.classList.contains('mobile')) document.body.classList.toggle('menu-open', force);
+  else document.body.classList.toggle('hud-collapsed', force);
+  syncMenuBtn();
+}
+$('#hudToggle').addEventListener('click', () => toggleMenu());
+window.addEventListener('resize', applyLayout);
+if (coarseMQ.addEventListener) coarseMQ.addEventListener('change', applyLayout);
+$('#chatBtn').addEventListener('click', () => { document.body.classList.remove('menu-open'); syncMenuBtn(); document.body.classList.add('chat-open'); $('#chatText').focus(); });
+$('#chatText').addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== $('#chatText')) document.body.classList.remove('chat-open'); }, 150));
+$('#jumpBtn').addEventListener('pointerdown', (e) => { e.preventDefault(); unlock(); doJump(); });
+
+// 가상 조이스틱 (터치 화면): 손가락 방향·세기만큼 걷는다
+const joy = { dx: 0, dy: 0, id: null };
+const joyEl = $('#joy'), joyKnob = $('#joyKnob');
+const JOY_R = 40;
+function joyReset() { joy.dx = joy.dy = 0; joy.id = null; joyKnob.style.transform = ''; joyEl.removeAttribute('data-on'); }
+function joyMove(e) {
+  const r = joyEl.getBoundingClientRect();
+  let dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+  const d = Math.hypot(dx, dy);
+  if (d > JOY_R) { dx *= JOY_R / d; dy *= JOY_R / d; }
+  joy.dx = dx / JOY_R; joy.dy = dy / JOY_R;
+  joyKnob.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
+}
+joyEl.addEventListener('pointerdown', (e) => {
+  if (joy.id !== null || state.cinema) return;
+  e.preventDefault();
+  joy.id = e.pointerId; joyEl.setPointerCapture(e.pointerId); joyEl.setAttribute('data-on', '');
+  unlock(); joyMove(e);
+});
+joyEl.addEventListener('pointermove', (e) => { if (e.pointerId === joy.id) joyMove(e); });
+const joyEnd = (e) => { if (e.pointerId === joy.id) joyReset(); };
+joyEl.addEventListener('pointerup', joyEnd);
+joyEl.addEventListener('pointercancel', joyEnd);
+joyEl.addEventListener('lostpointercapture', joyEnd);
+applyLayout();
 let idleTimer = 0;
 function wake() {
   document.body.classList.remove('idle');
@@ -1143,8 +1216,8 @@ $('#sleep').addEventListener('change', (e) => {
 
 window.addEventListener('keydown', (e) => {
   if (e.target && (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT')) return;
-  if (e.code === 'Escape') { exitCinema(); $('#worry').removeAttribute('data-open'); closeShop(); return; }
-  if (e.code === 'KeyH' && !$('#gate')) { hudManual = !document.body.classList.contains('hud-collapsed'); applyHud(); return; }
+  if (e.code === 'Escape') { exitCinema(); $('#worry').removeAttribute('data-open'); closeShop(); document.body.classList.remove('menu-open', 'chat-open'); syncMenuBtn(); return; }
+  if (e.code === 'KeyH' && !$('#gate')) { toggleMenu(); return; }
   if ((e.code === 'KeyF' || e.code === 'KeyE') && !$('#gate') && !state.cinema) { e.preventDefault(); interact(); return; }
   if (/^Digit[1-9]$/.test(e.code) && !$('#gate') && !state.cinema) {
     const slot = $('#bag').querySelectorAll('.slot')[Number(e.code[5]) - 1];
@@ -1152,24 +1225,29 @@ window.addEventListener('keydown', (e) => {
     return;
   }
   // 한글 입력 상태에서도 되도록 물리 키 코드(e.code)로 판단
-  if (e.code === 'Space' && !state.cinema && !$('#gate')) {
-    e.preventDefault();
-    if (me.jumpY <= 0) { const wasSeated = me.seat >= 0; me.jump(); net.event('jump'); if (wasSeated) net.updateMe({ seat: -1, x: me.pos.x, z: me.pos.z }); }
-    return;
-  }
+  if (e.code === 'Space' && !state.cinema && !$('#gate')) { e.preventDefault(); doJump(); return; }
   if (KEYMAP[e.code]) { e.preventDefault(); keys.add(e.code); }
 });
 window.addEventListener('keyup', (e) => keys.delete(e.code));
 window.addEventListener('blur', () => keys.clear());
+function doJump() {
+  if (state.cinema || $('#gate') || surv.down > 0 || me.jumpY > 0) return;
+  const wasSeated = me.seat >= 0; me.jump(); net.event('jump');
+  if (wasSeated) net.updateMe({ seat: -1, x: me.pos.x, z: me.pos.z });
+}
 const keys = new Set();
 const KEYMAP = { KeyW: [0, 1], ArrowUp: [0, 1], KeyS: [0, -1], ArrowDown: [0, -1], KeyA: [1, 0], ArrowLeft: [1, 0], KeyD: [-1, 0], ArrowRight: [-1, 0] };
 function keyWalk(dt) {
-  let f = 0, r = 0;
+  let f = 0, r = 0, mag = 1;
+  me.walkMul = 1;
   for (const k of keys) { const m = KEYMAP[k]; if (m) { r += m[0]; f += m[1]; } }
+  if (joy.dx || joy.dy) { r -= joy.dx; f -= joy.dy; mag = Math.min(1, Math.hypot(joy.dx, joy.dy)); }
   if (!f && !r) return;
-  if (surv.down > 0) return;
+  if (surv.down > 0 && !me.ghost) return;
+  const n = Math.hypot(f, r) || 1;
+  me.walkMul = 0.35 + 0.65 * mag;
   const sy = Math.sin(cam.yaw), cy = Math.cos(cam.yaw);
-  const [x, z] = clampWalk(me.pos.x + (sy * f + cy * r) * 0.5, me.pos.z + (cy * f - sy * r) * 0.5);
+  const [x, z] = clampWalk(me.pos.x + (sy * f + cy * r) / n * 0.5, me.pos.z + (cy * f - sy * r) / n * 0.5);
   me.walkTo(x, z);
   pending = null;
 }
@@ -1279,7 +1357,7 @@ function resolveCircle(pos, radius, skipSelf) {
     pushed = true;
   };
   for (const o of obstacles) push(o.x, o.z, o.r);
-  for (const ch of allChars) { if (ch === skipSelf || !ch.group.visible && !ch.isMe) continue; push(ch.pos.x, ch.pos.z, 0.38); }
+  for (const ch of allChars) { if (ch === skipSelf || ch.ghost || !ch.group.visible && !ch.isMe) continue; push(ch.pos.x, ch.pos.z, 0.38); }
   for (const an of animals) { if (an === skipSelf || an.dead) continue; push(an.pos.x, an.pos.z, 0.3); }
   return pushed;
 }
@@ -1542,7 +1620,7 @@ class Character {
     scene.add(this.group);
     this.pos = new THREE.Vector3(); this.target = new THREE.Vector3();
     this.seat = -1; this.yaw = 0; this.walkT = 0; this.isMe = isMe; this.jumpY = 0; this.vy = 0;
-    this.atkCd = 0; this.speedMul = 1; this.isDown = false;
+    this.atkCd = 0; this.speedMul = 1; this.walkMul = 1; this.isDown = false; this.ghost = false; this.ghostPhase = Math.random() * 6.28;
     this.model = null; this.mixer = null; this.clips = {}; this.cur = null; this.anim = '';
     allChars.add(this);
     this.attachModel();
@@ -1589,6 +1667,32 @@ class Character {
     this.mixer = new THREE.AnimationMixer(m);
     for (const c of anims) this.clips[c.name] = this.mixer.clipAction(c);
     this.play('idle');
+    if (this.ghost) { this.ghost = false; this.setGhost(true); }
+  }
+  // 유령: 반투명·푸르스름한 재질로 바꾸고 둥둥 떠다닌다 (재질은 캐릭터마다 복제해 다른 사람에게 영향 없음)
+  setGhost(on) {
+    on = !!on;
+    if (this.ghost === on) return;
+    this.ghost = on;
+    this.nm.classList.toggle('ghost', on);
+    this.group.traverse((o) => {
+      if (!o.isMesh) return;
+      if (on) {
+        if (!o.userData.baseMat) o.userData.baseMat = o.material;
+        if (o.userData.ghostMat) o.userData.ghostMat.dispose();
+        const g = o.userData.baseMat.clone();
+        g.transparent = true; g.opacity = 0.42; g.depthWrite = false;
+        if (g.color) g.color.lerp(new THREE.Color(0xbfe0ff), 0.55);
+        if (g.emissive) { g.emissive.set(0x8fb6ff); g.emissiveIntensity = 0.35; }
+        o.userData.ghostMat = g; o.material = g;
+      } else if (o.userData.baseMat) {
+        o.material = o.userData.baseMat;
+        if (o.userData.ghostMat) o.userData.ghostMat.dispose();
+        o.userData.ghostMat = null;
+      }
+    });
+    if (!on) this.group.rotation.z = 0;
+    if (this.model) { this.emoteUntil = 0; this.play('idle'); }
   }
   setAvatar(av) {
     av = normalizeAvatar(av);
@@ -1634,7 +1738,7 @@ class Character {
     const dist = Math.hypot(dx, dz);
     const moving = dist > 0.03;
     if (moving) {
-      const step = Math.min(dist, 1.7 * this.speedMul * dt);
+      const step = Math.min(dist, 1.7 * this.speedMul * this.walkMul * dt);
       this.pos.x += dx / dist * step; this.pos.z += dz / dist * step;
       this.yaw = Math.atan2(dx, dz);
       this.walkT += dt * 9;
@@ -1642,12 +1746,15 @@ class Character {
     const seated = this.seat >= 0 && !moving;
     if (seated) this.yaw = Math.atan2(-this.pos.x, -this.pos.z);
     if (this.jumpY > 0) { this.vy -= 9.8 * dt; this.jumpY += this.vy * dt; if (this.jumpY <= 0) { this.jumpY = 0; this.vy = 0; } }
-    const baseY = this.model ? (seated ? this.seatY : 0) : (seated ? 0.3 : (moving ? Math.abs(Math.sin(this.walkT)) * 0.05 : 0));
+    const baseY = this.ghost ? 0.75 + Math.sin(state.time * 1.7 + this.ghostPhase) * 0.14
+      : this.model ? (seated ? this.seatY : 0) : (seated ? 0.3 : (moving ? Math.abs(Math.sin(this.walkT)) * 0.05 : 0));
     this.group.position.set(this.pos.x, baseY + this.jumpY, this.pos.z);
     this.group.rotation.y += wrapAngle(this.yaw - this.group.rotation.y) * Math.min(1, dt * 10);
+    if (this.ghost) this.group.rotation.z = Math.sin(state.time * 1.3 + this.ghostPhase) * 0.06;
     if (this.model) {
       this.mixer.update(dt);
-      if (this.isAnimal) {
+      if (this.ghost) this.play('idle');
+      else if (this.isAnimal) {
         if (moving) this.play('walk');
         else if (!(this.emoteUntil > state.time)) this.play('idle');
       } else if (this.jumpY > 0) this.play('jump');
@@ -1790,7 +1897,7 @@ canvas.addEventListener('pointerup', (e) => {
   if (moved > 8 || held > 400) return;
   ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
   raycaster.setFromCamera(ndc, camera);
-  const logHit = raycaster.intersectObjects(seatLogs, false)[0];
+  const logHit = me.ghost ? null : raycaster.intersectObjects(seatLogs, false)[0];
   if (logHit) {
     const li = logHit.object.userData.log;
     const cands = SEATS.map((s, i) => ({ s, i })).filter(({ s, i }) => s.log === li && !seatTakenBy(i));
@@ -1801,8 +1908,8 @@ canvas.addEventListener('pointerup', (e) => {
     net.updateMe({ x: me.target.x, z: me.target.z, seat: me.seat });
     return;
   }
-  if (surv.down > 0) return;
-  const pk = raycaster.intersectObjects(pickables, true)[0];
+  if (surv.down > 0 && !me.ghost) return;
+  const pk = me.ghost ? null : raycaster.intersectObjects(pickables, true)[0];
   if (pk && pk.distance < 40) {
     const u = pk.object.userData;
     if (typeof u.tree === 'number') { goInteract('tree', trees[u.tree]); return; }
@@ -1812,7 +1919,7 @@ canvas.addEventListener('pointerup', (e) => {
   const g = raycaster.intersectObject(ground, false)[0];
   if (!g) return;
   const [x, z] = clampWalk(g.point.x, g.point.z);
-  if (insideObstacle(x, z, 0.38)) { toast('거기는 갈 수 없어요'); return; }
+  if (!me.ghost && insideObstacle(x, z, 0.38)) { toast('거기는 갈 수 없어요'); return; }
   pending = null;
   me.walkTo(x, z);
   net.updateMe({ x, z, seat: -1 });
@@ -1915,6 +2022,8 @@ function updateSurvival(dt) {
   if (surv.down > 0) {
     surv.down -= dt;
     $('#downN').textContent = Math.max(1, Math.ceil(surv.down));
+    if (!me.ghost && surv.down <= GHOST_T - 1.1) { me.setGhost(true); audio.ghost(); toast('유령이 되어 숲을 떠돌아요 👻 · 깨어날 때까지 둥둥 떠다닐 수 있어요', 3500); }
+    me.speedMul = 0.85;
     if (surv.down <= 0) wakeUp();
     return;
   }
@@ -1932,26 +2041,30 @@ function updateSurvival(dt) {
   }
   if (state.time - surv.spawnAt > 3 && (surv.hunger <= 0 || surv.warmth <= 0)) collapse(surv.hunger <= 0 ? 'hunger' : 'cold');
 }
+// 쓰러지면 잠깐 누웠다가 유령이 되어 GHOST_T 초 동안 떠다니고, 모닥불 곁에서 깨어난다
+const GHOST_T = 15;
 function collapse(why) {
-  surv.down = 8;
+  surv.down = GHOST_T;
   const loss = Math.floor(prof.gold * 0.1);
   prof.gold -= loss; net.burn(loss);
-  me.down(true); me.target.copy(me.pos); keys.clear(); pending = null;
-  closeShop(); exitCinema();
+  me.down(true); me.target.copy(me.pos); keys.clear(); joyReset(); pending = null;
+  cam.distTarget = Math.max(cam.distTarget, 3.2);
+  closeShop(); exitCinema(); document.body.classList.remove('menu-open', 'chat-open'); syncMenuBtn();
   $('#downWhy').textContent = why === 'hunger' ? '배가 너무 고파 쓰러졌어요…' : '추위에 얼어 쓰러졌어요…';
-  $('#downLoss').textContent = loss ? `골드 ${loss}개를 잃었어요` : '';
-  $('#down').setAttribute('data-on', '');
+  $('#downLoss').textContent = loss ? ` · 골드 ${loss}개를 잃었어요` : '';
+  $('#down').setAttribute('data-on', ''); $('#ghostFx').setAttribute('data-on', '');
+  net.updateMe({ ghost: 1 });
   renderWallet(); saveProfile(true);
 }
 function wakeUp() {
   surv.down = 0; surv.spawnAt = state.time;
   surv.hunger = Math.max(surv.hunger, 40); surv.warmth = Math.max(surv.warmth, 40);
-  $('#down').removeAttribute('data-on');
+  $('#down').removeAttribute('data-on'); $('#ghostFx').removeAttribute('data-on');
   const a = rand(0, Math.PI * 2), r = rand(1.6, 2.0);
   me.seat = -1; me.place(Math.cos(a) * r, Math.sin(a) * r);
   cam.yaw = Math.atan2(-me.pos.x, -me.pos.z);
-  me.down(false);
-  net.updateMe({ x: me.pos.x, z: me.pos.z, seat: -1 });
+  me.setGhost(false); me.down(false); me.walkMul = 1;
+  net.updateMe({ x: me.pos.x, z: me.pos.z, seat: -1, ghost: 0 });
   toast('모닥불 곁에서 눈을 떴어요', 3000);
   saveProfile();
 }
@@ -2272,6 +2385,7 @@ const net = {
           o.ch.setName(pname);
           if (p.color) o.ch.setColor(p.color);
           if (normalizeAvatar(p.avatar) !== o.ch.avatar) o.ch.setAvatar(p.avatar);
+          o.ch.setGhost(!!p.ghost);
           const seat = typeof p.seat === 'number' ? p.seat : -1;
           if (seat >= 0) { if (o.seat !== seat) o.ch.sit(seat); }
           else if (typeof p.x === 'number') o.ch.walkTo(p.x, p.z);
@@ -2383,13 +2497,14 @@ $('#chat').addEventListener('submit', (e) => {
   if (!t) return;
   me.say(t); net.say(t); logChat(meInfo.name, t);
   if (!net.on) toast('지금은 혼자라 말풍선만 떠요');
-  input.blur();
+  input.blur(); document.body.classList.remove('chat-open');
 });
 window.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter' || state.cinema) return;
   const tag = e.target && e.target.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'BUTTON' || $('#gate')) return;
   e.preventDefault();
+  document.body.classList.add('chat-open');
   $('#chatText').focus();
 });
 
@@ -2416,7 +2531,7 @@ function updateCamera(dt) {
   const third = cam.thirdPerson;
   cam.tilt = third ? clamp(cam.tilt, 0.05, 1.25) : clamp(cam.tilt, -0.7, 0.7);
   const seated = me.seat >= 0 && Math.hypot(me.target.x - me.pos.x, me.target.z - me.pos.z) < 0.05;
-  camHead.set(me.pos.x, (seated ? me.seatY : 0) + me.eyeY + me.jumpY, me.pos.z);
+  camHead.set(me.pos.x, me.group.position.y + me.eyeY, me.pos.z);
   if (third) {
     const h = Math.cos(cam.tilt) * cam.dist, v = Math.sin(cam.tilt) * cam.dist;
     camGoal.set(camHead.x - Math.sin(cam.yaw) * h, camHead.y + v, camHead.z - Math.cos(cam.yaw) * h);
@@ -2472,7 +2587,7 @@ function frame() {
   me.update(dt);
   if (me.atkCd > 0) me.atkCd -= dt;
   // 충돌: 나무·바위·텐트·다른 사람·동물 밖으로 밀어내기 (앉아 있을 땐 제외)
-  if (me.seat < 0 && resolveCircle(me.pos, 0.38, me) && insideObstacle(me.target.x, me.target.z, 0.38)) me.target.copy(me.pos);
+  if (me.seat < 0 && !me.ghost && resolveCircle(me.pos, 0.38, me) && insideObstacle(me.target.x, me.target.z, 0.38)) me.target.copy(me.pos);
   for (const [, o] of others) o.ch.update(dt);
   npc.update(dt);
   net.tick(dt);
@@ -2504,7 +2619,7 @@ function frame() {
     camera.lookAt(0, 0.65, 0);
     me.group.visible = true;
   } else {
-    if (surv.down <= 0) keyWalk(dt);
+    if (surv.down <= 0 || me.ghost) keyWalk(dt);
     updateCamera(dt);
   }
 

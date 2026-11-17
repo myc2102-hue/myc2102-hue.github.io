@@ -171,15 +171,21 @@
   body.mobile #rank li { grid-template-columns: 14px 1fr auto; gap: 4px; }
   body.mobile #rank li .t { font-size: 9px; }
   body.mobile #statusPanel { left: 150px; right: 104px; width: auto; transform: none; }
-  body.mobile #bottomBar { position: fixed; left: 12px; right: 12px; bottom: 150px; padding: 5px 6px; gap: 6px; }
-  body.mobile #bag { max-width: 60%; min-height: 42px; }
-  body.mobile #bag .slot { width: 40px; height: 40px; font-size: 20px; }
+  body.mobile #bottomBar { display: contents; }
+  body.mobile #bag { display: none; position: fixed; right: max(18px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 230px); max-width: min(236px, calc(100% - 36px)); flex-wrap: wrap; justify-content: flex-end; gap: 5px; padding: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); overflow: visible; min-height: 0; z-index: 7; }
+  body.mobile.bag-open #bag { display: flex; }
+  body.mobile #bag .slot { width: 46px; height: 46px; font-size: 22px; }
   body.mobile #bag .slot .k { display: none; }
-  body.mobile #chat { flex: 1 1 110px; min-width: 100px; }
-  body.mobile #chat .btn { padding: 8px 10px; font-size: 13px; }
-  body.mobile #chatText { font-size: 16px; padding: 8px 10px; min-width: 0; }
-  body.mobile.chat-open #bag { display: none; }
-  body.mobile.chat-open #bottomBar { bottom: 8px; z-index: 8; }
+  body.mobile #chat { display: none; position: fixed; left: 0; right: 0; bottom: 0; padding: 10px max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); background: var(--panel); border-top: 1px solid var(--line); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 8; }
+  body.mobile.chat-open #chat { display: flex; }
+  body.mobile #chatText { font-size: 16px; padding: 10px 12px; min-width: 0; }
+  #bagBtn, #chatBtn { position: fixed; display: none; z-index: 6; width: 50px; height: 50px; font-size: 22px; transition: opacity .6s; }
+  #bagBtn { right: calc(max(18px, env(safe-area-inset-right)) + 74px); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 85px); }
+  #chatBtn { left: max(18px, env(safe-area-inset-left)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 136px); }
+  body.mobile #bagBtn, body.mobile #chatBtn { display: flex; }
+  body.mobile.bag-open #bagBtn { background: rgba(255,178,90,0.35); border-color: rgba(255,170,90,0.6); }
+  body.idle #bagBtn, body.idle #chatBtn { opacity: 0.18; }
+  body.cinema #bagBtn, body.cinema #chatBtn { opacity: 0; pointer-events: none; }
   body.mobile #prompt { position: fixed; left: auto; right: max(18px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 78px); transform: none; width: 64px; height: 64px; padding: 0; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; gap: 1px; font-size: 10px; opacity: .45; background: var(--panel); border-color: var(--line); }
   body.mobile #prompt[data-on] { opacity: 1; background: rgba(255,150,60,0.3); border-color: rgba(255,170,90,0.6); }
   body.mobile #prompt kbd { display: none; }
@@ -187,7 +193,7 @@
   body.mobile #promptText { max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   body.mobile #menuPanel { position: fixed; left: 12px; right: 100px; bottom: 150px; max-height: calc(100% - 180px); overflow-y: auto; display: none; z-index: 7; }
   body.mobile.menu-open #menuPanel { display: block; }
-  body.mobile.menu-open #bottomBar { display: none; }
+  body.mobile.menu-open #bag { display: none; }
   body.mobile #hudToggle { display: flex; right: max(18px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 152px); }
   body.mobile #joy, body.mobile #tbtns { display: block; }
   #joy { position: fixed; left: max(18px, env(safe-area-inset-left)); bottom: max(18px, env(safe-area-inset-bottom)); width: 124px; height: 124px; border-radius: 50%; border: 1px solid var(--line); background: rgba(10,16,28,0.35); z-index: 6; touch-action: none; }
@@ -198,7 +204,8 @@
   .tb:active { background: rgba(255,178,90,0.35); }
   #jumpBtn { width: 64px; height: 64px; font-size: 26px; }
   @media (orientation: landscape) and (max-height: 500px) {
-    body.mobile #bottomBar { bottom: max(14px, env(safe-area-inset-bottom)); left: 150px; right: 100px; }
+    body.mobile #bag { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 160px); }
+    body.mobile #chatBtn { bottom: auto; top: 110px; }
     body.mobile #menuPanel { bottom: 14px; left: 150px; right: 100px; max-height: calc(100% - 80px); }
   }
 
@@ -386,6 +393,8 @@
 <button class="btn panel" id="hudToggle" aria-label="메뉴 접기/펼치기" title="메뉴 접기/펼치기 (H)">MENU</button>
 <div id="joy" aria-hidden="true"><div id="joyKnob"></div></div>
 <div id="tbtns"><button class="tb" id="jumpBtn" type="button" aria-label="점프">⇧</button></div>
+<button class="tb" id="bagBtn" type="button" aria-label="가방 열기/닫기">🎒</button>
+<button class="tb" id="chatBtn" type="button" aria-label="채팅">💬</button>
 <button class="btn panel" id="exitCinema">화면을 누르거나 ESC · 불멍 모드 나가기</button>
 <div id="dim"></div>
 <div id="cold"></div><div id="hungry"></div><div id="ghostFx"></div>
@@ -473,9 +482,55 @@ const softTex = (() => {
 /* ================= 지형·소품 ================= */
 const mat = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 1, ...extra });
 
-const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 48), mat(0x15241a));
+// 바닥: 밝은 황토에 흙 알갱이·풀빛 얼룩을 찍은 캔버스 텍스처 (너무 검지 않게)
+const groundTex = (() => {
+  const c = document.createElement('canvas'); c.width = c.height = 512;
+  const g = c.getContext('2d');
+  g.fillStyle = '#c9a66b'; g.fillRect(0, 0, 512, 512);
+  const rr = mulberry32(7);
+  for (let i = 0; i < 2600; i++) {
+    const x = rr() * 512, y = rr() * 512, r = 1 + rr() * 3;
+    const k = rr();
+    g.fillStyle = k < 0.55 ? `rgba(150,110,60,${0.12 + rr() * 0.2})` : k < 0.8 ? `rgba(235,210,150,${0.15 + rr() * 0.25})` : `rgba(110,140,70,${0.14 + rr() * 0.22})`;
+    g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill();
+  }
+  for (let i = 0; i < 90; i++) {
+    const x = rr() * 512, y = rr() * 512, r = 8 + rr() * 22;
+    const grd = g.createRadialGradient(x, y, 0, x, y, r);
+    grd.addColorStop(0, `rgba(120,150,75,${0.22 + rr() * 0.18})`); grd.addColorStop(1, 'rgba(120,150,75,0)');
+    g.fillStyle = grd; g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill();
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(36, 36); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+  return t;
+})();
+const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 48), new THREE.MeshStandardMaterial({ map: groundTex, color: 0xf0d9a8, roughness: 0.95 }));
 ground.rotation.x = -Math.PI / 2;
 scene.add(ground);
+// 아기자기한 풀: 여러 색의 풀잎 다발 (원뿔 인스턴스)
+{
+  const n = 1400;
+  const geo = new THREE.ConeGeometry(0.05, 0.26, 4, 1, true);
+  geo.translate(0, 0.13, 0);
+  const gmat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, side: THREE.DoubleSide, vertexColors: false });
+  const grass = new THREE.InstancedMesh(geo, gmat, n);
+  const d = new THREE.Object3D(), col = new THREE.Color();
+  const rg = mulberry32(99);
+  const tints = [0x7fb15a, 0x9ccc62, 0x6ea04f, 0xb6d47a, 0xd8c65a, 0x8bbf6a];
+  let k = 0;
+  while (k < n) {
+    const a = rg() * 6.283, r = 1.8 + Math.sqrt(rg()) * 26;
+    const x = Math.cos(a) * r, z = Math.sin(a) * r;
+    if (z < -10.5 || Math.hypot(x - 5.6, z - 3.8) < 2.4) continue;
+    const sc = 0.7 + rg() * 1.1;
+    d.position.set(x, 0, z); d.rotation.set((rg() - 0.5) * 0.5, rg() * 6.283, (rg() - 0.5) * 0.5); d.scale.set(sc, sc * (0.8 + rg() * 0.8), sc);
+    d.updateMatrix(); grass.setMatrixAt(k, d.matrix);
+    grass.setColorAt(k, col.setHex(tints[Math.floor(rg() * tints.length)]));
+    k++;
+  }
+  grass.instanceMatrix.needsUpdate = true; if (grass.instanceColor) grass.instanceColor.needsUpdate = true;
+  scene.add(grass);
+}
 
 const lake = new THREE.Mesh(new THREE.PlaneGeometry(180, 64), new THREE.MeshStandardMaterial({ color: 0x0a1a30, metalness: 0.9, roughness: 0.12 }));
 lake.rotation.x = -Math.PI / 2;
@@ -639,9 +694,9 @@ const PHASE_LABEL = { night: '밤', dawn: '아침', day: '낮', dusk: '저녁' }
 const sunUp = (h = dayClock()) => clamp((Math.sin((h - 6) / 24 * Math.PI * 2) + 0.18) / 1.18, 0, 1);
 const SKY = { night: new THREE.Color(0x03070c), dawn: new THREE.Color(0x5a3a4a), day: new THREE.Color(0x8fc4ee), dusk: new THREE.Color(0x7a3f2e) };
 const FOG = { night: new THREE.Color(0x04090e), day: new THREE.Color(0x9fcbe6), dawn: new THREE.Color(0x6b4a52), dusk: new THREE.Color(0x7d4a39) };
-const hemi = new THREE.HemisphereLight(0x1b2b4d, 0x070c08, 0.25);
+const hemi = new THREE.HemisphereLight(0x1b2b4d, 0x1a1a14, 0.25);
 const HEMI_SKY = { night: new THREE.Color(0x1b2b4d), day: new THREE.Color(0xbfdcff), gold: new THREE.Color(0xffb070) };
-const HEMI_GROUND = { night: new THREE.Color(0x070c08), day: new THREE.Color(0x4a6a3a) };
+const HEMI_GROUND = { night: new THREE.Color(0x1a1a14), day: new THREE.Color(0x6a6a4a) };
 scene.add(hemi);
 const _c1 = new THREE.Color(), _c2 = new THREE.Color();
 function updateDaylight() {
@@ -656,7 +711,7 @@ function updateDaylight() {
   scene.fog.density = 0.014 - 0.004 * up;
   hemi.color.copy(HEMI_SKY.night).lerp(HEMI_SKY.day, up).lerp(HEMI_SKY.gold, gold * 0.6);
   hemi.groundColor.copy(HEMI_GROUND.night).lerp(HEMI_GROUND.day, up);
-  hemi.intensity = 0.25 + 0.9 * up;
+  hemi.intensity = 0.42 + 0.9 * up;
   // 해 위치: 동(+x)에서 떠서 서(-x)로. 각도는 06시 0 → 12시 정점 → 18시 지평선
   const ang = (h - 6) / 12 * Math.PI;
   const sx = Math.cos(ang) * 420, sy = Math.sin(ang) * 300, sz = -160;
@@ -1086,7 +1141,7 @@ function syncMenuBtn() { $('#hudToggle').textContent = document.body.classList.c
 function applyLayout() {
   const m = isMobile();
   document.body.classList.toggle('mobile', m);
-  if (!m) { document.body.classList.remove('menu-open', 'chat-open'); joyReset(); }
+  if (!m) { document.body.classList.remove('menu-open', 'chat-open', 'bag-open'); joyReset(); }
   syncMenuBtn();
 }
 function toggleMenu(force) {
@@ -1098,6 +1153,8 @@ $('#hudToggle').addEventListener('click', () => toggleMenu());
 window.addEventListener('resize', applyLayout);
 if (coarseMQ.addEventListener) coarseMQ.addEventListener('change', applyLayout);
 $('#chatText').addEventListener('focus', () => { document.body.classList.remove('menu-open'); syncMenuBtn(); document.body.classList.add('chat-open'); });
+$('#chatBtn').addEventListener('click', () => { document.body.classList.remove('menu-open', 'bag-open'); syncMenuBtn(); document.body.classList.add('chat-open'); $('#chatText').focus(); });
+$('#bagBtn').addEventListener('click', () => { document.body.classList.remove('menu-open', 'chat-open'); syncMenuBtn(); document.body.classList.toggle('bag-open'); });
 $('#chatText').addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== $('#chatText')) document.body.classList.remove('chat-open'); }, 150));
 $('#jumpBtn').addEventListener('pointerdown', (e) => { e.preventDefault(); unlock(); doJump(); });
 
@@ -1302,7 +1359,7 @@ $('#sleep').addEventListener('change', (e) => {
 
 window.addEventListener('keydown', (e) => {
   if (e.target && (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT')) return;
-  if (e.code === 'Escape') { exitCinema(); $('#worry').removeAttribute('data-open'); closeShop(); document.body.classList.remove('menu-open', 'chat-open'); syncMenuBtn(); return; }
+  if (e.code === 'Escape') { exitCinema(); $('#worry').removeAttribute('data-open'); closeShop(); document.body.classList.remove('menu-open', 'chat-open', 'bag-open'); syncMenuBtn(); return; }
   if (e.code === 'KeyH' && !$('#gate')) { toggleMenu(); return; }
   if ((e.code === 'KeyF' || e.code === 'KeyE') && !$('#gate') && !state.cinema) { e.preventDefault(); interact(); return; }
   if (/^Digit[1-9]$/.test(e.code) && !$('#gate') && !state.cinema) {
@@ -1465,8 +1522,8 @@ async function buildForest() {
   scatter(g['rocks-low'], 10, 6, 30, 1.2, 2.2, { hit: 0.45 });
   scatter(g['rocks-high'], 5, 12, 35, 1.4, 2.4, { hit: 0.45 });
   scatter(g['stones'], 12, 4.5, 20, 1.0, 1.8, { hit: 0.35 });
-  scatter(g['plant'], 40, 3.2, 16, 1.6, 2.6);
-  scatter(g['patch-grass'], 30, 3.5, 18, 1.5, 2.5);
+  scatter(g['plant'], 55, 2.4, 18, 1.3, 2.4);
+  scatter(g['patch-grass'], 70, 2.2, 22, 1.2, 2.4);
   const tent = g['tent'].clone(); tent.position.set(-4.8, 0, -0.6); tent.rotation.y = 0.55; tent.scale.setScalar(2.6); scene.add(tent);
   addObstacle(-4.8, -0.6, 1.5);
   const flag = g['flag'].clone(); flag.position.set(-3.2, 0, -2.2); flag.scale.setScalar(2.2); scene.add(flag);

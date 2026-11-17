@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=overlays-content">
 <title>모여봐요 찰스의 숲</title>
 <meta name="description" content="은하수가 보이는 숲속 호숫가, 모닥불 앞에서 불멍하는 힐링 웹 게임">
 <meta property="og:title" content="모여봐요 찰스의 숲">
@@ -176,7 +176,7 @@
   body.mobile.bag-open #bag { display: flex; }
   body.mobile #bag .slot { width: 46px; height: 46px; font-size: 22px; }
   body.mobile #bag .slot .k { display: none; }
-  body.mobile #chat { display: none; position: fixed; left: 0; right: 0; bottom: 0; padding: 10px max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); background: var(--panel); border-top: 1px solid var(--line); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 8; }
+  body.mobile #chat { display: none; position: fixed; left: 12px; right: 12px; bottom: 150px; padding: 8px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 9; box-shadow: 0 6px 24px rgba(0,0,0,0.45); }
   body.mobile.chat-open #chat { display: flex; }
   body.mobile #chatText { font-size: 16px; padding: 10px 12px; min-width: 0; }
   #bagBtn, #chatBtn { position: fixed; display: none; z-index: 6; width: 50px; height: 50px; font-size: 22px; transition: opacity .6s; }
@@ -206,6 +206,7 @@
   @media (orientation: landscape) and (max-height: 500px) {
     body.mobile #bag { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 160px); }
     body.mobile #chatBtn { bottom: auto; top: 110px; }
+    body.mobile #chat { left: 150px; right: 100px; bottom: 14px; }
     body.mobile #menuPanel { bottom: 14px; left: 150px; right: 100px; max-height: calc(100% - 80px); }
   }
 
@@ -1155,7 +1156,17 @@ if (coarseMQ.addEventListener) coarseMQ.addEventListener('change', applyLayout);
 $('#chatText').addEventListener('focus', () => { document.body.classList.remove('menu-open'); syncMenuBtn(); document.body.classList.add('chat-open'); });
 $('#chatBtn').addEventListener('click', () => { document.body.classList.remove('menu-open', 'bag-open'); syncMenuBtn(); document.body.classList.add('chat-open'); $('#chatText').focus(); });
 $('#bagBtn').addEventListener('click', () => { document.body.classList.remove('menu-open', 'chat-open'); syncMenuBtn(); document.body.classList.toggle('bag-open'); });
-$('#chatText').addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== $('#chatText')) document.body.classList.remove('chat-open'); }, 150));
+$('#chatText').addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== $('#chatText')) { document.body.classList.remove('chat-open'); $('#chat').style.bottom = ''; } }, 150));
+// 가상 키보드가 화면을 밀지 않게(overlays-content) 하고, 입력줄은 키보드 바로 위에 띄운다
+const vv = window.visualViewport;
+function placeChat() {
+  if (!vv || !document.body.classList.contains('chat-open') || !document.body.classList.contains('mobile')) return;
+  const kb = Math.max(0, innerHeight - vv.height - vv.offsetTop);
+  $('#chat').style.bottom = kb > 80 ? (kb + 8) + 'px' : '';
+  if (kb > 80 || scrollY) window.scrollTo(0, 0);
+}
+if (vv) { vv.addEventListener('resize', placeChat); vv.addEventListener('scroll', placeChat); }
+$('#chatText').addEventListener('focus', () => { setTimeout(placeChat, 60); setTimeout(placeChat, 350); });
 $('#jumpBtn').addEventListener('pointerdown', (e) => { e.preventDefault(); unlock(); doJump(); });
 
 // 가상 조이스틱 (터치 화면): 손가락 방향·세기만큼 걷는다

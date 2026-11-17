@@ -1857,7 +1857,8 @@ const wrapAngle = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 const labelsEl = $('#labels');
 const projV = new THREE.Vector3();
 const allChars = new Set();
-const normalizeAvatar = (av) => (ANIMALS.includes(av) || HUMANS.includes(av)) ? av : 'archer';
+// 플레이어는 사람 캐릭터만 고를 수 있다(2026-11-18). 예전에 저장된 동물 모습은 궁수로 돌린다
+const normalizeAvatar = (av) => HUMANS.includes(av) ? av : 'archer';
 const ARCHER_SCALE = 1.6;
 
 class Character {
@@ -2077,7 +2078,6 @@ const avatarBtns = [];
     box.appendChild(row);
   };
   mkRow(HUMANS, HUMAN_LABEL, (n) => `assets/models/previews/character-${n}.png`);
-  mkRow(ANIMALS, ANIMAL_LABEL, (n) => `assets/models/previews/animal-${n}.png`);
 }
 function markAvatar() { for (const b of avatarBtns) b.setAttribute('aria-checked', b.dataset.avatar === meInfo.avatar ? 'true' : 'false'); }
 markAvatar();

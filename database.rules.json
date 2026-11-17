@@ -4,15 +4,21 @@
     ".write": false,
     "rooms": {
       "$room": {
-        ".read": "auth != null && auth.token.firebase.sign_in_provider == 'google.com'",
+        ".read": "auth != null",
         "fire": {
-          ".write": "auth != null && auth.token.firebase.sign_in_provider == 'google.com'",
+          ".write": "auth != null",
           ".validate": "newData.hasChildren(['fuel', 'at']) && newData.child('fuel').isNumber() && newData.child('fuel').val() >= 0 && newData.child('fuel').val() <= 100 && newData.child('at').isNumber()"
+        },
+        "names": {
+          "$key": {
+            ".write": "auth != null && (!data.exists() || data.val() == auth.uid) && (!newData.exists() || newData.val() == auth.uid)",
+            ".validate": "newData.isString()"
+          }
         },
         "players": {
           "$uid": {
-            ".write": "auth != null && auth.uid == $uid && auth.token.firebase.sign_in_provider == 'google.com'",
-            ".validate": "!newData.exists() || (newData.hasChildren(['name', 'color']) && newData.child('name').isString() && newData.child('name').val().length <= 16 && newData.child('color').isString() && (!newData.child('name').val().replace(' ', '').toLowerCase().matches(/^(찰스|문찰스|charles)$/) || root.child('owners').child(auth.uid).val() == true))",
+            ".write": "auth != null && auth.uid == $uid",
+            ".validate": "!newData.exists() || (newData.hasChildren(['name', 'color']) && newData.child('name').isString() && newData.child('name').val().matches(/^[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9 ]{1,12}$/) && root.child('rooms/' + $room + '/names/' + newData.child('name').val().replace(' ', '').toLowerCase()).val() == auth.uid && newData.child('color').isString() && (!newData.child('name').val().replace(' ', '').toLowerCase().matches(/^(찰스|문찰스|charles)$/) || root.child('owners').child(auth.uid).val() == true))",
             "say": {
               "text": {
                 ".validate": "newData.isString() && newData.val().length <= 60"
@@ -22,11 +28,23 @@
         },
         "events": {
           "$id": {
-            ".write": "auth != null && !data.exists() && auth.token.firebase.sign_in_provider == 'google.com'",
+            ".write": "auth != null && !data.exists()",
             ".validate": "newData.hasChildren(['type', 'by', 'at']) && newData.child('by').val() == auth.uid && newData.child('type').isString() && newData.child('type').val().length <= 12"
           }
         }
       }
+    },
+    "profiles": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        ".validate": "newData.hasChildren(['gold']) && newData.child('gold').isNumber() && newData.child('gold').val() >= 0"
+      }
+    },
+    "economy": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".validate": "newData.hasChildren(['minted', 'burned', 'profiles']) && newData.child('minted').isNumber() && newData.child('burned').isNumber() && newData.child('profiles').isNumber()"
     },
     "owners": {
       "$uid": {

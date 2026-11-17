@@ -148,6 +148,8 @@
   /* 작은 창: 메뉴 접기 버튼, 가만히 두면 UI 흐려짐 */
   #hudToggle { position: fixed; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); z-index: 6; height: 36px; border-radius: 999px; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; letter-spacing: .08em; padding: 0 14px; }
   body.hud-collapsed #secondary, body.hud-collapsed #emotes, body.hud-collapsed #mixer { display: none; }
+  body.hud-collapsed #vitals { padding: 0 10px 6px; font-size: 11px; }
+  body.hud-collapsed #bag .slot { width: 40px; height: 40px; font-size: 20px; }
   body.hud-collapsed #hud { width: min(520px, calc(100% - 92px)); left: 12px; transform: none; }
   body.hud-collapsed #status { padding: 6px 10px; font-size: 12px; }
   body.hud-collapsed #actions { padding: 6px; gap: 4px; }
@@ -169,6 +171,74 @@
     #gateArt { object-position: 50% 45%; }
   }
   body.cinema #hudToggle { opacity: 0; pointer-events: none; }
+
+  /* 생존 게이지 */
+  #vitals { display: flex; gap: 10px; padding: 0 12px 8px; font-size: 12px; color: var(--dim); }
+  .gauge { flex: 1; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .gauge .bar { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); overflow: hidden; }
+  .gauge .bar i { display: block; height: 100%; width: 100%; border-radius: 3px; transition: width .4s; }
+  #hungerFill { background: linear-gradient(90deg, #c8743a, #ffd166); }
+  #warmFill { background: linear-gradient(90deg, #4f8cff, #ff9b3a); }
+  .gauge.low .bar i { animation: lowblink 1s ease-in-out infinite; }
+  @keyframes lowblink { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+  #stateName.out { color: #ff7a7a; }
+
+  /* 지갑 */
+  #wallet { position: fixed; right: 14px; top: 50px; z-index: 5; display: flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 14px; font-weight: 700; color: #ffd166; transition: opacity .6s; }
+  #wallet small { font-size: 11px; font-weight: 400; color: var(--dim); }
+  body.cinema #wallet { opacity: 0; }
+  body.idle #wallet { opacity: 0.35; }
+  #hint { top: 90px; }
+
+  /* 가방 */
+  #bag { display: flex; align-items: center; gap: 6px; padding: 8px; overflow-x: auto; min-height: 48px; }
+  #bag .slot { position: relative; flex: 0 0 auto; width: 48px; height: 48px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255,255,255,0.06); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; line-height: 1; padding: 0; color: var(--text); transition: background .2s, transform .15s; }
+  #bag .slot:hover { background: rgba(255,255,255,0.14); transform: translateY(-2px); }
+  #bag .slot .n { position: absolute; right: 3px; bottom: 2px; font-size: 11px; font-weight: 700; color: var(--text); text-shadow: 0 1px 3px #000, 0 0 2px #000; }
+  #bag .slot .k { position: absolute; left: 4px; top: 2px; font-size: 9px; color: var(--dim); }
+  .bd { position: absolute; left: 2px; bottom: 1px; font-size: 13px; line-height: 1; }
+  #bag .empty { font-size: 12px; color: var(--dim); padding: 6px 4px; }
+  .ic { display: inline-flex; align-items: center; justify-content: center; width: 1em; height: 1em; }
+  .ic svg { width: 100%; height: 100%; }
+
+  /* 상호작용 버튼 (F) */
+  #prompt { align-self: center; padding: 9px 16px; font-size: 14px; border-radius: 999px; display: none; align-items: center; gap: 8px; cursor: pointer; white-space: nowrap; border: 1px solid rgba(255,170,90,0.45); background: rgba(255,150,60,0.22); color: var(--text); font: inherit; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  #prompt[data-on] { display: flex; }
+  #prompt kbd { font: inherit; font-size: 11px; padding: 1px 6px; border: 1px solid var(--line); border-radius: 6px; background: rgba(255,255,255,0.08); }
+  @media (max-width: 720px), (max-height: 620px) { #prompt kbd { display: none; } }
+
+  /* 추위·배고픔 화면 효과, 쓰러짐 */
+  #cold, #hungry { position: fixed; inset: 0; pointer-events: none; z-index: 4; opacity: 0; transition: opacity 1s; }
+  #cold { box-shadow: inset 0 0 160px 60px rgba(70, 120, 255, 0.55); }
+  #hungry { box-shadow: inset 0 0 140px 50px rgba(60, 25, 5, 0.75); }
+  #down { position: fixed; inset: 0; z-index: 9; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.72); color: var(--text); font-size: 20px; text-align: center; padding: 20px; }
+  #down[data-on] { display: flex; }
+  #down small { font-size: 13px; color: var(--dim); }
+  #down b { color: var(--accent); }
+
+  /* 매점 */
+  #shop { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(430px, calc(100% - 24px)); max-height: min(580px, calc(100% - 40px)); padding: 14px; z-index: 8; display: none; flex-direction: column; gap: 10px; }
+  #shop[data-open] { display: flex; }
+  #shop .head { display: flex; align-items: center; gap: 10px; }
+  #shop .head b { font-size: 16px; }
+  #shop .head span { margin-left: auto; font-size: 12px; color: var(--dim); white-space: nowrap; }
+  #shop .head .btn { flex: 0 0 auto; min-width: 0; padding: 6px 12px; }
+  #shop .tabs { display: flex; gap: 6px; }
+  #shop .tabs .btn[aria-selected="true"] { background: rgba(255,150,60,0.22); border-color: rgba(255,170,90,0.4); }
+  #shopList { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
+  .srow { display: grid; grid-template-columns: 40px 1fr auto auto; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,0.04); font-size: 13px; }
+  .srow .ico { font-size: 24px; position: relative; display: flex; align-items: center; justify-content: center; width: 40px; height: 36px; }
+  .srow .nm { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .srow .nm small { color: var(--dim); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .srow .pr { font-weight: 700; color: #ffd166; white-space: nowrap; }
+  .srow .btn { flex: 0 0 auto; min-width: 0; padding: 7px 10px; font-size: 13px; }
+  .srow .btn + .btn { margin-left: 4px; }
+  #shopNote { margin: 0; font-size: 12px; color: var(--dim); line-height: 1.5; }
+  .tag .nm.npc { color: #c9a7eb; }
+
+  /* 획득 표시 */
+  .gain { position: fixed; z-index: 7; transform: translate(-50%, -50%); font-size: 18px; font-weight: 700; color: #ffd166; text-shadow: 0 1px 6px rgba(0,0,0,0.9); pointer-events: none; animation: gainUp 1.2s ease-out forwards; white-space: nowrap; }
+  @keyframes gainUp { 0% { opacity: 0; transform: translate(-50%, -30%) scale(.8); } 20% { opacity: 1; transform: translate(-50%, -60%) scale(1.1); } 100% { opacity: 0; transform: translate(-50%, -160%) scale(1); } }
 </style>
 <script type="importmap">
 { "imports": {
@@ -188,28 +258,37 @@
     <input id="gateName" type="text" maxlength="12" placeholder="숲에서 쓸 이름을 적어 주세요" autocomplete="nickname" aria-label="숲에서 쓸 이름">
     <p id="avatarTag">접속하실 캐릭터를 골라주세요</p>
     <div id="avatars" role="radiogroup" aria-label="접속하실 캐릭터를 골라주세요"></div>
-    <button id="enter">Google 계정으로 입장</button>
-    <p id="gateNote">Google 로그인한 사람끼리 모닥불을 나눠요 · 소리가 함께 켜집니다</p>
+    <button id="enter">숲으로 입장</button>
+    <p id="gateNote">로그인 없이 바로 들어와요 · 지금 숲에 있는 사람과 같은 이름은 쓸 수 없어요 · 소리가 함께 켜집니다</p>
   </div>
 </div>
 
 <div id="title"><b>모여봐요 찰스의 숲</b> · 불멍</div>
 <div id="presence" class="panel" aria-live="polite"><i></i><b id="presenceN">–</b><span>접속 중</span></div>
-<div id="hint">드래그로 둘러보기 · 휠을 내리면 3인칭<br>WASD·방향키로 걷기 · 스페이스 점프 · H 메뉴 접기</div>
+<div id="wallet" class="panel" title="골드 · 5분 접속마다 자동 지급, 매점에서 쓰고 벌어요"><span>🪙</span><b id="goldN">0</b><small id="inflN"></small></div>
+<div id="hint">드래그로 둘러보기 · 휠을 내리면 3인칭<br>WASD·방향키로 걷기 · 스페이스 점프 · H 메뉴 접기<br>F 로 나무 치기·사냥·매점 · 숫자키로 가방 쓰기</div>
 
 <div id="quote" aria-live="polite"><span id="quoteText"></span></div>
 <div id="chatLog" aria-live="polite"></div>
 <div id="hud">
+  <button id="prompt" type="button"><kbd>F</kbd><span id="promptText"></span></button>
   <form id="chat" class="panel" autocomplete="off">
     <input id="chatText" type="text" maxlength="60" placeholder="말풍선으로 이야기해요 · Enter" aria-label="채팅">
     <button class="btn primary" type="submit">보내기</button>
   </form>
-  <div id="status" class="panel">
-    <span>불 상태 <b id="stateName">적정 불</b></span>
-    <span id="fuelBar"><i id="fuelFill"></i></span>
-    <span id="online">혼자</span>
-    <span id="sleepInfo" hidden></span>
+  <div class="panel">
+    <div id="status">
+      <span>불 상태 <b id="stateName">적정 불</b></span>
+      <span id="fuelBar"><i id="fuelFill"></i></span>
+      <span id="online">혼자</span>
+      <span id="sleepInfo" hidden></span>
+    </div>
+    <div id="vitals">
+      <span class="gauge" id="gHunger" title="배고픔 · 바닥나면 쓰러져요. 열매나 고기를 드세요"><span>🍖 배고픔</span><span class="bar"><i id="hungerFill"></i></span></span>
+      <span class="gauge" id="gWarm" title="추위 · 모닥불 곁에서 따뜻해져요. 바닥나면 쓰러져요"><span>🔥 추위</span><span class="bar"><i id="warmFill"></i></span></span>
+    </div>
   </div>
+  <div id="bag" class="panel" aria-label="가방"></div>
   <div class="panel">
     <div id="actions" class="primaryRow">
       <button class="btn primary" id="btnLog">장작 넣기</button>
@@ -227,12 +306,12 @@
       <button class="emo" data-emote="❤️" aria-label="하트">❤️</button>
       <button class="emo" data-emote="🎵" aria-label="음표">🎵</button>
       <button class="emo" data-emote="😴" aria-label="졸림">😴</button>
-      <span id="moveHint">바닥을 누르면 걷고, 통나무를 누르면 앉아요</span>
+      <span id="moveHint">바닥을 누르면 걷고, 통나무를 누르면 앉아요 · 나무·동물·매점을 누르면 다가가요</span>
     </div>
     <details id="mixer">
       <summary><svg class="gear" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.7 7.7 0 0 0-1.7-1l-.4-2.7h-4l-.4 2.7a7.7 7.7 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.7 7.7 0 0 0 1.7 1l.4 2.7h4l.4-2.7a7.7 7.7 0 0 0 1.7-1l2.5 1 2-3.5-2.3-1.6zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg> 설정</summary>
       <div class="mix">
-        <label for="myName">이름</label><input id="myName" type="text" maxlength="16" placeholder="숲속 이름">
+        <label for="myName">이름</label><input id="myName" type="text" maxlength="12" placeholder="숲속 이름">
         <label for="mFire">모닥불</label><input id="mFire" type="range" min="0" max="1" step="0.01" value="0.45">
         <label for="mCricket">밤벌레</label><input id="mCricket" type="range" min="0" max="1" step="0.01" value="0.35">
         <label for="mWind">바람</label><input id="mWind" type="range" min="0" max="1" step="0.01" value="0.25">
@@ -252,7 +331,16 @@
 <button class="btn panel" id="hudToggle" aria-label="메뉴 접기/펼치기" title="메뉴 접기/펼치기 (H)">MENU</button>
 <button class="btn panel" id="exitCinema">화면을 누르거나 ESC · 불멍 모드 나가기</button>
 <div id="dim"></div>
+<div id="cold"></div><div id="hungry"></div>
+<div id="down" aria-live="assertive"><div id="downWhy"></div><small id="downLoss"></small><small><b id="downN">8</b>초 뒤 모닥불 곁에서 깨어나요</small></div>
 <div id="toast" role="status"></div>
+
+<div id="shop" class="panel" role="dialog" aria-label="매점">
+  <div class="head"><b>곰손 매점</b><span id="shopInfl"></span><button class="btn" id="shopClose" type="button">닫기</button></div>
+  <div class="tabs"><button class="btn" type="button" data-tab="buy" aria-selected="true">구매</button><button class="btn" type="button" data-tab="sell" aria-selected="false">판매</button></div>
+  <div id="shopList"></div>
+  <p id="shopNote"></p>
+</div>
 
 <div id="labels" aria-hidden="true"></div>
 
@@ -277,7 +365,8 @@ const rand = (a = 0, b = 1) => a + Math.random() * (b - a);
 /* ================= 상태 ================= */
 const state = { fuel: 65, aurora: 0, cinema: false, cinemaAngle: 0, sleepEnd: 0, time: 0, uiTick: 0 };
 const fuelF = () => state.fuel / 100;
-const fireName = (f) => f >= 80 ? '강한 불' : f >= 50 ? '적정 불' : f >= 25 ? '작은 불' : f >= 10 ? '불씨' : '숯불';
+const fireName = (f) => f <= 0 ? '꺼짐' : f >= 80 ? '강한 불' : f >= 50 ? '적정 불' : f >= 25 ? '작은 불' : f >= 10 ? '불씨' : '숯불';
+const fireOut = () => state.fuel <= 0;
 
 /* ================= 렌더러·카메라 ================= */
 const canvas = $('#scene');
@@ -535,6 +624,19 @@ const sparks = new Particles(300, THREE.AdditiveBlending);
 const smoke = new Particles(400, THREE.NormalBlending);
 smoke.points.renderOrder = 1; fire.points.renderOrder = 2; sparks.points.renderOrder = 3;
 scene.add(smoke.points, fire.points, sparks.points);
+// 나무를 치면 잎·나무 조각, 동물을 치면 별이 튄다
+const debris = new Particles(300, THREE.NormalBlending);
+debris.points.renderOrder = 3;
+scene.add(debris.points);
+const DEBRIS = { leaf: [[0.35, 0.6, 0.25], [0.2, 0.45, 0.15]], wood: [[0.6, 0.42, 0.22], [0.4, 0.26, 0.12]], star: [[1, 0.9, 0.4], [1, 0.6, 0.2]] };
+function puff(x, y, z, kind, n = 14) {
+  const cs = DEBRIS[kind] || DEBRIS.star;
+  for (let i = 0; i < n; i++) {
+    const c = cs[i % cs.length];
+    const k = debris.spawn(x + rand(-0.2, 0.2), y + rand(-0.1, 0.3), z + rand(-0.2, 0.2), rand(-1.4, 1.4), rand(1, 3), rand(-1.4, 1.4), rand(0.5, 1.1), rand(0.05, 0.11));
+    debris.col[k * 3] = c[0]; debris.col[k * 3 + 1] = c[1]; debris.col[k * 3 + 2] = c[2];
+  }
+}
 
 function grad(stops, t, out) {
   const n = stops.length - 1;
@@ -553,19 +655,20 @@ function updateParticles(dt) {
   const f = fuelF();
   const wind = Number($('#mWind').value) * 0.35;
 
-  emit.fire += dt * (28 + 430 * f);
+  const lit = fireOut() ? 0 : 1;
+  emit.fire += dt * (28 + 430 * f) * lit;
   while (emit.fire >= 1) {
     emit.fire--;
     const r = Math.sqrt(Math.random()) * (0.28 + 0.26 * f), a = rand(0, 6.283);
     const x = Math.cos(a) * r, z = Math.sin(a) * r;
     fire.spawn(x, 0.18, z, -x * 0.4 + rand(-0.15, 0.15), rand(0.8, 1.6) * (0.55 + 0.85 * f), -z * 0.4 + rand(-0.15, 0.15), rand(0.5, 1.1) * (0.7 + 0.5 * f), rand(0.26, 0.5) * (0.7 + 0.5 * f));
   }
-  emit.sparks += dt * (3 + 24 * f);
+  emit.sparks += dt * (3 + 24 * f) * lit;
   while (emit.sparks >= 1) {
     emit.sparks--;
     sparks.spawn(rand(-0.2, 0.2), 0.4, rand(-0.2, 0.2), rand(-0.7, 0.7), rand(1.4, 3.4), rand(-0.7, 0.7), rand(0.6, 1.7), rand(0.045, 0.085));
   }
-  emit.smoke += dt * (7 + 26 * (1 - f) + 10 * f);
+  emit.smoke += dt * (7 + 26 * (1 - f) + 10 * f) * (lit ? 1 : 0.35);
   while (emit.smoke >= 1) {
     emit.smoke--;
     smoke.spawn(rand(-0.15, 0.15), 0.7 + 0.7 * f, rand(-0.15, 0.15), rand(-0.1, 0.1), rand(0.4, 0.8), rand(-0.1, 0.1), rand(3, 6), rand(0.3, 0.55));
@@ -608,6 +711,12 @@ function updateParticles(dt) {
     smoke.col[j] = tmp[0] * lit; smoke.col[j + 1] = tmp[1] * lit; smoke.col[j + 2] = tmp[2] * lit;
     smoke.alpha[i] = Math.sin(t * Math.PI) * 0.16;
     smoke.size[i] = smoke.size0[i] * (1 + 2.6 * t);
+  });
+  debris.update(dt, (i, t, j) => {
+    debris.vel[j + 1] -= 7 * dt;
+    if (debris.pos[j + 1] < 0.03) { debris.pos[j + 1] = 0.03; debris.vel[j + 1] = 0; debris.vel[j] *= 0.8; debris.vel[j + 2] *= 0.8; }
+    debris.alpha[i] = 1 - t * t;
+    debris.size[i] = debris.size0[i];
   });
 }
 
@@ -708,6 +817,28 @@ const audio = {
     g.gain.exponentialRampToValueAtTime(0.001, t + dur);
     s.connect(bp).connect(g).connect(this.g.fire);
     s.start(t, rand(0, 0.8), dur + 0.02);
+  },
+  thud() {
+    if (!this.running) return;
+    const ctx = this.ctx, t = ctx.currentTime;
+    const s = ctx.createBufferSource(); s.buffer = this.white;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 480;
+    const g = ctx.createGain(); g.gain.setValueAtTime(0.9, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
+    s.connect(lp).connect(g).connect(this.master); s.start(t, 0, 0.16);
+  },
+  munch() {
+    if (!this.running) return;
+    const t = this.ctx.currentTime;
+    this.pop(0.8, t); this.pop(0.6, t + 0.12); this.pop(0.5, t + 0.24);
+  },
+  coin() {
+    if (!this.running) return;
+    const ctx = this.ctx, t = ctx.currentTime;
+    [[1318, 0], [1760, 0.09]].forEach(([f, d]) => {
+      const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = f;
+      const g = ctx.createGain(); g.gain.setValueAtTime(0, t + d); g.gain.linearRampToValueAtTime(0.22, t + d + 0.01); g.gain.exponentialRampToValueAtTime(0.001, t + d + 0.3);
+      o.connect(g).connect(this.master); o.start(t + d); o.stop(t + d + 0.35);
+    });
   },
   chirp(t0) {
     const ctx = this.ctx;
@@ -814,7 +945,7 @@ function fireScreenPos() {
   return { x: (v.x + 1) / 2 * innerWidth, y: (1 - v.y) / 2 * innerHeight };
 }
 
-$('#btnLog').addEventListener('click', () => { throwLog(me.headWorld(), !net.on); net.addLog(); });
+$('#btnLog').addEventListener('click', () => addWood());
 $('#btnAurora').addEventListener('click', () => {
   if (state.aurora > 0) return;
   state.aurora = 25;
@@ -980,7 +1111,7 @@ function burnWorry() {
     burst(35, 45);
     audio.pop(1); setTimeout(() => audio.pop(0.7), 120);
     net.event('worry');
-    state.fuel = Math.min(100, state.fuel + 3);
+    if (!fireOut()) state.fuel = Math.min(100, state.fuel + 3);
     const p = fireScreenPos();
     const st = document.createElement('div');
     st.className = 'smokeText';
@@ -1012,8 +1143,14 @@ $('#sleep').addEventListener('change', (e) => {
 
 window.addEventListener('keydown', (e) => {
   if (e.target && (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT')) return;
-  if (e.code === 'Escape') { exitCinema(); $('#worry').removeAttribute('data-open'); return; }
+  if (e.code === 'Escape') { exitCinema(); $('#worry').removeAttribute('data-open'); closeShop(); return; }
   if (e.code === 'KeyH' && !$('#gate')) { hudManual = !document.body.classList.contains('hud-collapsed'); applyHud(); return; }
+  if ((e.code === 'KeyF' || e.code === 'KeyE') && !$('#gate') && !state.cinema) { e.preventDefault(); interact(); return; }
+  if (/^Digit[1-9]$/.test(e.code) && !$('#gate') && !state.cinema) {
+    const slot = $('#bag').querySelectorAll('.slot')[Number(e.code[5]) - 1];
+    if (slot) { e.preventDefault(); useItem(slot.dataset.item); }
+    return;
+  }
   // 한글 입력 상태에서도 되도록 물리 키 코드(e.code)로 판단
   if (e.code === 'Space' && !state.cinema && !$('#gate')) {
     e.preventDefault();
@@ -1030,13 +1167,20 @@ function keyWalk(dt) {
   let f = 0, r = 0;
   for (const k of keys) { const m = KEYMAP[k]; if (m) { r += m[0]; f += m[1]; } }
   if (!f && !r) return;
+  if (surv.down > 0) return;
   const sy = Math.sin(cam.yaw), cy = Math.cos(cam.yaw);
-  let x = me.pos.x + (sy * f + cy * r) * 0.5;
-  let z = me.pos.z + (cy * f - sy * r) * 0.5;
-  const rr = Math.hypot(x, z);
-  if (rr < 1.3) { x = x / rr * 1.3; z = z / rr * 1.3; }
-  if (rr > 9) { x = x / rr * 9; z = z / rr * 9; }
+  const [x, z] = clampWalk(me.pos.x + (sy * f + cy * r) * 0.5, me.pos.z + (cy * f - sy * r) * 0.5);
   me.walkTo(x, z);
+  pending = null;
+}
+// 걸을 수 있는 범위: 모닥불 1.3m 밖, 반지름 16m 안, 호수 앞까지
+const WALK_R = 16;
+function clampWalk(x, z) {
+  const r = Math.hypot(x, z) || 1e-6;
+  if (r < 1.3) { x = x / r * 1.3; z = z / r * 1.3; }
+  if (r > WALK_R) { x = x / r * WALK_R; z = z / r * WALK_R; }
+  if (z < -10.5) z = -10.5;
+  return [x, z];
 }
 
 // 첫 조작에서 소리 켜기 (브라우저 자동재생 정책)
@@ -1054,8 +1198,8 @@ gateName.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.prevent
 $('#enter').addEventListener('click', async () => {
   if (entering) return;
   const name = gateName.value.trim().slice(0, 12);
-  if (!name) { gateName.classList.remove('shake'); void gateName.offsetWidth; gateName.classList.add('shake'); gateName.focus(); toast('숲에서 쓸 이름을 적어 주세요'); return; }
-  if (hasBad(name)) { gateName.classList.remove('shake'); void gateName.offsetWidth; gateName.classList.add('shake'); gateName.focus(); toast('이름에 쓸 수 없는 말이 있어요'); return; }
+  const why = nameProblem(name);
+  if (why) { gateName.classList.remove('shake'); void gateName.offsetWidth; gateName.classList.add('shake'); gateName.focus(); toast(why); return; }
   meInfo.name = name; meInfo.custom = true; saveMe(); me.setName(name); $('#myName').value = name;
   entering = true;
   unlock();
@@ -1064,7 +1208,8 @@ $('#enter').addEventListener('click', async () => {
   btn.textContent = '들어가는 중…';
   btn.disabled = true;
   const ok = await net.connect();
-  if (ok === false) { btn.textContent = label; btn.disabled = false; entering = false; return; }
+  if (ok === false) { btn.textContent = label; btn.disabled = false; entering = false; gateName.classList.remove('shake'); void gateName.offsetWidth; gateName.classList.add('shake'); gateName.focus(); return; }
+  surv.spawnAt = state.time;
   gate.classList.add('hide');
   burst(30, 0);
   setTimeout(() => gate.remove(), 1600);
@@ -1082,11 +1227,22 @@ const clearOf = (x, z, r) => Math.hypot(x, z) > r;
 // 충돌용 원(나무·바위·텐트 등). 사람·동물은 매 프레임 이 원 밖으로 밀려난다
 const obstacles = [];
 const addObstacle = (x, z, r) => obstacles.push({ x, z, r });
+// 칠 수 있는 나무 목록과, 클릭·F 키로 상호작용할 수 있는 모델들(나무·동물·매점 주인)
+const trees = [];
+const pickables = [];
+// 매점 위치(모닥불 북동쪽), 정면이 모닥불을 향한다
+const SHOP = { x: 5.6, z: 3.8, yaw: Math.atan2(-5.6, -3.8) };
+function shopWorld(lx, lz) { const c = Math.cos(SHOP.yaw), sn = Math.sin(SHOP.yaw); return [SHOP.x + lx * c + lz * sn, SHOP.z - lx * sn + lz * c]; }
+function addShopObstacles() {
+  const put = (lx, lz, r) => { const [x, z] = shopWorld(lx, lz); addObstacle(x, z, r); };
+  put(0, -0.5, 1.25); put(-1.0, 0.85, 0.5); put(0, 0.85, 0.5); put(1.0, 0.85, 0.5);
+}
 function scatter(model, count, rMin, rMax, sMin, sMax, opts = {}) {
   for (let i = 0; i < count; i++) {
     const a = rand(0, Math.PI * 2), r = rand(rMin, rMax);
     const x = Math.cos(a) * r, z = Math.sin(a) * r;
     if (z < -11 && !opts.lakeOk) { i--; continue; }
+    if (Math.hypot(x - SHOP.x, z - SHOP.z) < 2.8) { i--; continue; }
     const m = model.clone();
     const s = rand(sMin, sMax);
     m.position.set(x, 0, z);
@@ -1094,6 +1250,23 @@ function scatter(model, count, rMin, rMax, sMin, sMax, opts = {}) {
     m.scale.setScalar(s);
     scene.add(m);
     if (opts.hit) addObstacle(x, z, opts.hit * s);
+    if (opts.tree) {
+      const idx = trees.length;
+      trees.push({ model: m, x, z, r: (opts.hit || 0.22) * s, hp: 3, rest: 0, wob: 0 });
+      m.traverse((o) => { o.userData.tree = idx; });
+      pickables.push(m);
+    }
+  }
+}
+function updateTrees(dt) {
+  for (const t of trees) {
+    if (t.rest > 0) t.rest -= dt;
+    if (t.wob > 0) {
+      t.wob = Math.max(0, t.wob - dt * 1.6);
+      t.model.rotation.z = Math.sin(state.time * 28) * 0.05 * t.wob;
+      t.model.rotation.x = Math.cos(state.time * 23) * 0.04 * t.wob;
+      if (t.wob <= 0) { t.model.rotation.z = 0; t.model.rotation.x = 0; }
+    }
   }
 }
 function resolveCircle(pos, radius, skipSelf) {
@@ -1107,7 +1280,7 @@ function resolveCircle(pos, radius, skipSelf) {
   };
   for (const o of obstacles) push(o.x, o.z, o.r);
   for (const ch of allChars) { if (ch === skipSelf || !ch.group.visible && !ch.isMe) continue; push(ch.pos.x, ch.pos.z, 0.38); }
-  for (const an of animals) { if (an === skipSelf) continue; push(an.pos.x, an.pos.z, 0.3); }
+  for (const an of animals) { if (an === skipSelf || an.dead) continue; push(an.pos.x, an.pos.z, 0.3); }
   return pushed;
 }
 const insideObstacle = (x, z, pad = 0) => obstacles.some((o) => Math.hypot(x - o.x, z - o.z) < o.r + pad);
@@ -1118,8 +1291,12 @@ async function buildForest() {
   await Promise.all(names.map(async (n) => { g[n] = (await loadGLB(FOREST + n + '.glb')).scene; }));
   procGroup.visible = false;
   obstacles.length = 0;
-  scatter(g['tree'], 55, 7.5, 45, 2.0, 3.0, { hit: 0.22 });
-  scatter(g['tree-high'], 35, 9, 45, 2.2, 3.4, { hit: 0.22 });
+  addShopObstacles();
+  scatter(g['tree'], 55, 7.5, 45, 2.0, 3.0, { hit: 0.22, tree: true });
+  scatter(g['tree-high'], 35, 9, 45, 2.2, 3.4, { hit: 0.22, tree: true });
+  // 걸어갈 수 있는 범위 안쪽에 칠 수 있는 나무를 넉넉히
+  scatter(g['tree'], 18, 7.6, 13.5, 1.8, 2.6, { hit: 0.22, tree: true });
+  scatter(g['tree-high'], 8, 9, 14.5, 2.0, 2.8, { hit: 0.22, tree: true });
   scatter(g['rocks-low'], 10, 6, 30, 1.2, 2.2, { hit: 0.45 });
   scatter(g['rocks-high'], 5, 12, 35, 1.4, 2.4, { hit: 0.45 });
   scatter(g['stones'], 12, 4.5, 20, 1.0, 1.8, { hit: 0.35 });
@@ -1136,7 +1313,7 @@ async function buildAnimals() {
   const loaded = animalGLTF;
   await Promise.all(ANIMALS.map(async (n) => { loaded[n] = await loadGLB(PETS + 'animal-' + n + '.glb'); }));
   for (const ch of allChars) ch.attachModel();
-  const picks = [...ANIMALS].sort(() => Math.random() - 0.5).slice(0, 9).concat(['fox', 'bunny', 'deer']);
+  const picks = [...ANIMALS].sort(() => Math.random() - 0.5).slice(0, 7).concat(['fox', 'bunny', 'deer', 'polar', 'pig']);
   for (const n of picks) {
     const src = loaded[n];
     const model = src.scene.clone();
@@ -1150,10 +1327,38 @@ async function buildAnimals() {
     const mixer = new THREE.AnimationMixer(model);
     const clips = {};
     for (const c of src.animations) clips[c.name] = mixer.clipAction(c);
-    const an = { model, mixer, clips, s, pos: model.position, target: new THREE.Vector3(x, 0, z), state: 'idle', timer: rand(1, 6), cur: null, speed: rand(0.55, 0.9), seed: rand(0, 1000) };
+    const an = { model, mixer, clips, s, pos: model.position, target: new THREE.Vector3(x, 0, z), state: 'idle', timer: rand(1, 6), cur: null, speed: rand(0.55, 0.9), seed: rand(0, 1000), name: n, hp: HUNT[n] ? HUNT[n].hp : 0, dead: false, respawn: 0, deathT: 0 };
+    model.traverse((o) => { o.userData.animal = animals.length; });
+    pickables.push(model);
     animalPlay(an, 'idle');
     animals.push(an);
   }
+}
+// 사냥할 수 있는 동물과 떨어지는 고기. 나머지는 치면 놀라 도망만 간다
+const HUNT = { fox: { meat: 'meat_fox', hp: 2, n: 1 }, polar: { meat: 'meat_bear', hp: 4, n: 2 }, deer: { meat: 'meat_deer', hp: 3, n: 1 }, bunny: { meat: 'meat_bunny', hp: 1, n: 1 }, pig: { meat: 'meat_pig', hp: 2, n: 1 } };
+function flee(an) {
+  const dx = an.pos.x - me.pos.x, dz = an.pos.z - me.pos.z, d = Math.hypot(dx, dz) || 1;
+  let tx = an.pos.x + dx / d * 4.5, tz = an.pos.z + dz / d * 4.5;
+  const r = Math.hypot(tx, tz); if (r > 10) { tx = tx / r * 10; tz = tz / r * 10; }
+  if (tz < -10) tz = -10;
+  an.target.set(tx, 0, tz); an.state = 'flee'; an.timer = 2.5; animalPlay(an, 'run');
+}
+function hitAnimal(an) {
+  if (an.dead) return;
+  const h = HUNT[an.name];
+  puff(an.pos.x, 0.5, an.pos.z, 'star', 10);
+  audio.thud();
+  if (!h) { flee(an); toast(`${ANIMAL_LABEL[an.name]}은(는) 사냥감이 아니에요. 놀라서 도망가요`); return; }
+  an.hp--;
+  if (an.hp > 0) { flee(an); return; }
+  an.dead = true; an.deathT = 0.5; an.respawn = 45; an.state = 'dead';
+  setTimeout(() => gain(h.meat, h.n, an.pos.x, an.pos.z), 350);
+}
+function respawnAnimal(an) {
+  let x, z, tries = 0;
+  do { const a = rand(0, Math.PI * 2), r = rand(4, 9); x = Math.cos(a) * r; z = Math.sin(a) * r; tries++; } while ((z < -10 || insideObstacle(x, z, 0.3)) && tries < 20);
+  an.dead = false; an.hp = HUNT[an.name] ? HUNT[an.name].hp : 0; an.state = 'idle'; an.timer = rand(1, 4);
+  an.model.scale.setScalar(an.s); an.model.position.set(x, 0.3 * an.s, z); an.model.visible = true; animalPlay(an, 'idle');
 }
 function animalPlay(an, name) {
   const next = an.clips[name] || an.clips.idle;
@@ -1164,8 +1369,28 @@ function animalPlay(an, name) {
 }
 function updateAnimals(dt) {
   for (const an of animals) {
+    if (an.dead) {
+      an.respawn -= dt;
+      if (an.deathT > 0) {
+        an.deathT -= dt;
+        const k = Math.max(0, an.deathT / 0.5);
+        an.model.scale.setScalar(an.s * k); an.model.position.y = 0.3 * an.s * k;
+        if (an.deathT <= 0) an.model.visible = false;
+      }
+      if (an.respawn <= 0) respawnAnimal(an);
+      continue;
+    }
     an.mixer.update(dt);
     an.timer -= dt;
+    if (an.state === 'flee') {
+      const dx = an.target.x - an.pos.x, dz = an.target.z - an.pos.z, d = Math.hypot(dx, dz);
+      if (d < 0.1 || an.timer <= 0) { an.state = 'idle'; an.timer = rand(1, 3); animalPlay(an, 'idle'); continue; }
+      const step = Math.min(d, an.speed * 2.8 * dt);
+      an.pos.x += dx / d * step; an.pos.z += dz / d * step;
+      an.model.rotation.y += wrapAngle(Math.atan2(dx, dz) - an.model.rotation.y) * Math.min(1, dt * 10);
+      resolveCircle(an.pos, 0.3, an);
+      continue;
+    }
     if (state.aurora > 0) { if (an.state !== 'dance') { an.state = 'dance'; animalPlay(an, 'dance'); } continue; }
     if (an.state === 'dance') { an.state = 'idle'; an.timer = rand(1, 3); animalPlay(an, 'idle'); }
     if (an.state === 'walk') {
@@ -1301,8 +1526,9 @@ const normalizeAvatar = (av) => (ANIMALS.includes(av) || HUMANS.includes(av)) ? 
 const ARCHER_SCALE = 1.6;
 
 class Character {
-  constructor(color, isMe, avatar = 'human') {
+  constructor(color, isMe, avatar = 'human', isNpc = false) {
     this.group = new THREE.Group();
+    this.isNpc = isNpc;
     this.color = color;
     this.avatar = normalizeAvatar(avatar);
     this.eyeY = 1.05; this.seatY = 0.3;
@@ -1311,10 +1537,12 @@ class Character {
     this.head = new THREE.Mesh(headGeo, skinMat); this.head.position.y = 0.96;
     this.hat = new THREE.Mesh(hatGeo, this.mat); this.hat.position.y = 1.0;
     this.capsule = new THREE.Group(); this.capsule.add(this.body, this.head, this.hat);
+    this.capsule.traverse((o) => { o.userData.npc = isNpc; });
     this.group.add(this.capsule);
     scene.add(this.group);
     this.pos = new THREE.Vector3(); this.target = new THREE.Vector3();
     this.seat = -1; this.yaw = 0; this.walkT = 0; this.isMe = isMe; this.jumpY = 0; this.vy = 0;
+    this.atkCd = 0; this.speedMul = 1; this.isDown = false;
     this.model = null; this.mixer = null; this.clips = {}; this.cur = null; this.anim = '';
     allChars.add(this);
     this.attachModel();
@@ -1354,6 +1582,7 @@ class Character {
       this.eyeY = 0.78; this.seatY = 0.44; this.isAnimal = true;
     }
     m.rotation.y = 0; // Kenney 모델 정면은 +Z (머리·꼬리 좌표로 확인)
+    m.traverse((o) => { o.userData.npc = this.isNpc; });
     this.model = m;
     this.capsule.visible = false;
     this.group.add(m);
@@ -1372,10 +1601,19 @@ class Character {
   }
   play(name, once = false) {
     const next = this.clips[name];
-    if (!next || this.anim === name) return;
+    if (!next || (this.anim === name && !once)) return;
+    next.clampWhenFinished = once;
     next.reset().setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat, Infinity).setEffectiveTimeScale(name === 'walk' ? 1.4 : 1).fadeIn(0.18).play();
-    if (this.cur) this.cur.fadeOut(0.18);
+    if (this.cur && this.cur !== next) this.cur.fadeOut(0.18);
     this.cur = next; this.anim = name;
+  }
+  // 나무·동물 치기, 먹기, 쓰러지기 동작
+  attack() { this.emoteUntil = state.time + 0.7; if (this.model) this.play(this.isAnimal ? 'gesture-negative' : 'attack-melee-right', true); }
+  eat() { this.emoteUntil = state.time + 1.2; if (this.model) this.play(this.isAnimal ? 'eat' : 'pick-up', true); }
+  down(on) {
+    this.isDown = on;
+    if (on) { this.emoteUntil = state.time + 999; if (this.model) this.play(this.isAnimal ? 'eat' : 'die', true); }
+    else { this.emoteUntil = 0; if (this.model) this.play('idle'); }
   }
   place(x, z) { this.pos.set(x, 0, z); this.target.copy(this.pos); this.group.position.copy(this.pos); }
   walkTo(x, z) { this.seat = -1; this.target.set(x, 0, z); }
@@ -1396,7 +1634,7 @@ class Character {
     const dist = Math.hypot(dx, dz);
     const moving = dist > 0.03;
     if (moving) {
-      const step = Math.min(dist, 1.7 * dt);
+      const step = Math.min(dist, 1.7 * this.speedMul * dt);
       this.pos.x += dx / dist * step; this.pos.z += dz / dist * step;
       this.yaw = Math.atan2(dx, dz);
       this.walkT += dt * 9;
@@ -1441,6 +1679,16 @@ const hasBad = (text) => clean(text) !== String(text || '');
 // 숲 주인 전용 이름 (서버 규칙에서도 막힘)
 const RESERVED = ['찰스', '문찰스', 'charles'];
 const isReserved = (name) => RESERVED.includes(String(name || '').replace(/\s+/g, '').toLowerCase());
+// 이름은 한글·영문·숫자·공백만 12자까지. 서버에서는 공백을 뺀 소문자 키로 중복을 막는다
+const NAME_RE = /^[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9 ]{1,12}$/;
+const nameKey = (name) => String(name || '').replace(/\s+/g, '').toLowerCase();
+function nameProblem(name) {
+  if (!name) return '숲에서 쓸 이름을 적어 주세요';
+  if (!NAME_RE.test(name)) return '이름은 한글·영문·숫자로 12자까지 쓸 수 있어요';
+  if (hasBad(name)) return '이름에 쓸 수 없는 말이 있어요';
+  if (isReserved(name) && !net.isOwner) return '이 이름은 숲 주인만 쓸 수 있어요';
+  return '';
+}
 
 const ME_KEY = 'charles-forest.me';
 let meInfo = { name: randomName(), color: pick(PALETTE) };
@@ -1477,11 +1725,14 @@ for (const b of avatarBtns) b.addEventListener('click', () => { meInfo.avatar = 
 }
 $('#myName').value = meInfo.name;
 $('#gateName').value = meInfo.custom ? meInfo.name : '';
-$('#myName').addEventListener('change', (e) => {
-  let n = e.target.value.trim().slice(0, 16) || randomName();
-  if (hasBad(n)) { toast('이름에 쓸 수 없는 말이 있어요'); n = meInfo.name; }
-  else if (isReserved(n) && !net.isOwner) { toast('이 이름은 숲 주인만 쓸 수 있어요'); n = meInfo.name; }
-  e.target.value = n; meInfo.name = n; meInfo.custom = true; saveMe(); me.setName(n); net.updateMe({ name: n });
+$('#myName').addEventListener('change', async (e) => {
+  const n = e.target.value.trim().slice(0, 12);
+  const why = nameProblem(n);
+  if (why) { toast(why); e.target.value = meInfo.name; return; }
+  if (n === meInfo.name) return;
+  const ok = await net.rename(n);
+  if (!ok) { toast('지금 숲에 같은 이름을 쓰는 사람이 있어요'); e.target.value = meInfo.name; return; }
+  meInfo.name = n; meInfo.custom = true; saveMe(); me.setName(n);
 });
 
 const others = new Map();
@@ -1550,16 +1801,338 @@ canvas.addEventListener('pointerup', (e) => {
     net.updateMe({ x: me.target.x, z: me.target.z, seat: me.seat });
     return;
   }
+  if (surv.down > 0) return;
+  const pk = raycaster.intersectObjects(pickables, true)[0];
+  if (pk && pk.distance < 40) {
+    const u = pk.object.userData;
+    if (typeof u.tree === 'number') { goInteract('tree', trees[u.tree]); return; }
+    if (typeof u.animal === 'number' && !animals[u.animal].dead) { goInteract('animal', animals[u.animal]); return; }
+    if (u.npc) { goInteract('npc', npc); return; }
+  }
   const g = raycaster.intersectObject(ground, false)[0];
   if (!g) return;
-  let x = g.point.x, z = g.point.z;
-  const r = Math.hypot(x, z);
-  if (r < 1.3) { x = x / r * 1.3; z = z / r * 1.3; }
-  if (r > 9) { x = x / r * 9; z = z / r * 9; }
+  const [x, z] = clampWalk(g.point.x, g.point.z);
   if (insideObstacle(x, z, 0.38)) { toast('거기는 갈 수 없어요'); return; }
+  pending = null;
   me.walkTo(x, z);
   net.updateMe({ x, z, seat: -1 });
 });
+
+/* ================= 생존 · 가방 · 골드 · 매점 ================= */
+const ITEMS = {
+  wood:       { label: '장작',   icon: '🪵', base: 6,  use: '모닥불에 넣기', shop: true },
+  fruit:      { label: '열매',   icon: '🍎', base: 5,  food: 20, shop: true },
+  match:      { label: '성냥',   icon: 'match', base: 30, use: '꺼진 모닥불 피우기', shop: true },
+  meat_fox:   { label: '여우고기', icon: '🍖', badge: '🦊', base: 18, food: 35, shop: true },
+  meat_bear:  { label: '곰고기',  icon: '🍖', badge: '🐻', base: 40, food: 55, shop: true },
+  meat_deer:  { label: '사슴고기', icon: '🍖', badge: '🦌', base: 24, food: 40 },
+  meat_pig:   { label: '돼지고기', icon: '🍖', badge: '🐷', base: 20, food: 40 },
+  meat_bunny: { label: '토끼고기', icon: '🍖', badge: '🐰', base: 12, food: 25 }
+};
+const MATCH_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="10.3" y="7" width="3.4" height="15.5" rx="1.2" fill="#e2c48f"/><ellipse cx="12" cy="6.2" rx="3.3" ry="3.7" fill="#c6362d"/><path d="M12 0.8c1.7 1.7 2.5 3.1 2.5 4.2a2.5 2.5 0 0 1-5 0c0-1.1.8-2.5 2.5-4.2z" fill="#ffb02e"/></svg>';
+const iconHTML = (k) => { const it = ITEMS[k]; return (it.icon === 'match' ? `<span class="ic">${MATCH_SVG}</span>` : it.icon) + (it.badge ? `<span class="bd">${it.badge}</span>` : ''); };
+const STARTER = { gold: 50, inv: { wood: 3, fruit: 2, match: 1 } };
+const REWARD_MS = 5 * 60000; // 접속 5분마다 골드 자동 지급
+const PROF_KEY = 'charles-forest.profile';
+const surv = { hunger: 100, warmth: 100, down: 0, warnAt: 0, outToast: false, spawnAt: 0 };
+let prof = null;
+const freshProfile = () => ({ gold: STARTER.gold, inv: { ...STARTER.inv }, playMs: 0, rewardMs: 0, hunger: 100, warmth: 100, made: Date.now() });
+function loadLocalProfile() { try { const v = JSON.parse(localStorage.getItem(PROF_KEY) || 'null'); if (v && typeof v.gold === 'number') return { ...freshProfile(), ...v, inv: v.inv || {} }; } catch (e) { /* 저장소 없음 */ } return null; }
+let profTimer = 0;
+function saveProfile(now = false) {
+  prof.hunger = Math.round(surv.hunger); prof.warmth = Math.round(surv.warmth);
+  try { localStorage.setItem(PROF_KEY, JSON.stringify(prof)); } catch (e) { /* 저장소 없음 */ }
+  if (!net.on || !net.profRef) return;
+  clearTimeout(profTimer);
+  const push = () => net.D.set(net.profRef, { ...prof, at: net.now() }).catch(() => {});
+  if (now) push(); else profTimer = setTimeout(push, 1500);
+}
+const invCount = (k) => (prof && prof.inv[k]) || 0;
+const nearFire = () => Math.hypot(me.pos.x, me.pos.z) < 3.8;
+
+function floatText(text, x, z) {
+  const el = document.createElement('div'); el.className = 'gain'; el.textContent = text;
+  let sx = innerWidth / 2, sy = innerHeight * 0.42;
+  if (typeof x === 'number') { const v = new THREE.Vector3(x, 1.4, z).project(camera); if (v.z < 1 && v.z > -1) { sx = (v.x + 1) / 2 * innerWidth; sy = (1 - v.y) / 2 * innerHeight; } }
+  el.style.left = sx + 'px'; el.style.top = sy + 'px';
+  document.body.appendChild(el); setTimeout(() => el.remove(), 1300);
+}
+function gain(k, n = 1, x, z) {
+  prof.inv[k] = invCount(k) + n;
+  renderBag(); saveProfile();
+  floatText(`+${n} ${ITEMS[k].label}`, x, z);
+  toast(`${ITEMS[k].label} ${n}개를 얻었어요`);
+}
+function renderBag() {
+  const box = $('#bag'); box.innerHTML = '';
+  const keys = Object.keys(ITEMS).filter((k) => invCount(k) > 0);
+  if (!keys.length) { const e = document.createElement('span'); e.className = 'empty'; e.textContent = '가방이 비었어요 · 나무를 치면 장작·열매를 얻어요'; box.appendChild(e); return; }
+  keys.forEach((k, i) => {
+    const it = ITEMS[k];
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'slot'; b.dataset.item = k;
+    b.title = `${it.label} ${invCount(k)}개 · ${it.food ? '먹기 (배고픔 +' + it.food + ')' : it.use}`;
+    b.setAttribute('aria-label', b.title);
+    b.innerHTML = iconHTML(k) + `<span class="n">${invCount(k)}</span>` + (i < 9 ? `<span class="k">${i + 1}</span>` : '');
+    b.addEventListener('click', () => useItem(k));
+    box.appendChild(b);
+  });
+}
+function useItem(k) {
+  if (surv.down > 0 || invCount(k) <= 0) return;
+  const it = ITEMS[k];
+  if (it.food) {
+    prof.inv[k]--;
+    surv.hunger = Math.min(100, surv.hunger + it.food);
+    if (k !== 'fruit' && nearFire() && !fireOut()) surv.warmth = Math.min(100, surv.warmth + 8);
+    me.eat(); audio.munch(); renderBag(); renderVitals(); saveProfile();
+    toast(`${it.label}을(를) 먹었어요 · 배고픔 +${it.food}`);
+    return;
+  }
+  if (k === 'wood') addWood();
+  else if (k === 'match') lightFire();
+}
+function addWood() {
+  if (surv.down > 0) return;
+  if (invCount('wood') <= 0) { toast('장작이 없어요. 나무를 치거나 매점에서 사 오세요'); return; }
+  if (fireOut()) { toast('불씨가 없어요. 성냥으로 먼저 불을 피우세요'); return; }
+  prof.inv.wood--; renderBag(); saveProfile();
+  throwLog(me.headWorld(), !net.on); net.addLog();
+}
+function lightFire() {
+  if (surv.down > 0) return;
+  if (invCount('match') <= 0) { toast('성냥이 없어요. 매점에서 살 수 있어요'); return; }
+  if (!fireOut()) { toast('모닥불은 아직 타고 있어요. 장작을 넣어 주세요'); return; }
+  prof.inv.match--; renderBag(); saveProfile();
+  state.fuel = Math.max(state.fuel, 30);
+  burst(70, 20); audio.pop(1); setTimeout(() => audio.pop(0.8), 100);
+  net.light();
+  toast('성냥으로 모닥불을 다시 피웠어요 🔥', 3500);
+}
+
+// 배고픔은 8분에 바닥, 추위는 불에서 떨어지면 3분·불이 꺼지면 모두 90초 만에 바닥. 모닥불 곁에선 12초면 따뜻해진다
+function updateSurvival(dt) {
+  if ($('#gate')) return;
+  if (surv.down > 0) {
+    surv.down -= dt;
+    $('#downN').textContent = Math.max(1, Math.ceil(surv.down));
+    if (surv.down <= 0) wakeUp();
+    return;
+  }
+  surv.hunger = Math.max(0, surv.hunger - dt * 100 / 480);
+  const out = fireOut();
+  if (out) surv.warmth = Math.max(0, surv.warmth - dt * 100 / 90);
+  else if (nearFire()) surv.warmth = Math.min(100, surv.warmth + dt * 100 / 12 * (0.4 + 0.6 * fuelF()));
+  else surv.warmth = Math.max(0, surv.warmth - dt * 100 / 180);
+  if (out && !surv.outToast) { surv.outToast = true; toast('모닥불이 꺼졌어요! 숲의 모두가 추워져요 · 성냥으로 다시 피우세요', 6000); }
+  if (!out) surv.outToast = false;
+  me.speedMul = (surv.hunger < 25 || surv.warmth < 25) ? 0.65 : 1;
+  if (state.time - surv.warnAt > 20 && (surv.hunger < 25 || surv.warmth < 25)) {
+    surv.warnAt = state.time;
+    toast(surv.hunger < 25 ? '배가 고파요 · 열매나 고기를 드세요 (가방)' : '몸이 떨려요 · 모닥불 앞으로 가세요');
+  }
+  if (state.time - surv.spawnAt > 3 && (surv.hunger <= 0 || surv.warmth <= 0)) collapse(surv.hunger <= 0 ? 'hunger' : 'cold');
+}
+function collapse(why) {
+  surv.down = 8;
+  const loss = Math.floor(prof.gold * 0.1);
+  prof.gold -= loss; net.burn(loss);
+  me.down(true); me.target.copy(me.pos); keys.clear(); pending = null;
+  closeShop(); exitCinema();
+  $('#downWhy').textContent = why === 'hunger' ? '배가 너무 고파 쓰러졌어요…' : '추위에 얼어 쓰러졌어요…';
+  $('#downLoss').textContent = loss ? `골드 ${loss}개를 잃었어요` : '';
+  $('#down').setAttribute('data-on', '');
+  renderWallet(); saveProfile(true);
+}
+function wakeUp() {
+  surv.down = 0; surv.spawnAt = state.time;
+  surv.hunger = Math.max(surv.hunger, 40); surv.warmth = Math.max(surv.warmth, 40);
+  $('#down').removeAttribute('data-on');
+  const a = rand(0, Math.PI * 2), r = rand(1.6, 2.0);
+  me.seat = -1; me.place(Math.cos(a) * r, Math.sin(a) * r);
+  cam.yaw = Math.atan2(-me.pos.x, -me.pos.z);
+  me.down(false);
+  net.updateMe({ x: me.pos.x, z: me.pos.z, seat: -1 });
+  toast('모닥불 곁에서 눈을 떴어요', 3000);
+  saveProfile();
+}
+function renderVitals() {
+  $('#hungerFill').style.width = surv.hunger.toFixed(0) + '%';
+  $('#warmFill').style.width = surv.warmth.toFixed(0) + '%';
+  $('#gHunger').classList.toggle('low', surv.hunger < 25);
+  $('#gWarm').classList.toggle('low', surv.warmth < 25);
+  $('#cold').style.opacity = clamp((35 - surv.warmth) / 35, 0, 1);
+  $('#hungry').style.opacity = clamp((30 - surv.hunger) / 30, 0, 0.9);
+}
+
+// 경제: 숲에 풀린 골드(minted - burned)가 1인당 300골드를 넘으면 물가가 오른다. 매점 재고가 적으면 비싸고 쌓이면 싸다
+let eco = { minted: 0, burned: 0, profiles: 0, stock: {} };
+const ECO_INIT = () => { const stock = {}; for (const k in ITEMS) stock[k] = 15; return { minted: 0, burned: 0, profiles: 0, stock }; };
+const stockOf = (k) => { const v = eco.stock && eco.stock[k]; return typeof v === 'number' ? v : 15; };
+function inflation() { const circ = (eco.minted || 0) - (eco.burned || 0); const target = 300 * Math.max(1, eco.profiles || 1); return clamp(0.5 + 0.5 * circ / target, 0.5, 3); }
+const scarcity = (k, extra = 0) => clamp(1.5 - (stockOf(k) + extra) / 40, 0.5, 1.5);
+const buyPrice = (k) => Math.max(1, Math.round(ITEMS[k].base * inflation() * scarcity(k)));
+const sellPrice = (k, extra = 0) => Math.max(1, Math.round(ITEMS[k].base * 0.55 * scarcity(k, extra) / inflation()));
+function ecoApply(fn) {
+  const norm = (cur) => { const base = ECO_INIT(); const c = cur || {}; return { ...base, ...c, stock: { ...base.stock, ...(c.stock || {}) } }; };
+  if (net.on && net.ecoRef) net.D.runTransaction(net.ecoRef, (cur) => fn(norm(cur))).catch(() => {});
+  else { eco = fn(norm(eco)); renderWallet(); renderShop(); }
+}
+function renderWallet() {
+  $('#goldN').textContent = Math.floor(prof.gold);
+  $('#inflN').textContent = `물가 ${Math.round(inflation() * 100)}%`;
+}
+function rewardTick(dt) {
+  if ($('#gate') || surv.down > 0) return;
+  prof.playMs += dt * 1000; prof.rewardMs += dt * 1000;
+  if (prof.rewardMs < REWARD_MS) return;
+  prof.rewardMs -= REWARD_MS;
+  const g = clamp(Math.round(20 / inflation()), 5, 40);
+  prof.gold += g; ecoApply((e) => ({ ...e, minted: e.minted + g }));
+  renderWallet(); saveProfile(true);
+  floatText(`+${g} 골드`); audio.coin();
+  toast(`접속 ${REWARD_MS / 60000}분 보상 · 골드 ${g}개를 받았어요 🪙`, 4000);
+}
+
+// 매점 창
+let shopTab = 'buy';
+function openShop() { shopTab = 'buy'; $('#shop').setAttribute('data-open', ''); renderShop(); }
+function closeShop() { $('#shop').removeAttribute('data-open'); }
+function renderShop() {
+  if (!$('#shop').hasAttribute('data-open')) return;
+  const inf = inflation();
+  $('#shopInfl').textContent = `물가 ${Math.round(inf * 100)}% · 🪙 ${Math.floor(prof.gold)}`;
+  for (const b of $('#shop').querySelectorAll('.tabs .btn')) b.setAttribute('aria-selected', b.dataset.tab === shopTab ? 'true' : 'false');
+  const list = $('#shopList'); list.innerHTML = '';
+  const keys = Object.keys(ITEMS).filter((k) => shopTab === 'buy' ? ITEMS[k].shop : invCount(k) > 0);
+  if (!keys.length) { const e = document.createElement('div'); e.className = 'srow'; e.style.gridTemplateColumns = '1fr'; e.textContent = '팔 물건이 없어요. 나무를 치거나 사냥해 보세요'; list.appendChild(e); }
+  for (const k of keys) {
+    const it = ITEMS[k];
+    const row = document.createElement('div'); row.className = 'srow';
+    const p = shopTab === 'buy' ? buyPrice(k) : sellPrice(k);
+    row.innerHTML = `<div class="ico">${iconHTML(k)}</div><div class="nm"><span>${it.label}</span><small>${it.food ? '배고픔 +' + it.food : it.use} · 재고 ${stockOf(k)} · 보유 ${invCount(k)}</small></div><div class="pr">🪙 ${p}</div><div></div>`;
+    const cell = row.lastElementChild;
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.textContent = shopTab === 'buy' ? '구매' : '판매';
+    b.addEventListener('click', () => shopTab === 'buy' ? buyItem(k) : sellItem(k, 1));
+    cell.appendChild(b);
+    if (shopTab === 'sell' && invCount(k) > 1) { const b2 = document.createElement('button'); b2.type = 'button'; b2.className = 'btn'; b2.textContent = '전부'; b2.addEventListener('click', () => sellItem(k, invCount(k))); cell.appendChild(b2); }
+    list.appendChild(row);
+  }
+  $('#shopNote').textContent = inf > 1.25 ? '숲에 골드가 많이 풀려 물가가 올랐어요. 사는 값은 비싸고, 파는 값은 낮게 쳐 줘요.' : inf < 0.8 ? '숲에 골드가 귀해서 물가가 낮아요. 지금 사면 싸고, 팔면 후하게 쳐 줘요.' : '물가가 안정적이에요. 재고가 적은 물건은 비싸고, 쌓인 물건은 싸요.';
+}
+function buyItem(k) {
+  const p = buyPrice(k);
+  if (prof.gold < p) { toast('골드가 부족해요'); return; }
+  prof.gold -= p; prof.inv[k] = invCount(k) + 1;
+  ecoApply((e) => ({ ...e, burned: e.burned + p, stock: { ...e.stock, [k]: Math.max(0, (e.stock[k] || 0) - 1) } }));
+  audio.coin(); renderBag(); renderWallet(); renderShop(); saveProfile();
+  toast(`${ITEMS[k].label}을(를) 🪙${p}에 샀어요`);
+}
+function sellItem(k, n) {
+  n = Math.min(n, invCount(k)); if (n <= 0) return;
+  let total = 0;
+  for (let i = 0; i < n; i++) total += sellPrice(k, i);
+  prof.inv[k] -= n; prof.gold += total;
+  ecoApply((e) => ({ ...e, minted: e.minted + total, stock: { ...e.stock, [k]: (e.stock[k] || 0) + n } }));
+  audio.coin(); renderBag(); renderWallet(); renderShop(); saveProfile();
+  toast(`${ITEMS[k].label} ${n}개를 🪙${total}에 팔았어요`);
+}
+$('#shopClose').addEventListener('click', closeShop);
+for (const b of $('#shop').querySelectorAll('.tabs .btn')) b.addEventListener('click', () => { shopTab = b.dataset.tab; renderShop(); });
+
+// 매점 건물(나무 좌판 + 천막 지붕 + 간판 + 등불)과 주인
+const shopGroup = new THREE.Group();
+{
+  const wood = mat(0x6b4a2b), dark = mat(0x3b2614), cloth = mat(0xb8412f, { roughness: 0.95 });
+  const add = (geo, m, x, y, z, rx = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.x = rx; shopGroup.add(o); return o; };
+  add(new THREE.BoxGeometry(3.2, 0.12, 2.2), dark, 0, 0.06, 0);
+  for (const [px, pz] of [[-1.45, -0.95], [1.45, -0.95], [-1.45, 0.95], [1.45, 0.95]]) add(new THREE.BoxGeometry(0.14, 2.3, 0.14), wood, px, 1.15, pz);
+  add(new THREE.BoxGeometry(3.6, 0.1, 2.8), cloth, 0, 2.38, 0.05, -0.16);
+  add(new THREE.BoxGeometry(3.0, 0.9, 0.5), wood, 0, 0.55, 0.85);
+  add(new THREE.BoxGeometry(3.1, 0.08, 0.62), dark, 0, 1.02, 0.85);
+  add(new THREE.BoxGeometry(2.6, 1.6, 0.1), wood, 0, 0.9, -1.0);
+  // 진열: 장작 더미·열매 바구니·고기
+  for (let i = 0; i < 4; i++) add(new THREE.CylinderGeometry(0.07, 0.07, 0.6, 7), seatMat, -1.0 + (i % 2) * 0.15, 1.1 + (i > 1 ? 0.13 : 0), 0.75 + (i % 2) * 0.16).rotation.z = Math.PI / 2;
+  for (let i = 0; i < 5; i++) add(new THREE.SphereGeometry(0.07, 8, 6), mat(0xd43b3b), -0.2 + (i % 3) * 0.13, 1.13 + (i > 2 ? 0.1 : 0), 0.8 + Math.floor(i / 3) * 0.12);
+  add(new THREE.BoxGeometry(0.3, 0.12, 0.2), mat(0xb9573f), 0.8, 1.12, 0.85);
+  const c = document.createElement('canvas'); c.width = 256; c.height = 96;
+  const g = c.getContext('2d');
+  g.fillStyle = '#f1e2b8'; g.fillRect(0, 0, 256, 96); g.fillStyle = '#4a2c14'; g.font = 'bold 56px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('매 점', 128, 50);
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+  add(new THREE.PlaneGeometry(1.6, 0.6), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.9 }), 0, 1.95, 1.42);
+  const lamp = new THREE.PointLight(0xffc77a, 5, 7, 2); lamp.position.set(0, 2.0, 0.7); shopGroup.add(lamp);
+  const lampGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex, color: 0xffc77a, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false }));
+  lampGlow.position.set(0, 2.0, 0.7); lampGlow.scale.setScalar(0.8); shopGroup.add(lampGlow);
+  shopGroup.position.set(SHOP.x, 0, SHOP.z); shopGroup.rotation.y = SHOP.yaw;
+  scene.add(shopGroup);
+  addShopObstacles();
+}
+const npc = new Character('#c9a7eb', false, 'male-c', true);
+npc.setName('매점 곰손'); npc.nm.classList.add('npc');
+{ const [nx, nz] = shopWorld(0, 0.15); npc.place(nx, nz); npc.yaw = SHOP.yaw; npc.group.rotation.y = SHOP.yaw; }
+pickables.push(npc.group);
+
+// 상호작용 대상 찾기: 가까운 나무·동물·매점 주인
+let target = null, pending = null;
+function findTarget() {
+  if (surv.down > 0 || state.cinema || $('#gate')) return null;
+  let best = null, bd = Infinity;
+  const consider = (kind, ref, d, label) => { if (d < bd) { bd = d; best = { kind, ref, d, label }; } };
+  const nd = Math.hypot(npc.pos.x - me.pos.x, npc.pos.z - me.pos.z);
+  if (nd < 3.2) consider('npc', npc, nd - 1.6, '매점 열기');
+  for (const t of trees) { const d = Math.hypot(t.x - me.pos.x, t.z - me.pos.z) - t.r; if (d < 1.5) consider('tree', t, d, t.rest > 0 ? '나무가 쉬는 중' : '나무 치기'); }
+  for (const an of animals) { if (an.dead) continue; const d = Math.hypot(an.pos.x - me.pos.x, an.pos.z - me.pos.z); if (d < 2.0) consider('animal', an, d, ANIMAL_LABEL[an.name] + (HUNT[an.name] ? ' 사냥' : ' 쫓기')); }
+  return best;
+}
+function updateTarget() {
+  target = findTarget();
+  const p = $('#prompt');
+  if (!target) { p.removeAttribute('data-on'); return; }
+  p.setAttribute('data-on', ''); $('#promptText').textContent = target.label;
+}
+function interact(t = target) {
+  if (!t || surv.down > 0) return;
+  if (t.kind === 'npc') { openShop(); return; }
+  if (t.kind === 'tree' && t.ref.rest > 0) { toast(`이 나무는 쉬고 있어요. ${Math.ceil(t.ref.rest)}초 뒤에 다시 와요`); return; }
+  if (me.atkCd > 0) return;
+  me.atkCd = 0.75;
+  const tx = t.kind === 'tree' ? t.ref.x : t.ref.pos.x, tz = t.kind === 'tree' ? t.ref.z : t.ref.pos.z;
+  if (cam.thirdPerson) me.yaw = Math.atan2(tx - me.pos.x, tz - me.pos.z);
+  me.attack();
+  net.event('hit', { x: Number(tx.toFixed(1)), z: Number(tz.toFixed(1)), k: t.kind });
+  setTimeout(() => applyHit(t), 220);
+}
+function applyHit(t) {
+  if (t.kind === 'tree') {
+    const tr = t.ref;
+    if (tr.rest > 0) { toast('이 나무는 쉬고 있어요. 잠시 뒤에 다시 와요'); return; }
+    tr.wob = 1; tr.hp--;
+    puff(tr.x, 1.2, tr.z, Math.random() < 0.5 ? 'leaf' : 'wood', 16); audio.thud();
+    gain(Math.random() < 0.55 ? 'wood' : 'fruit', 1, tr.x, tr.z);
+    if (tr.hp <= 0) { tr.hp = 3; tr.rest = 90; }
+  } else if (t.kind === 'animal') hitAnimal(t.ref);
+}
+// 멀리 있는 걸 누르면 다가가서 상호작용
+function goInteract(kind, ref) {
+  const tx = kind === 'tree' ? ref.x : ref.pos.x, tz = kind === 'tree' ? ref.z : ref.pos.z;
+  const reach = kind === 'tree' ? ref.r + 0.9 : kind === 'npc' ? 2.0 : 1.2;
+  const dx = me.pos.x - tx, dz = me.pos.z - tz, d = Math.hypot(dx, dz) || 1;
+  const now = findTarget();
+  if (now && now.ref === ref) { interact(now); return; }
+  const [x, z] = clampWalk(tx + dx / d * reach, tz + dz / d * reach);
+  me.walkTo(x, z); net.updateMe({ x, z, seat: -1 });
+  pending = { kind, ref };
+}
+function updatePending() {
+  if (!pending) return;
+  const t = findTarget();
+  if (t && t.ref === pending.ref) { pending = null; interact(t); return; }
+  if (Math.hypot(me.target.x - me.pos.x, me.target.z - me.pos.z) < 0.05) pending = null;
+}
+$('#prompt').addEventListener('click', () => interact());
+prof = loadLocalProfile() || freshProfile();
+surv.hunger = clamp(prof.hunger, 35, 100); surv.warmth = clamp(prof.warmth, 35, 100);
+renderBag(); renderVitals(); renderWallet();
+window.addEventListener('pagehide', () => { if (prof) saveProfile(true); });
 
 /* ================= 함께 있기 (Firebase) ================= */
 const FIREBASE_CONFIG = {
@@ -1596,28 +2169,34 @@ const net = {
       this.auth = A.getAuth(this.app);
       await this.auth.authStateReady();
       this.user = this.auth.currentUser;
-      if (this.user) $('#enter').textContent = `${this.user.displayName || '나'} 로 입장`;
     })();
     this.ready.catch((e) => { console.warn('Firebase 준비 실패', e); $('#enter').textContent = '혼자 입장 (연결 안 됨)'; });
     return this.ready;
   },
-  // Google 로그인 (팝업이 막히면 리다이렉트)
+  // 익명 로그인: 계정 없이 들어오고, 같은 브라우저면 같은 uid 가 유지돼 가방·골드가 이어진다
   async signIn() {
-    const A = this.A;
     if (this.user) return this.user;
-    const provider = new A.GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    try {
-      const cred = await A.signInWithPopup(this.auth, provider);
-      this.user = cred.user;
-    } catch (e) {
-      if (e && (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment')) {
-        await A.signInWithRedirect(this.auth, provider);
-        return null;
-      }
-      throw e;
-    }
+    const cred = await this.A.signInAnonymously(this.auth);
+    this.user = cred.user;
     return this.user;
+  },
+  nameRef(key) { return this.D.ref(this.db, `rooms/${ROOM}/names/${key}`); },
+  // 이름 키를 선점한다. 다른 uid 가 이미 쓰고 있으면 실패
+  async claimName(key) {
+    const r = await this.D.runTransaction(this.nameRef(key), (cur) => (cur && cur !== this.uid) ? undefined : this.uid).catch(() => ({ committed: false }));
+    if (!r.committed) return false;
+    this.D.onDisconnect(this.nameRef(key)).remove();
+    return true;
+  },
+  async rename(n) {
+    if (!this.on) return true;
+    const key = nameKey(n);
+    if (key === this.nameKey) { this.updateMe({ name: n }); return true; }
+    if (!(await this.claimName(key))) return false;
+    await this.D.update(this.meRef, { name: n }).catch(() => {});
+    this.D.remove(this.nameRef(this.nameKey)).catch(() => {});
+    this.nameKey = key;
+    return true;
   },
   async connect() {
     try {
@@ -1625,21 +2204,41 @@ const net = {
       const user = await this.signIn();
       if (!user) return false;
       this.uid = user.uid;
-      if (!meInfo.custom && user.displayName) { meInfo.name = user.displayName.slice(0, 16); saveMe(); me.setName(meInfo.name); $('#myName').value = meInfo.name; }
       const D = this.D;
       const db = this.db = D.getDatabase(this.app);
       this.isOwner = (await D.get(D.ref(db, 'owners/' + this.uid))).val() === true;
-      if (isReserved(meInfo.name) && !this.isOwner) {
-        toast('이 이름은 숲 주인만 쓸 수 있어요');
-        meInfo.name = randomName(); meInfo.custom = false; saveMe(); me.setName(meInfo.name); $('#myName').value = meInfo.name; gateName.value = '';
-        return false;
-      }
+      if (isReserved(meInfo.name) && !this.isOwner) { toast('이 이름은 숲 주인만 쓸 수 있어요'); return false; }
       const R = (p) => D.ref(db, `rooms/${ROOM}/${p}`);
       this.fireRef = R('fire'); this.playersRef = R('players'); this.eventsRef = R('events');
       this.meRef = R('players/' + this.uid);
 
+      // 지금 숲에 있는 사람과 같은 이름은 못 쓴다
+      const key = nameKey(meInfo.name);
+      if (!(await this.claimName(key))) { toast('지금 숲에 같은 이름을 쓰는 사람이 있어요. 다른 이름을 적어 주세요', 3500); return false; }
+      this.nameKey = key;
+
       D.onValue(D.ref(db, '.info/serverTimeOffset'), (s) => { this.offset = s.val() || 0; });
       this.joinedAt = this.now();
+
+      // 내 가방·골드·게이지(profiles/{uid}). 처음이면 기본 꾸러미를 주고 경제 장부에 올린다
+      this.profRef = D.ref(db, 'profiles/' + this.uid);
+      this.ecoRef = D.ref(db, 'economy');
+      const saved = (await D.get(this.profRef)).val();
+      if (saved && typeof saved.gold === 'number') prof = { ...freshProfile(), ...saved, inv: saved.inv || {} };
+      else {
+        prof = loadLocalProfile() || freshProfile();
+        await D.set(this.profRef, { ...prof, at: D.serverTimestamp() });
+        D.runTransaction(this.ecoRef, (cur) => { const e = { ...ECO_INIT(), ...(cur || {}) }; return { ...e, profiles: e.profiles + 1, minted: e.minted + prof.gold }; }).catch(() => {});
+      }
+      surv.hunger = clamp(prof.hunger, 35, 100); surv.warmth = clamp(prof.warmth, 35, 100);
+      renderBag(); renderVitals(); renderWallet();
+      D.onValue(this.ecoRef, (s) => {
+        const v = s.val();
+        if (!v) { D.set(this.ecoRef, ECO_INIT()).catch(() => {}); return; }
+        const base = ECO_INIT();
+        eco = { ...base, ...v, stock: { ...base.stock, ...(v.stock || {}) } };
+        renderWallet(); renderShop();
+      });
 
       await D.set(this.meRef, { name: meInfo.name, color: meInfo.color, avatar: meInfo.avatar, x: me.pos.x, z: me.pos.z, seat: -1, at: D.serverTimestamp() });
       D.onDisconnect(this.meRef).remove();
@@ -1699,6 +2298,8 @@ const net = {
         else if (ev.type === 'worry') { burst(35, 45); audio.pop(0.8); }
         else if (ev.type === 'aurora') burst(60, 10);
         else if (ev.type === 'jump' && o) o.ch.jump();
+        else if (ev.type === 'light') { burst(70, 20); audio.pop(1); toast(`${o ? clean(o.ch.nm.textContent) : '누군가'} 님이 모닥불을 다시 피웠어요 🔥`); }
+        else if (ev.type === 'hit') { if (o) o.ch.attack(); if (typeof ev.x === 'number') { puff(ev.x, ev.k === 'tree' ? 1.2 : 0.5, ev.z, ev.k === 'tree' ? 'leaf' : 'star', 8); const t = ev.k === 'tree' && trees.find((tr) => Math.hypot(tr.x - ev.x, tr.z - ev.z) < 0.6); if (t) t.wob = 1; } }
       });
       toast('모닥불에 연결됐어요');
       return true;
@@ -1708,9 +2309,9 @@ const net = {
       const why = (e && (e.code || e.message || String(e))).replace(/^auth\//, '').slice(0, 40);
       $('#online').textContent = `혼자 (연결 안 됨: ${why})`;
       setPresence(null);
-      if (e && e.code === 'auth/popup-closed-by-user') { toast('로그인 창이 닫혔어요. 다시 눌러 주세요'); return false; }
-      if (e && e.code === 'auth/unauthorized-domain') { toast('이 주소는 로그인 허용 목록에 없어요'); return false; }
-      toast('연결이 안 돼 혼자 불멍해요');
+      if (e && e.code === 'auth/admin-restricted-operation') { toast('익명 입장이 아직 열리지 않았어요 (Firebase 콘솔에서 익명 로그인 켜기)', 5000); }
+      else if (e && e.code === 'auth/unauthorized-domain') { toast('이 주소는 로그인 허용 목록에 없어요'); return false; }
+      else toast('연결이 안 돼 혼자 불멍해요');
       return 'solo';
     }
   },
@@ -1736,6 +2337,18 @@ const net = {
     this.event('aurora');
     this.D.update(this.fireRef, { aurora: this.now() + 25000 }).catch(() => {});
   },
+  // 성냥: 꺼진 불을 30 으로 되살린다
+  light() {
+    if (!this.on) return;
+    this.event('light');
+    this.D.runTransaction(this.fireRef, (cur) => {
+      const now = this.now();
+      const base = cur ? decayed(cur.fuel, cur.at, now) : 0;
+      return { ...(cur || {}), fuel: Math.max(base, 30), at: now };
+    }).catch(() => {});
+  },
+  // 잃은 골드는 장부에서 태운다(물가 안정)
+  burn(n) { if (n > 0) ecoApply((e) => ({ ...e, burned: e.burned + n })); },
   say(text) { this.updateMe({ say: { text, at: this.now() } }); },
   emote(e) { this.updateMe({ emote: { e, at: this.now() } }); },
   tick(dt) {
@@ -1823,7 +2436,10 @@ function updateCamera(dt) {
 
 function updateUI() {
   $('#stateName').textContent = fireName(state.fuel);
+  $('#stateName').classList.toggle('out', fireOut());
   $('#fuelFill').style.width = state.fuel.toFixed(0) + '%';
+  renderVitals();
+  if ($('#shop').hasAttribute('data-open') && Math.hypot(npc.pos.x - me.pos.x, npc.pos.z - me.pos.z) > 4.5) closeShop();
   if (state.sleepEnd) {
     const rem = Math.max(0, state.sleepEnd - Date.now());
     $('#sleepInfo').textContent = '수면 ' + Math.ceil(rem / 60000) + '분';
@@ -1840,26 +2456,33 @@ function frame() {
 
   const f = fuelF();
   const flick = 0.82 + 0.18 * (Math.sin(state.time * 11.3) * 0.5 + Math.sin(state.time * 17.1) * 0.3 + Math.sin(state.time * 5.7) * 0.2);
-  fireLight.intensity = (4 + 52 * f) * flick;
+  fireLight.intensity = (fireOut() ? 0.3 : 4 + 52 * f) * flick;
   fireLight.position.set(Math.sin(state.time * 7) * 0.06, 0.65 + 0.5 * f, Math.cos(state.time * 6) * 0.06);
   if (state.aurora > 0) fireLight.color.setHSL((state.time * 0.18) % 1, 0.85, 0.6);
   else fireLight.color.copy(lightLow).lerp(lightHigh, f);
   glow.material.color.copy(fireLight.color);
-  glow.material.opacity = (0.12 + 0.3 * f) * flick;
+  glow.material.opacity = (fireOut() ? 0 : 0.12 + 0.3 * f) * flick;
   glow.scale.setScalar(1.6 + 2.2 * f);
   glow.position.y = 0.5 + 0.5 * f;
-  logMat.emissiveIntensity = (0.15 + 1.4 * f) * flick;
+  logMat.emissiveIntensity = (fireOut() ? 0.03 : 0.15 + 1.4 * f) * flick;
 
   updateParticles(dt);
   updateFlying(dt);
   audio.tick(dt);
   me.update(dt);
+  if (me.atkCd > 0) me.atkCd -= dt;
   // 충돌: 나무·바위·텐트·다른 사람·동물 밖으로 밀어내기 (앉아 있을 땐 제외)
   if (me.seat < 0 && resolveCircle(me.pos, 0.38, me) && insideObstacle(me.target.x, me.target.z, 0.38)) me.target.copy(me.pos);
   for (const [, o] of others) o.ch.update(dt);
+  npc.update(dt);
   net.tick(dt);
   updateAnimals(dt);
+  updateTrees(dt);
   updateMeteors(dt);
+  updateSurvival(dt);
+  rewardTick(dt);
+  state.tgtTick = (state.tgtTick || 0) + dt;
+  if (state.tgtTick > 0.1) { state.tgtTick = 0; updateTarget(); updatePending(); }
 
   if (state.sleepEnd) {
     const rem = state.sleepEnd - Date.now();
@@ -1881,7 +2504,7 @@ function frame() {
     camera.lookAt(0, 0.65, 0);
     me.group.visible = true;
   } else {
-    keyWalk(dt);
+    if (surv.down <= 0) keyWalk(dt);
     updateCamera(dt);
   }
 
@@ -1893,7 +2516,7 @@ function frame() {
 updateUI();
 frame();
 // 점검용 (콘솔에서 상태 확인)
-window.charlesForest = { state, cam, me, animals, meteors, launchMeteor, audio, obstacles, showQuote };
+window.charlesForest = { state, cam, me, animals, trees, meteors, launchMeteor, audio, obstacles, showQuote, surv, get prof() { return prof; }, get eco() { return eco; }, net, inflation };
 </script>
 </body>
 </html>

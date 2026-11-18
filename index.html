@@ -1348,62 +1348,88 @@ function burnWorry() {
   toast('고민을 풍등에 실어 하늘로 보냈어요 🏮 · 글은 나에게만 보여요', 3500);
 }
 
-// 풍등: 고민 두루마리를 띄우면 따뜻한 등 하나가 흔들리며 하늘로 올라간다(대만 핑시 풍등처럼). 글은 띄운 사람의 등에만 적힌다
+// 풍등: 고민 두루마리를 띄우면 대만 핑시 풍등처럼 네모진 종이 등이 손에서 부풀었다가 천천히 하늘로 올라간다. 글은 띄운 사람의 등에만 적힌다
 const lanterns = [];
+const LANTERN_WIND = new THREE.Vector2(0.09, -0.06); // 숲의 바람(x, z): 호수 쪽으로 살짝 흘러간다
 function lanternTexture(text) {
-  // 원통 UV 가 네 면에 둘러 감기므로 같은 그림을 네 칸에 반복해 어느 면에서 봐도 글이 통째로 보이게 한다
-  const W = 256, H = 320;
+  // 4각 원통(lathe 4분할) UV 가 네 면에 둘러 감기므로 같은 그림을 네 칸에 반복. 아래(불꽃 쪽)가 밝고 위로 갈수록 짙은 주황
+  const W = 256, H = 384;
   const c = document.createElement('canvas'); c.width = W * 4; c.height = H;
   const g = c.getContext('2d');
-  const grd = g.createLinearGradient(0, 0, 0, H); grd.addColorStop(0, '#ffd994'); grd.addColorStop(0.55, '#ffb24d'); grd.addColorStop(1, '#ff8a2a');
+  const grd = g.createLinearGradient(0, 0, 0, H);
+  grd.addColorStop(0, '#b8481a'); grd.addColorStop(0.35, '#e8782a'); grd.addColorStop(0.7, '#ffa43c'); grd.addColorStop(1, '#ffd98a');
   g.fillStyle = grd; g.fillRect(0, 0, W * 4, H);
+  // 종이 결(세로 줄무늬)
+  g.fillStyle = 'rgba(255,255,255,0.05)';
+  for (let x = 0; x < W * 4; x += 14) g.fillRect(x, 0, 6, H);
   let lines = [];
   if (text) {
-    g.font = 'bold 30px "Pretendard", system-ui, sans-serif';
+    g.font = 'bold 34px "Pretendard", system-ui, sans-serif';
     let cur = '';
-    for (const ch of text) { const t = cur + ch; if (ch === '\n' || g.measureText(t).width > 200) { if (cur) lines.push(cur); cur = ch === '\n' ? '' : ch; } else cur = t; }
+    for (const ch of text) { const t = cur + ch; if (ch === '\n' || g.measureText(t).width > 196) { if (cur) lines.push(cur); cur = ch === '\n' ? '' : ch; } else cur = t; }
     if (cur) lines.push(cur);
     lines = lines.slice(0, 6);
   }
   for (let q = 0; q < 4; q++) {
     const ox = q * W;
-    g.strokeStyle = 'rgba(120,60,10,0.22)'; g.lineWidth = 3; g.strokeRect(ox + 6, 6, W - 12, H - 12);
-    for (let i = 1; i < 4; i++) { g.beginPath(); g.moveTo(ox, i * 80); g.lineTo(ox + W, i * 80); g.stroke(); }
+    // 대나무 살: 면 모서리 세로 두 줄 + 위아래 테
+    g.fillStyle = 'rgba(70,32,8,0.55)';
+    g.fillRect(ox, 0, 7, H); g.fillRect(ox + W - 7, 0, 7, H);
+    g.fillRect(ox, H - 10, W, 10); g.fillRect(ox, 0, W, 6);
+    g.fillStyle = 'rgba(70,32,8,0.18)';
+    g.fillRect(ox, H * 0.5, W, 4);
     if (lines.length) {
-      g.fillStyle = '#5a2e0c'; g.textAlign = 'center'; g.textBaseline = 'middle';
-      const y0 = H / 2 - (lines.length - 1) * 19;
-      lines.forEach((l, i) => g.fillText(l, ox + W / 2, y0 + i * 38));
+      g.fillStyle = 'rgba(52,20,6,0.88)'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      const y0 = H * 0.46 - (lines.length - 1) * 21;
+      lines.forEach((l, i) => g.fillText(l, ox + W / 2, y0 + i * 42));
     }
   }
   const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; return tex;
 }
+const lanternProfile = [[0.17, 0], [0.26, 0.16], [0.305, 0.42], [0.3, 0.7], [0.24, 0.9], [0.12, 1.02], [0, 1.06]].map(([r, y]) => new THREE.Vector2(r, y));
 function launchLantern(x, z, text) {
   const tex = lanternTexture(text);
   const g = new THREE.Group();
-  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.27, 0.62, 4, 1, true), new THREE.MeshStandardMaterial({ map: tex, emissive: 0xffa040, emissiveMap: tex, emissiveIntensity: 1.1, side: THREE.DoubleSide, transparent: true, roughness: 0.9 }));
-  body.rotation.y = Math.PI / 4; body.position.y = 0.31; g.add(body);
-  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.03, 4), mat(0x8a5a2b)); cap.rotation.y = Math.PI / 4; cap.position.y = 0.62; g.add(cap);
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.012, 6, 4), mat(0x6b4a2b)); ring.rotation.x = Math.PI / 2; ring.rotation.z = Math.PI / 4; g.add(ring);
-  const flame = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex, color: 0xffb060, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, depthWrite: false }));
-  flame.scale.setScalar(0.9); flame.position.y = 0.25; g.add(flame);
-  const light = new THREE.PointLight(0xffa050, 2.5, 7, 2); light.position.y = 0.3; g.add(light);
-  g.scale.setScalar(1.35);
-  g.position.set(x, 1.1, z);
+  const paper = new THREE.MeshStandardMaterial({ map: tex, emissive: 0xffb866, emissiveMap: tex, emissiveIntensity: 0.72, side: THREE.DoubleSide, transparent: true, opacity: 0.97, roughness: 0.95 });
+  const body = new THREE.Mesh(new THREE.LatheGeometry(lanternProfile, 4), paper);
+  body.rotation.y = Math.PI / 4; g.add(body);
+  const frameMat = mat(0x3a2412);
+  const base = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.009, 5, 4), frameMat); base.rotation.x = Math.PI / 2; base.rotation.z = Math.PI / 4; g.add(base);
+  for (const r of [0, Math.PI / 2]) { const w = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.007, 0.007), frameMat); w.rotation.y = r + Math.PI / 4; w.position.y = 0.004; g.add(w); }
+  const fuel = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.035, 0.06), mat(0x1e0f06)); fuel.position.y = 0.022; g.add(fuel);
+  const flame = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex, color: 0xffd080, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }));
+  flame.scale.set(0.5, 0.7, 1); flame.position.y = 0.16; g.add(flame);
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex, color: 0xff9a3a, transparent: true, opacity: 0.32, blending: THREE.AdditiveBlending, depthWrite: false }));
+  halo.scale.setScalar(2.0); halo.position.y = 0.55; g.add(halo);
+  const light = new THREE.PointLight(0xffa050, 3.2, 9, 2); light.position.y = 0.35; g.add(light);
+  g.scale.setScalar(0.5); g.position.set(x, 0.5, z);
+  g.rotation.y = Math.random() * 6.28;
   scene.add(g);
-  lanterns.push({ g, body, flame, light, tex, t: 0, life: 18, vx: (Math.random() - 0.5) * 0.25, vz: (Math.random() - 0.5) * 0.25, seed: Math.random() * 6.28 });
+  lanterns.push({ g, paper, flame, halo, light, tex, t: 0, life: 28, y: 0.5, vy: 0, seed: Math.random() * 6.28, geo: body.geometry });
 }
 function updateLanterns(dt) {
   for (let i = lanterns.length - 1; i >= 0; i--) {
     const L = lanterns[i]; L.t += dt;
-    const up = Math.min(1.3, 0.3 + L.t * 0.2);
-    L.g.position.y += up * dt;
-    L.g.position.x += (L.vx + Math.sin(state.time * 0.9 + L.seed) * 0.12) * dt;
-    L.g.position.z += (L.vz + Math.cos(state.time * 0.7 + L.seed) * 0.12) * dt;
-    L.g.rotation.y += dt * 0.25; L.g.rotation.z = Math.sin(state.time * 1.3 + L.seed) * 0.06;
-    const flick = 0.85 + Math.sin(state.time * 11 + L.seed) * 0.15;
-    const fade = L.t > L.life - 4 ? Math.max(0, (L.life - L.t) / 4) : 1;
-    L.light.intensity = 2.5 * flick * fade; L.flame.material.opacity = 0.7 * flick * fade; L.body.material.opacity = fade;
-    if (L.t >= L.life) { scene.remove(L.g); L.tex.dispose(); L.body.material.dispose(); L.body.geometry.dispose(); lanterns.splice(i, 1); }
+    const HOLD = 1.6; // 손에 들고 부풀리는 시간
+    const inflate = Math.min(1, L.t / HOLD), ease = 1 - Math.pow(1 - inflate, 3);
+    L.g.scale.setScalar(0.5 + 0.9 * ease);
+    if (L.t < HOLD) { L.y = 0.5 + ease * 0.35; }
+    else { L.vy = Math.min(1.1, L.vy + dt * 0.28); L.y += L.vy * dt; }
+    L.g.position.y = L.y;
+    const wind = 0.5 + Math.min(1.5, L.y * 0.12);
+    const drift = L.t > HOLD ? dt * wind : 0;
+    L.g.position.x += (LANTERN_WIND.x + Math.sin(state.time * 0.8 + L.seed) * 0.08) * drift;
+    L.g.position.z += (LANTERN_WIND.y + Math.cos(state.time * 0.6 + L.seed) * 0.08) * drift;
+    L.g.rotation.x = Math.sin(L.t * 1.1 + L.seed) * 0.08;
+    L.g.rotation.z = Math.cos(L.t * 0.9 + L.seed) * 0.08;
+    L.g.rotation.y += dt * 0.12;
+    const flick = 0.82 + Math.sin(state.time * 13 + L.seed) * 0.12 + Math.sin(state.time * 31 + L.seed * 2) * 0.06;
+    const fade = L.t > L.life - 5 ? Math.max(0, (L.life - L.t) / 5) : 1;
+    L.flame.material.opacity = 0.95 * flick * fade; L.flame.scale.set(0.5 * flick, 0.7 * flick, 1);
+    L.halo.material.opacity = 0.22 * flick * fade;
+    L.light.intensity = 3.2 * flick * fade;
+    L.paper.opacity = 0.97 * fade; L.paper.emissiveIntensity = 0.72 * (0.88 + 0.12 * flick);
+    if (L.t >= L.life) { scene.remove(L.g); L.tex.dispose(); L.paper.dispose(); L.geo.dispose(); lanterns.splice(i, 1); }
   }
 }
 

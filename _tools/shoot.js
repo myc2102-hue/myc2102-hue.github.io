@@ -108,14 +108,15 @@ const SCENES = {
     ${lookAt(0, 0)} S.cam.tilt = 0.78; S.cam.dist = S.cam.distTarget = 6;
     setTimeout(() => window.__friends[0].say('오늘도 살아남자 💪'), 900);
     document.body.classList.remove('bag-open'); return 'ok'` },
-  7: { name: '07_lantern', hour: 21.8, wait: 3200, code: `
+  7: { name: '07_lantern', hour: 21.8, wait: 5200, code: `
     const S = window.__shot, M = Math; S.setHour(21.8); S.state.aurora = 0; S.setExposure(1.3);
     const s0 = S.SEATS[0]; S.me.seat = -1; S.me.place(s0.x * 1.4, s0.z * 1.4); S.me.target.copy(S.me.pos);
     ${lookAt(0, 0)} S.cam.tilt = 0.22; S.cam.dist = S.cam.distTarget = 4.6;
     document.body.classList.remove('bag-open');
-    S.launchLantern(S.me.pos.x + 0.6, S.me.pos.z - 0.4, '내일 발표가 걱정돼. 잘 할 수 있겠지?');
-    setTimeout(() => S.launchLantern(-1.5, -1.0, null), 400);
-    setTimeout(() => S.launchLantern(1.8, -0.6, null), 900);
+    S.launchLantern(S.me.pos.x + 0.7, S.me.pos.z - 0.5, '내일 발표가 걱정돼. 잘 할 수 있겠지?');
+    setTimeout(() => S.launchLantern(-1.6, -1.0, null), 1500);
+    setTimeout(() => S.launchLantern(1.9, -0.8, null), 2600);
+    setTimeout(() => S.launchLantern(-0.4, -2.2, null), 3400);
     return 'ok'` }
 };
 

@@ -5,3 +5,8 @@
 - 개인정보 처리방침 주소: https://myc2102-hue.github.io/privacy.html
 - 짧은 설명(80자 이내): 숲속 호숫가 모닥불에 모여 함께 살아남는 힐링 생존 게임
 - 긴 설명 초안: `listing.md`
+
+## AI 홍보 이미지 (store/screens, 1080×1920)
+- Figma 파일 "찰스의 숲 스토어 이미지"(https://www.figma.com/design/T5RM6m31c26Ps7gUY1EP3k)에서 generate_image 로 뽑은 원본(864×1536) 4장에 Swift(AppKit, NotoSansKR Black/Bold)로 문구를 얹은 것.
+- 01 불멍 "고민을 태워버리고 힐링하세요" · 02 사냥 "귀여운 동물친구들과 생존하세요" · 03 매점 "쪼랭이 매점에서 장비를 챙기세요" · 04 오로라 "친구들과 모닥불에 모여요".
+- Play 스크린샷 칸에 넣을 때는 실제 게임 캡처 2장 이상을 앞에 두고 이 그림들은 뒤에 두는 것을 권장(정책상 "앱을 정확히 보여주는 이미지" 요구).

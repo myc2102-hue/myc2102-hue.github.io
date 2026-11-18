@@ -332,7 +332,7 @@
 <div id="rank" class="panel" aria-label="생존 랭킹"><div class="hd">🏕 생존 랭킹</div><ol id="rankList"></ol></div>
 <div id="presence" class="panel" aria-live="polite"><i></i><b id="presenceN">–</b><span>접속 중</span></div>
 <div id="wallet" class="panel" title="골드 · 5분 접속마다 자동 지급, 매점에서 쓰고 벌어요"><span>🪙</span><b id="goldN">0</b><small id="inflN"></small></div>
-<div id="hint">드래그로 둘러보기 · 휠을 내리면 3인칭<br>WASD·방향키로 걷기 · 스페이스 점프 · H 메뉴 접기 · 터치 화면은 조이스틱<br>F 로 나무 치기·사냥·매점 · 숫자키로 가방 쓰기</div>
+<div id="hint">드래그로 둘러보기 · 휠을 올리면 1인칭<br>WASD·방향키로 걷기 · 스페이스 점프 · H 메뉴 접기 · 터치 화면은 조이스틱<br>F 로 나무 치기·사냥·매점 · 숫자키로 가방 쓰기</div>
 
 <div id="quote" aria-live="polite"><span id="quoteText"></span></div>
 <div id="chatLog" aria-live="polite"></div>
@@ -461,9 +461,9 @@ scene.fog = new THREE.FogExp2(0x04090e, 0.014);
 const camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.05, 1200);
 camera.position.set(0, 1.4, 4.6);
 
-// 내 캐릭터 기준 카메라: 거리 0 = 1인칭, 휠·핀치로 멀어지면 3인칭
+// 내 캐릭터 기준 카메라: 거리 0 = 1인칭, 휠·핀치로 멀어지면 3인칭. 시작은 3인칭(3.2m, 2026-11-18)
 const cam = {
-  yaw: Math.PI, tilt: 0.05, dist: 0, distTarget: 0, maxDist: 6,
+  yaw: Math.PI, tilt: 0.05, dist: 3.2, distTarget: 3.2, maxDist: 6,
   get thirdPerson() { return this.dist > 0.35; }
 };
 
@@ -2034,7 +2034,7 @@ class Character {
     if (this.jumpY > 0) { this.vy -= 9.8 * dt; this.jumpY += this.vy * dt; if (this.jumpY <= 0) { this.jumpY = 0; this.vy = 0; } }
     const baseY = this.ghost ? 0.75 + Math.sin(state.time * 1.7 + this.ghostPhase) * 0.14
       : this.model ? (seated ? this.seatY : 0) : (seated ? 0.3 : (moving ? Math.abs(Math.sin(this.walkT)) * 0.05 : 0));
-    this.group.position.set(this.pos.x, baseY + this.jumpY, this.pos.z);
+    this.group.position.set(this.pos.x, baseY + this.jumpY + (this.floorY || 0), this.pos.z);
     this.group.rotation.y += wrapAngle(this.yaw - this.group.rotation.y) * Math.min(1, dt * 10);
     if (this.ghost) this.group.rotation.z = Math.sin(state.time * 1.3 + this.ghostPhase) * 0.06;
     if (this.model) {
@@ -2454,6 +2454,9 @@ const shopGroup = new THREE.Group();
   add(new THREE.BoxGeometry(3.0, 0.9, 0.5), wood, 0, 0.55, 0.85);
   add(new THREE.BoxGeometry(3.1, 0.08, 0.62), dark, 0, 1.02, 0.85);
   add(new THREE.BoxGeometry(2.6, 1.6, 0.1), wood, 0, 0.9, -1.0);
+  // 주인이 올라서는 단상: 좌판 뒤에 0.42m 높이 나무 단(얼굴이 좌판 위로 보이게)
+  add(new THREE.BoxGeometry(1.3, 0.42, 1.0), wood, 0, 0.21, 0.15);
+  add(new THREE.BoxGeometry(1.36, 0.05, 1.06), dark, 0, 0.445, 0.15);
   // 진열: 장작 더미·열매 바구니·고기
   for (let i = 0; i < 4; i++) add(new THREE.CylinderGeometry(0.07, 0.07, 0.6, 7), seatMat, -1.0 + (i % 2) * 0.15, 1.1 + (i > 1 ? 0.13 : 0), 0.75 + (i % 2) * 0.16).rotation.z = Math.PI / 2;
   for (let i = 0; i < 5; i++) add(new THREE.SphereGeometry(0.07, 8, 6), mat(0xd43b3b), -0.2 + (i % 3) * 0.13, 1.13 + (i > 2 ? 0.1 : 0), 0.8 + Math.floor(i / 3) * 0.12);
@@ -2472,7 +2475,7 @@ const shopGroup = new THREE.Group();
 }
 const npc = new Character('#c9a7eb', false, 'male-c', true);
 npc.setName('매점 곰손'); npc.nm.classList.add('npc');
-{ const [nx, nz] = shopWorld(0, 0.15); npc.place(nx, nz); npc.yaw = SHOP.yaw; npc.group.rotation.y = SHOP.yaw; }
+{ const [nx, nz] = shopWorld(0, 0.15); npc.place(nx, nz); npc.floorY = 0.47; npc.group.position.y = npc.floorY; npc.yaw = SHOP.yaw; npc.group.rotation.y = SHOP.yaw; }
 pickables.push(npc.group);
 
 // 상호작용 대상 찾기: 가까운 나무·동물·매점 주인

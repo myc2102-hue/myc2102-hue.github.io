@@ -346,10 +346,7 @@
   </div>
   <div class="panel" id="menuPanel">
     <div id="actions" class="primaryRow">
-      <button class="btn primary" id="btnLog">장작 넣기</button>
-      <button class="btn" id="btnAurora">오로라 가루</button>
       <button class="btn" id="btnCinema">불멍 모드</button>
-      <button class="btn" id="btnWorry">고민 태우기</button>
     </div>
     <div id="secondary" class="primaryRow">
       <button class="btn" id="btnMelody">멜로디 끄기</button>
@@ -411,7 +408,7 @@
 <div id="labels" aria-hidden="true"></div>
 
 <div id="worry" class="panel" role="dialog" aria-labelledby="worryTitle">
-  <p id="worryTitle">털어놓고 싶은 생각을 적고 불에 던지세요. 어디에도 저장되지 않고 연기로 사라집니다.</p>
+  <p id="worryTitle">두루마리에 털어놓고 싶은 생각을 적고 불에 던지세요. 어디에도 저장되지 않고 연기로 사라집니다. 던질 때 두루마리 한 장을 씁니다.</p>
   <textarea id="worryText" maxlength="140" placeholder="예) 내일 발표가 걱정돼"></textarea>
   <div class="row">
     <button class="btn" id="worryClose">닫기</button>
@@ -1122,15 +1119,18 @@ function fireScreenPos() {
   return { x: (v.x + 1) / 2 * innerWidth, y: (1 - v.y) / 2 * innerHeight };
 }
 
-$('#btnLog').addEventListener('click', () => addWood());
-$('#btnAurora').addEventListener('click', () => {
-  if (state.aurora > 0) return;
+// 오로라 가루(매점 판매)를 모닥불에 뿌린다 — 25초 동안 무지개 불꽃, 동물들이 춤춘다
+function sprinkleAurora() {
+  if (surv.down > 0) return;
+  if (invCount('aurora') <= 0) { toast('오로라 가루가 없어요. 매점에서 살 수 있어요'); return; }
+  if (state.aurora > 0) { toast('오로라가 아직 피어 있어요. 사라지면 다시 뿌리세요'); return; }
+  if (fireOut()) { toast('불씨가 없어요. 성냥으로 먼저 불을 피우세요'); return; }
+  prof.inv.aurora--; renderBag(); saveProfile();
   state.aurora = 25;
-  $('#btnAurora').disabled = true;
   burst(60, 10);
   net.setAurora();
-  toast('오로라 가루를 뿌렸어요');
-});
+  toast('오로라 가루를 뿌렸어요 ✨');
+}
 $('#btnSound').addEventListener('click', () => audio.toggle());
 
 // 작은 창·터치 화면은 모바일 배치(조이스틱·버튼·MENU 시트), 조작이 없으면 UI 를 흐리게
@@ -1313,13 +1313,20 @@ $('#btnCinema').addEventListener('click', enterCinema);
 $('#exitCinema').addEventListener('click', exitCinema);
 canvas.addEventListener('pointerdown', () => { if (state.cinema) exitCinema(); });
 
-$('#btnWorry').addEventListener('click', () => { $('#worry').setAttribute('data-open', ''); $('#worryText').focus(); });
+// 고민 두루마리(매점 판매)를 펼치면 고민 창이 열리고, 불에 던질 때 한 장을 쓴다
+function openWorry() {
+  if (surv.down > 0) return;
+  if (invCount('scroll') <= 0) { toast('고민 두루마리가 없어요. 매점에서 살 수 있어요'); return; }
+  $('#worry').setAttribute('data-open', ''); $('#worryText').focus();
+}
 $('#worryClose').addEventListener('click', () => $('#worry').removeAttribute('data-open'));
 $('#worryBurn').addEventListener('click', burnWorry);
 function burnWorry() {
   const ta = $('#worryText');
   const text = ta.value.trim();
   if (!text) { ta.focus(); return; }
+  if (invCount('scroll') <= 0) { $('#worry').removeAttribute('data-open'); toast('고민 두루마리가 없어요. 매점에서 살 수 있어요'); return; }
+  prof.inv.scroll--; renderBag(); saveProfile();
   ta.value = '';
   $('#worry').removeAttribute('data-open');
   const paper = document.createElement('div');
@@ -2197,6 +2204,8 @@ const ITEMS = {
   wood:       { label: '장작',   icon: '🪵', base: 6,  use: '모닥불에 넣기', shop: true },
   fruit:      { label: '열매',   icon: '🍎', base: 5,  food: 20, shop: true },
   match:      { label: '성냥',   icon: 'match', base: 30, use: '꺼진 모닥불 피우기', shop: true },
+  aurora:     { label: '오로라 가루', icon: '✨', base: 14, use: '모닥불에 뿌리기 · 25초 무지개 불꽃', shop: true },
+  scroll:     { label: '고민 두루마리', icon: '📜', base: 8,  use: '고민을 적어 불에 태우기', shop: true },
   meat_fox:   { label: '여우고기', icon: '🍖', badge: '🦊', base: 18, food: 35, shop: true },
   meat_bear:  { label: '곰고기',  icon: '🍖', badge: '🐻', base: 40, food: 55, shop: true },
   meat_deer:  { label: '사슴고기', icon: '🍖', badge: '🦌', base: 24, food: 40 },
@@ -2264,6 +2273,8 @@ function useItem(k) {
   }
   if (k === 'wood') addWood();
   else if (k === 'match') lightFire();
+  else if (k === 'aurora') sprinkleAurora();
+  else if (k === 'scroll') openWorry();
 }
 function addWood() {
   if (surv.down > 0) return;
@@ -2283,7 +2294,8 @@ function lightFire() {
   toast('성냥으로 모닥불을 다시 피웠어요 🔥', 3500);
 }
 
-// 배고픔은 8분에 바닥, 추위는 불에서 떨어지면 3분·불이 꺼지면 모두 90초 만에 바닥. 모닥불 곁에선 12초면 따뜻해진다
+// 배고픔은 8분에 바닥, 추위는 불에서 떨어지면 3분·불이 꺼지면 모두 90초 만에 바닥 — 여기에 DRAIN 배(2026-11-18 10% 빠르게). 모닥불 곁에선 12초면 따뜻해진다
+const DRAIN = 1.1;
 function updateSurvival(dt) {
   if ($('#gate')) return;
   if (surv.down > 0) {
@@ -2294,12 +2306,12 @@ function updateSurvival(dt) {
     if (surv.down <= 0) wakeUp();
     return;
   }
-  surv.hunger = Math.max(0, surv.hunger - dt * 100 / 480);
+  surv.hunger = Math.max(0, surv.hunger - dt * 100 / 480 * DRAIN);
   const out = fireOut();
   const coldMul = 1.5 - sunUp() * 0.9; // 밤 1.5배 빨리, 한낮 0.6배
-  if (out) surv.warmth = Math.max(0, surv.warmth - dt * 100 / 90 * coldMul);
+  if (out) surv.warmth = Math.max(0, surv.warmth - dt * 100 / 90 * coldMul * DRAIN);
   else if (nearFire()) surv.warmth = Math.min(100, surv.warmth + dt * 100 / 12 * (0.4 + 0.6 * fuelF()));
-  else surv.warmth = Math.max(0, surv.warmth - dt * 100 / 180 * coldMul);
+  else surv.warmth = Math.max(0, surv.warmth - dt * 100 / 180 * coldMul * DRAIN);
   if (out && !surv.outToast) { surv.outToast = true; toast('모닥불이 꺼졌어요! 숲의 모두가 추워져요 · 성냥으로 다시 피우세요', 6000); }
   if (!out) surv.outToast = false;
   me.speedMul = (surv.hunger < 25 || surv.warmth < 25) ? 0.65 : 1;
@@ -2639,9 +2651,7 @@ const net = {
         if (!v) { D.set(this.fireRef, { fuel: state.fuel, at: this.now() }); return; }
         state.fuel = decayed(v.fuel, v.at, this.now());
         const auroraLeft = v.aurora ? (v.aurora - this.now()) / 1000 : 0;
-        if (auroraLeft > 0 && state.aurora <= 0) { $('#btnAurora').disabled = true; }
         state.aurora = Math.max(0, auroraLeft);
-        if (state.aurora <= 0) $('#btnAurora').disabled = false;
       });
 
       // 동물·나무 상태 공유 (모델이 아직 안 읽혔으면 보관했다가 적용)
@@ -2871,7 +2881,7 @@ function frame() {
   state.time += dt;
 
   state.fuel = Math.max(0, state.fuel - dt * 100 / 420);
-  if (state.aurora > 0) { state.aurora -= dt; if (state.aurora <= 0) { state.aurora = 0; $('#btnAurora').disabled = false; } }
+  if (state.aurora > 0) { state.aurora -= dt; if (state.aurora <= 0) state.aurora = 0; }
 
   const f = fuelF();
   const flick = 0.82 + 0.18 * (Math.sin(state.time * 11.3) * 0.5 + Math.sin(state.time * 17.1) * 0.3 + Math.sin(state.time * 5.7) * 0.2);

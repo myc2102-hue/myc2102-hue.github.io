@@ -176,7 +176,7 @@
   body.mobile.bag-open #bag { display: flex; }
   body.mobile #bag .slot { width: 46px; height: 46px; font-size: 22px; }
   body.mobile #bag .slot .k { display: none; }
-  body.mobile #chat { display: none; position: fixed; left: 12px; right: 12px; bottom: 150px; padding: 8px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 9; box-shadow: 0 6px 24px rgba(0,0,0,0.45); }
+  body.mobile #chat { display: none; position: fixed; left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); padding: 8px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 9; box-shadow: 0 6px 24px rgba(0,0,0,0.45); }
   body.mobile.chat-open #chat { display: flex; }
   body.mobile #chatText { font-size: 16px; padding: 10px 12px; min-width: 0; }
   #bagBtn, #chatBtn { position: fixed; display: none; z-index: 6; width: 50px; height: 50px; font-size: 22px; transition: opacity .6s; }
@@ -206,7 +206,6 @@
   @media (orientation: landscape) and (max-height: 500px) {
     body.mobile #bag { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 160px); }
     body.mobile #chatBtn { bottom: auto; top: 110px; }
-    body.mobile #chat { left: 150px; right: 100px; bottom: 14px; }
     body.mobile #menuPanel { bottom: 14px; left: 150px; right: 100px; max-height: calc(100% - 80px); }
   }
 

@@ -78,6 +78,8 @@
   #worry p { margin: 0; font-size: 13px; color: var(--dim); line-height: 1.5; }
   #worry textarea { width: 100%; min-height: 90px; resize: none; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: rgba(0,0,0,0.3); color: var(--text); font: inherit; font-size: 14px; }
   #worry .row { display: flex; gap: 6px; justify-content: flex-end; }
+  #worryCount { align-self: flex-end; margin-top: -4px; font-size: 12px; color: var(--dim); }
+  #worryCount.full { color: #ffb86b; }
   #worry .row .btn { flex: 0 0 auto; }
 
 
@@ -413,8 +415,9 @@
 <div id="labels" aria-hidden="true"></div>
 
 <div id="worry" class="panel" role="dialog" aria-labelledby="worryTitle">
-  <p id="worryTitle">두루마리에 털어놓고 싶은 생각을 적고 풍등에 실어 하늘로 보내세요. 글은 나에게만 보이고 다른 사람에게는 떠오르는 풍등만 보여요. 어디에도 저장되지 않습니다. 띄울 때 두루마리 한 장을 씁니다.</p>
-  <textarea id="worryText" maxlength="140" placeholder="예) 내일 발표가 걱정돼"></textarea>
+  <p id="worryTitle">두루마리에 털어놓고 싶은 생각을 적고 풍등에 실어 하늘로 보내세요. 글은 나에게만 보이고 다른 사람에게는 떠오르는 풍등만 보여요. 어디에도 저장되지 않습니다. 45자까지, 띄울 때 두루마리 한 장을 씁니다.</p>
+  <textarea id="worryText" maxlength="45" placeholder="예) 내일 발표가 걱정돼" aria-describedby="worryCount"></textarea>
+  <small id="worryCount" aria-live="polite">0 / 45</small>
   <div class="row">
     <button class="btn" id="worryClose">닫기</button>
     <button class="btn primary" id="worryBurn">풍등 띄우기</button>
@@ -1333,13 +1336,14 @@ function openWorry() {
 }
 $('#worryClose').addEventListener('click', () => $('#worry').removeAttribute('data-open'));
 $('#worryBurn').addEventListener('click', burnWorry);
+$('#worryText').addEventListener('input', (e) => { const n = e.target.value.length; const el = $('#worryCount'); el.textContent = n + ' / 45'; el.classList.toggle('full', n >= 45); });
 function burnWorry() {
   const ta = $('#worryText');
   const text = ta.value.trim();
   if (!text) { ta.focus(); return; }
   if (invCount('scroll') <= 0) { $('#worry').removeAttribute('data-open'); toast('고민 두루마리가 없어요. 매점에서 살 수 있어요'); return; }
   prof.inv.scroll--; renderBag(); saveProfile();
-  ta.value = '';
+  ta.value = ''; $('#worryCount').textContent = '0 / 45'; $('#worryCount').classList.remove('full');
   $('#worry').removeAttribute('data-open');
   const x = Number((me.pos.x + Math.sin(me.yaw) * 0.5).toFixed(2)), z = Number((me.pos.z + Math.cos(me.yaw) * 0.5).toFixed(2));
   launchLantern(x, z, text);

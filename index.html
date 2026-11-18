@@ -155,9 +155,9 @@
 
   /* 작은 창·터치: MENU 시트, 가만히 두면 UI 흐려짐 */
   #hudToggle { position: fixed; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); z-index: 6; height: 36px; border-radius: 999px; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; letter-spacing: .08em; padding: 0 14px; }
-  body.hud-collapsed #secondary, body.hud-collapsed #emotes, body.hud-collapsed #mixer { display: none; }
-  body.idle #hud, body.idle #hint, body.idle #title, body.idle #chatLog, body.idle #hudToggle, body.idle #joy, body.idle #tbtns { opacity: 0.18; }
-  body.idle #hud:hover, body.idle #hud:focus-within { opacity: 1; }
+  body.idle #hud > *, body.idle #hint, body.idle #title, body.idle #chatLog, body.idle #hudToggle, body.idle #joy, body.idle #tbtns { opacity: 0.18; }
+  body.idle #hud > #statusPanel { opacity: 0.8; }
+  body.idle #hud:hover > *, body.idle #hud:focus-within > * { opacity: 1; }
   #hudToggle, #hint, #title, #chatLog, #joy, #tbtns { transition: opacity .6s; }
   @media (max-width: 480px) { #gateArt { object-position: 50% 45%; } }
   body.cinema #hudToggle, body.cinema #joy, body.cinema #tbtns { opacity: 0; pointer-events: none; }
@@ -304,6 +304,85 @@
   /* 획득 표시 */
   .gain { position: fixed; z-index: 7; transform: translate(-50%, -50%); font-size: 18px; font-weight: 700; color: #ffd166; text-shadow: 0 1px 6px rgba(0,0,0,0.9); pointer-events: none; animation: gainUp 1.2s ease-out forwards; white-space: nowrap; }
   @keyframes gainUp { 0% { opacity: 0; transform: translate(-50%, -30%) scale(.8); } 20% { opacity: 1; transform: translate(-50%, -60%) scale(1.1); } 100% { opacity: 0; transform: translate(-50%, -160%) scale(1); } }
+
+  /* ===== 2026-11-19 UI 정리: 위쪽 줄 충돌 해소 · 메뉴 팝오버 · 대문 카드 · 모바일 블러 제거 ===== */
+  #hud { left: 0; right: 0; margin: 0 auto; transform: none; width: min(640px, calc(100% - 24px)); }
+  #hud > * { transition: opacity .6s; }
+  #statusPanel { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); width: min(480px, calc(100% - 470px)); min-width: 260px; z-index: 5; }
+  #menuPanel { display: none; }
+  body.menu-open #menuPanel { display: block; }
+  #menuBtn { flex: 0 0 auto; min-width: 0; padding: 10px 13px; font-size: 16px; line-height: 1; }
+  body.menu-open #menuBtn { background: rgba(255,150,60,0.22); border-color: rgba(255,170,90,0.4); }
+  body.mobile #menuBtn { display: none; }
+  #moveHint { flex: 1 1 100%; margin: 4px 0 0; }
+  .tag .nm { font-size: 12px; font-weight: 600; color: rgba(248,240,224,0.92); text-shadow: 0 1px 3px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.6); }
+  #toast { white-space: normal; width: max-content; max-width: calc(100% - 24px); text-align: center; line-height: 1.45; }
+
+  /* 모바일: 캔버스 위 블러는 매 프레임 다시 계산돼 무겁다. 패널을 조금 더 불투명하게 하고 블러를 끈다 */
+  body.mobile { --panel: rgba(8, 14, 18, 0.8); }
+  body.mobile .panel, body.mobile .tb, body.mobile #prompt, body.mobile #bag, body.mobile #chat, body.mobile #down { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  body.mobile #statusPanel { left: 50%; right: auto; top: 10px; transform: translateX(-50%); width: min(440px, calc(100% - 330px)); min-width: 0; }
+  body.mobile #presence { right: 10px; top: 10px; padding: 5px 10px; font-size: 12px; }
+  body.mobile #presence b { font-size: 13px; }
+  body.mobile #wallet { right: 10px; top: 42px; padding: 5px 10px; font-size: 13px; }
+  body.mobile #menuPanel { left: auto; right: max(18px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 198px); width: min(320px, calc(100% - 36px)); max-height: calc(100% - 300px); }
+  @media (max-width: 600px) {
+    body.mobile #statusPanel { left: 10px; right: 10px; width: auto; transform: none; }
+    body.mobile #rank, body.mobile #presence { top: 74px; }
+    body.mobile #wallet { top: 106px; }
+    body.mobile #chatLog { top: 206px; }
+    #toast { top: 25%; }
+  }
+  @media (orientation: landscape) and (max-height: 500px) {
+    body.mobile #chatBtn { top: 132px; }
+    body.mobile #menuPanel { right: 156px; bottom: 14px; width: min(340px, calc(100% - 330px)); max-height: calc(100% - 28px); }
+  }
+  /* 태블릿: 조작 버튼과 글씨를 키운다 */
+  @media (min-width: 900px) and (min-height: 700px) {
+    body.mobile #joy { width: 156px; height: 156px; }
+    body.mobile #joyKnob { width: 68px; height: 68px; margin: -34px 0 0 -34px; }
+    body.mobile #tbtns, body.mobile #bagBtn, body.mobile #chatBtn, body.mobile #prompt, body.mobile #hudToggle { zoom: 1.22; }
+    body.mobile #chatBtn { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 150px); }
+    body.mobile #statusPanel { width: min(520px, calc(100% - 400px)); }
+    body.mobile #status { font-size: 13px; padding: 7px 12px; }
+    body.mobile #vitals { font-size: 14px; padding: 0 12px 7px; }
+    body.mobile #rank { width: 172px; font-size: 12px; }
+    body.mobile #rank li .t { font-size: 11px; }
+    body.mobile #presence, body.mobile #wallet { font-size: 14px; padding: 6px 12px; }
+    body.mobile #wallet { top: 46px; }
+    body.mobile #menuPanel { bottom: 290px; width: 340px; }
+    body.mobile #bag { bottom: 330px; }
+    body.mobile #bag .slot { width: 54px; height: 54px; font-size: 26px; }
+  }
+
+  /* 대문: 입력 영역을 유리 카드로 묶어 그림 위에서도 읽히게 */
+  #gateBody { margin: 0 12px max(28px, env(safe-area-inset-bottom)); padding: 18px 22px 16px; gap: 10px; width: min(520px, calc(100% - 24px)); border-radius: 24px; background: rgba(6, 12, 24, 0.6); border: 1px solid rgba(255,255,255,0.14); box-shadow: 0 12px 40px rgba(0,0,0,0.45); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  #gateTag { font-size: 14px; }
+  #gateName { width: 100%; max-width: 320px; }
+  #avatars { max-width: 100%; }
+  #avatars .row { max-width: 100%; gap: 7px; }
+  .av { width: 50px; height: 50px; }
+  #gateNote { line-height: 1.5; text-wrap: balance; }
+  @media (max-width: 600px), (max-height: 500px) {
+    #avatars { width: 100%; }
+    #avatars .row { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; padding: 3px 26px 6px 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; -webkit-mask-image: linear-gradient(90deg, #000 86%, transparent 100%); mask-image: linear-gradient(90deg, #000 86%, transparent 100%); }
+    #avatars .row::-webkit-scrollbar { display: none; }
+    .av { flex: 0 0 auto; width: 48px; height: 48px; }
+  }
+  @media (orientation: portrait) and (max-width: 720px) {
+    #gate { background: linear-gradient(180deg, #0a1430 0%, #060b18 100%); }
+    #gateArt { inset: auto; left: 50%; top: 0; width: 230%; height: auto; transform: translateX(-50%); object-fit: fill; -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent 100%); mask-image: linear-gradient(180deg, #000 72%, transparent 100%); }
+    #gate::after { display: none; }
+    #gateBody { margin-bottom: max(18px, env(safe-area-inset-bottom)); padding: 16px 16px 14px; }
+  }
+  @media (orientation: landscape) and (max-height: 500px) {
+    #gateTag, #gateNote, #avatarTag { display: none; }
+    #gateBody { flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; padding: 10px 14px; margin-bottom: max(10px, env(safe-area-inset-bottom)); gap: 8px; width: min(640px, calc(100% - 24px)); border-radius: 18px; }
+    #avatars { order: -1; flex: 1 1 100%; }
+    #gateName { flex: 1 1 200px; width: auto; max-width: none; padding: 10px 14px; }
+    #enter { padding: 10px 28px; font-size: 16px; }
+    #gateArt { object-position: center 18%; }
+  }
 </style>
 <script type="importmap">
 { "imports": {
@@ -332,7 +411,7 @@
 <div id="rank" class="panel" aria-label="생존 랭킹"><div class="hd">🏕 생존 랭킹</div><ol id="rankList"></ol></div>
 <div id="presence" class="panel" aria-live="polite"><i></i><b id="presenceN">–</b><span>접속 중</span></div>
 <div id="wallet" class="panel" title="골드 · 5분 접속마다 자동 지급, 매점에서 쓰고 벌어요"><span>🪙</span><b id="goldN">0</b><small id="inflN"></small></div>
-<div id="hint">드래그로 둘러보기 · 휠을 올리면 1인칭<br>WASD·방향키로 걷기 · 스페이스 점프 · H 메뉴 접기 · 터치 화면은 조이스틱<br>F 로 나무 치기·사냥·매점 · 숫자키로 가방 쓰기</div>
+<div id="hint">드래그로 둘러보기 · 휠을 올리면 1인칭<br>WASD·방향키로 걷기 · 스페이스 점프 · H 메뉴 · 터치 화면은 조이스틱<br>F 로 나무 치기·사냥·매점 · 숫자키로 가방 쓰기</div>
 
 <div id="quote" aria-live="polite"><span id="quoteText"></span></div>
 <div id="chatLog" aria-live="polite"></div>
@@ -391,6 +470,7 @@
       <input id="chatText" type="text" maxlength="60" placeholder="이야기하기 · Enter" aria-label="채팅">
       <button class="btn primary" type="submit">전송</button>
     </form>
+    <button class="btn" id="menuBtn" type="button" aria-label="메뉴 열기/닫기" aria-expanded="false" title="메뉴 (H)">☰</button>
   </div>
 </div>
 
@@ -534,7 +614,7 @@ const groundTex = (() => {
   t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(36, 36); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
   return t;
 })();
-const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 48), new THREE.MeshStandardMaterial({ map: groundTex, color: 0xf0d9a8, roughness: 0.95 }));
+const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 48), new THREE.MeshLambertMaterial({ map: groundTex, color: 0xf0d9a8 }));
 ground.rotation.x = -Math.PI / 2;
 scene.add(ground);
 // 아기자기한 풀: 여러 색의 풀잎 다발 (원뿔 인스턴스)
@@ -542,7 +622,7 @@ scene.add(ground);
   const n = 1400;
   const geo = new THREE.ConeGeometry(0.05, 0.26, 4, 1, true);
   geo.translate(0, 0.13, 0);
-  const gmat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, side: THREE.DoubleSide, vertexColors: false });
+  const gmat = new THREE.MeshLambertMaterial({ color: 0xffffff, side: THREE.DoubleSide });
   const grass = new THREE.InstancedMesh(geo, gmat, n); grassMesh = grass;
   const d = new THREE.Object3D(), col = new THREE.Color();
   const rg = mulberry32(99);
@@ -729,6 +809,7 @@ const sunUp = (h = dayClock()) => clamp((Math.sin((h - 6) / 24 * Math.PI * 2) + 
 const SKY = { night: new THREE.Color(0x03070c), dawn: new THREE.Color(0x5a3a4a), day: new THREE.Color(0x8fc4ee), dusk: new THREE.Color(0x7a3f2e) };
 const FOG = { night: new THREE.Color(0x04090e), day: new THREE.Color(0x9fcbe6), dawn: new THREE.Color(0x6b4a52), dusk: new THREE.Color(0x7d4a39) };
 const hemi = new THREE.HemisphereLight(0x1b2b4d, 0x1a1a14, 0.25);
+const fillLight = new THREE.DirectionalLight(0xd6dcff, 0.45); scene.add(fillLight); scene.add(fillLight.target);
 const HEMI_SKY = { night: new THREE.Color(0x1b2b4d), day: new THREE.Color(0xbfdcff), gold: new THREE.Color(0xffb070) };
 const HEMI_GROUND = { night: new THREE.Color(0x1a1a14), day: new THREE.Color(0x6a6a4a) };
 scene.add(hemi);
@@ -761,6 +842,7 @@ function updateDaylight() {
   moon.visible = moonHalo.visible = up < 0.6;
   moonHalo.material.opacity = 0.3 * clamp(1 - up * 1.6, 0, 1);
   renderer.toneMappingExposure = (1.15 - 0.25 * up) * shotExposure;
+  fillLight.intensity = 0.5 - 0.32 * up;
 }
 
 /* ================= 파티클 ================= */
@@ -1174,7 +1256,7 @@ $('#btnSound').addEventListener('click', () => audio.toggle());
 const smallView = () => innerWidth <= 720 || innerHeight <= 620;
 const coarseMQ = matchMedia('(pointer: coarse)');
 const isMobile = () => coarseMQ.matches || smallView();
-function syncMenuBtn() { $('#hudToggle').textContent = document.body.classList.contains('menu-open') ? '닫기' : 'MENU'; }
+function syncMenuBtn() { const on = document.body.classList.contains('menu-open'); $('#hudToggle').textContent = on ? '닫기' : 'MENU'; $('#menuBtn').setAttribute('aria-expanded', on ? 'true' : 'false'); }
 function applyLayout() {
   const m = isMobile();
   document.body.classList.toggle('mobile', m);
@@ -1182,11 +1264,12 @@ function applyLayout() {
   syncMenuBtn();
 }
 function toggleMenu(force) {
-  if (document.body.classList.contains('mobile')) document.body.classList.toggle('menu-open', force);
-  else document.body.classList.toggle('hud-collapsed', force);
+  document.body.classList.toggle('menu-open', force);
+  if (document.body.classList.contains('menu-open')) document.body.classList.remove('bag-open', 'chat-open');
   syncMenuBtn();
 }
 $('#hudToggle').addEventListener('click', () => toggleMenu());
+$('#menuBtn').addEventListener('click', () => toggleMenu());
 window.addEventListener('resize', applyLayout);
 if (coarseMQ.addEventListener) coarseMQ.addEventListener('change', applyLayout);
 $('#chatText').addEventListener('focus', () => { document.body.classList.remove('menu-open'); syncMenuBtn(); document.body.classList.add('chat-open'); });
@@ -1214,8 +1297,9 @@ function joyMove(e) {
   const r = joyEl.getBoundingClientRect();
   let dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
   const d = Math.hypot(dx, dy);
-  if (d > JOY_R) { dx *= JOY_R / d; dy *= JOY_R / d; }
-  joy.dx = dx / JOY_R; joy.dy = dy / JOY_R;
+  const R = r.width * (JOY_R / 124);
+  if (d > R) { dx *= R / d; dy *= R / d; }
+  joy.dx = dx / R; joy.dy = dy / R;
   joyKnob.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
 }
 joyEl.addEventListener('pointerdown', (e) => {
@@ -1347,7 +1431,7 @@ function exitCinema() {
 }
 $('#btnCinema').addEventListener('click', enterCinema);
 $('#exitCinema').addEventListener('click', exitCinema);
-canvas.addEventListener('pointerdown', () => { if (state.cinema) exitCinema(); });
+canvas.addEventListener('pointerdown', () => { if (state.cinema) exitCinema(); if (document.body.classList.contains('menu-open')) toggleMenu(false); });
 
 // 고민 두루마리(매점 판매)를 펼치면 고민 창이 열리고, 불에 던질 때 한 장을 쓴다
 function openWorry() {
@@ -1575,25 +1659,51 @@ function addShopObstacles() {
   const put = (lx, lz, r) => { const [x, z] = shopWorld(lx, lz); addObstacle(x, z, r); };
   put(0, -0.5, 1.25); put(-1.0, 0.85, 0.5); put(0, 0.85, 0.5); put(1.0, 0.85, 0.5);
 }
+// 숲 소품은 종류별 인스턴스 한 묶음으로 그린다(그리기 호출 수백 → 십여 개). 나무도 인스턴스라서 흔들림은 행렬을 다시 쓰고, 클릭은 instanceId 로 찾는다
+const instBatches = new Map(), instDummy = new THREE.Object3D(), instTmp = new THREE.Matrix4();
+function instMatrix(x, z, rotY, s, rx = 0, rz = 0) {
+  instDummy.position.set(x, 0, z); instDummy.rotation.set(rx, rotY, rz); instDummy.scale.setScalar(s); instDummy.updateMatrix();
+  return instDummy.matrix;
+}
+function instAdd(model, x, z, rotY, s, tree = -1) {
+  let b = instBatches.get(model); if (!b) instBatches.set(model, b = []);
+  b.push({ m: instMatrix(x, z, rotY, s).clone(), tree });
+}
+function flushInstances() {
+  for (const [model, items] of instBatches) {
+    model.updateMatrixWorld(true);
+    const hasTree = items.some((e) => e.tree >= 0);
+    model.traverse((o) => {
+      if (!o.isMesh) return;
+      const im = new THREE.InstancedMesh(o.geometry, o.material, items.length);
+      const local = o.matrixWorld.clone();
+      items.forEach((e, i) => {
+        im.setMatrixAt(i, instTmp.multiplyMatrices(e.m, local));
+        if (e.tree >= 0) trees[e.tree].parts.push({ im, i, local });
+      });
+      im.instanceMatrix.needsUpdate = true; im.frustumCulled = false; im.matrixAutoUpdate = false;
+      if (hasTree) { im.userData.treeOf = items.map((e) => e.tree); pickables.push(im); }
+      scene.add(im);
+    });
+  }
+  instBatches.clear();
+}
+function setTreeTilt(t, rx, rz) {
+  const m = instMatrix(t.x, t.z, t.rotY, t.s, rx, rz);
+  for (const p of t.parts) { p.im.setMatrixAt(p.i, instTmp.multiplyMatrices(m, p.local)); p.im.instanceMatrix.needsUpdate = true; }
+}
 function scatter(model, count, rMin, rMax, sMin, sMax, opts = {}) {
   for (let i = 0; i < count; i++) {
     const a = frand(0, Math.PI * 2), r = frand(rMin, rMax);
     const x = Math.cos(a) * r, z = Math.sin(a) * r;
     if (z < -11 && !opts.lakeOk) { i--; continue; }
     if (Math.hypot(x - SHOP.x, z - SHOP.z) < 2.8) { i--; continue; }
-    const m = model.clone();
     const s = frand(sMin, sMax);
-    m.position.set(x, 0, z);
-    m.rotation.y = frand(0, 6.28);
-    m.scale.setScalar(s);
-    scene.add(m);
+    const rotY = frand(0, 6.28);
     if (opts.hit) addObstacle(x, z, opts.hit * s);
-    if (opts.tree) {
-      const idx = trees.length;
-      trees.push({ model: m, x, z, r: (opts.hit || 0.22) * s, hp: 3, rest: 0, restUntil: 0, wob: 0 });
-      m.traverse((o) => { o.userData.tree = idx; });
-      pickables.push(m);
-    }
+    let idx = -1;
+    if (opts.tree) { idx = trees.length; trees.push({ x, z, rotY, s, parts: [], r: (opts.hit || 0.22) * s, hp: 3, rest: 0, restUntil: 0, wob: 0 }); }
+    instAdd(model, x, z, rotY, s, idx);
   }
 }
 function updateTrees(dt) {
@@ -1602,9 +1712,7 @@ function updateTrees(dt) {
     else if (t.rest > 0) t.rest -= dt;
     if (t.wob > 0) {
       t.wob = Math.max(0, t.wob - dt * 1.6);
-      t.model.rotation.z = Math.sin(state.time * 28) * 0.05 * t.wob;
-      t.model.rotation.x = Math.cos(state.time * 23) * 0.04 * t.wob;
-      if (t.wob <= 0) { t.model.rotation.z = 0; t.model.rotation.x = 0; }
+      setTreeTilt(t, Math.cos(state.time * 23) * 0.04 * t.wob, Math.sin(state.time * 28) * 0.05 * t.wob);
     }
   }
 }
@@ -1628,6 +1736,14 @@ async function buildForest() {
   const names = ['tree', 'tree-high', 'tent', 'rocks-low', 'rocks-high', 'stones', 'plant', 'patch-grass', 'fence', 'flag'];
   const g = {};
   await Promise.all(names.map(async (n) => { g[n] = (await loadGLB(FOREST + n + '.glb')).scene; }));
+  // 숲 소품은 반사 계산이 없는 가벼운 재질로(로폴리라 겉모습 차이는 거의 없고 픽셀당 계산이 줄어든다)
+  const lam = new Map();
+  for (const n of names) g[n].traverse((o) => {
+    if (!o.isMesh) return;
+    const m = o.material;
+    if (!lam.has(m)) lam.set(m, new THREE.MeshLambertMaterial({ map: m.map, color: m.color, vertexColors: m.vertexColors, side: m.side, transparent: m.transparent, opacity: m.opacity, alphaTest: m.alphaTest }));
+    o.material = lam.get(m);
+  });
   procGroup.visible = false;
   obstacles.length = 0;
   addShopObstacles();
@@ -1641,6 +1757,7 @@ async function buildForest() {
   scatter(g['stones'], 12, 4.5, 20, 1.0, 1.8, { hit: 0.35 });
   scatter(g['plant'], 55, 2.4, 18, 1.3, 2.4);
   scatter(g['patch-grass'], 70, 2.2, 22, 1.2, 2.4);
+  flushInstances();
   const tent = g['tent'].clone(); tent.position.set(-4.8, 0, -0.6); tent.rotation.y = 0.55; tent.scale.setScalar(2.6); scene.add(tent);
   addObstacle(-4.8, -0.6, 1.5);
   const flag = g['flag'].clone(); flag.position.set(-3.2, 0, -2.2); flag.scale.setScalar(2.2); scene.add(flag);
@@ -2143,10 +2260,11 @@ class Character {
       this.body.scale.y += ((seated ? 0.72 : 1) - this.body.scale.y) * Math.min(1, dt * 8);
     }
     projV.set(this.pos.x, this.group.position.y + this.eyeY + 0.15, this.pos.z).project(camera);
-    if (projV.z > 1 || projV.z < -1 || (this.isMe && !this.group.visible)) { this.tag.style.display = 'none'; return; }
-    this.tag.style.display = '';
-    const x = (projV.x + 1) / 2 * innerWidth, y = (1 - projV.y) / 2 * innerHeight;
-    this.tag.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, -100%)`;
+    const hide = projV.z > 1 || projV.z < -1 || Math.abs(projV.x) > 1.25 || Math.abs(projV.y) > 1.35 || (this.isMe && !this.group.visible);
+    if (hide !== this.tagHidden) { this.tagHidden = hide; this.tag.style.display = hide ? 'none' : ''; }
+    if (hide) return;
+    const x = Math.round((projV.x + 1) / 2 * innerWidth), y = Math.round((1 - projV.y) / 2 * innerHeight);
+    if (x !== this.tagX || y !== this.tagY) { this.tagX = x; this.tagY = y; this.tag.style.transform = `translate(${x}px, ${y}px) translate(-50%, -100%)`; }
   }
   dispose() { scene.remove(this.group); this.tag.remove(); allChars.delete(this); }
 }
@@ -2297,6 +2415,7 @@ canvas.addEventListener('pointerup', (e) => {
   const pk = me.ghost ? null : raycaster.intersectObjects(pickables, true)[0];
   if (pk && pk.distance < 40) {
     const u = pk.object.userData;
+    if (u.treeOf && pk.instanceId != null && u.treeOf[pk.instanceId] >= 0) { goInteract('tree', trees[u.treeOf[pk.instanceId]]); return; }
     if (typeof u.tree === 'number') { goInteract('tree', trees[u.tree]); return; }
     if (typeof u.animal === 'number' && !animals[u.animal].dead) { goInteract('animal', animals[u.animal]); return; }
     if (u.npc) { goInteract('npc', npc); return; }
@@ -2961,6 +3080,7 @@ function updateCamera(dt) {
   if (!camInit) { camera.position.copy(camGoal); camInit = true; }
   else camera.position.lerp(camGoal, 1 - Math.pow(0.0005, dt));
   camera.lookAt(camLook);
+  fillLight.position.copy(camera.position); fillLight.target.position.copy(camLook);
   me.group.visible = cam.dist > 0.3;
   if (!third) me.yaw = cam.yaw;
 }
@@ -2997,8 +3117,8 @@ function frame() {
   if (SHOT.has('shot') && !window.__shot) {
     $('#toast').style.display = 'none'; $('#hint').style.display = 'none';
     window.__shot = {
-      me, cam, state, surv, others, animals, npc, SEATS, SHOP, shopWorld, THREE, scene, camera,
-      setHour: (h) => { shotHour = h; }, setExposure: (e) => { shotExposure = e; }, collapse, launchLantern, get prof() { return prof; }, renderBag, renderVitals, renderWallet, renderRank, setPresence, toast,
+      me, cam, state, surv, others, animals, npc, SEATS, SHOP, shopWorld, THREE, scene, camera, renderer, trees, pickables, setTreeTilt,
+      setHour: (h) => { shotHour = h; }, setExposure: (e) => { shotExposure = e; }, collapse, launchLantern, openShop, get prof() { return prof; }, renderBag, renderVitals, renderWallet, renderRank, setPresence, toast,
       friend(name, color, avatar, x, z, seat = -1, since = 0) {
         const o = { ch: new Character(color, false, avatar), seat, sayAt: 0, emoteAt: 0, since: Date.now() - since * 1000 };
         o.ch.place(x, z); o.ch.setName(name); if (seat >= 0) o.ch.sit(seat);

@@ -143,6 +143,8 @@ const SCENES = {
     await sleep(sc.wait);
     await shot(sc.name);
   }
+  try { console.log('tree test', await run(`const S = window.__shot; const t = S.trees.find((t) => Math.hypot(t.x, t.z) < 14); S.setTreeTilt(t, 0.2, 0.2); S.setTreeTilt(t, 0, 0); const rc = new S.THREE.Raycaster(); rc.set(new S.THREE.Vector3(t.x + 4, 0.8, t.z), new S.THREE.Vector3(-1, 0, 0)); const hit = rc.intersectObjects(S.pickables, true)[0]; return JSON.stringify({ trees: S.trees.length, parts: t.parts.length, want: S.trees.indexOf(t), hit: hit && hit.object.userData.treeOf ? hit.object.userData.treeOf[hit.instanceId] : null })`)); } catch (e) { console.log('tree test failed', e.message); }
+  try { console.log('render info', await evaluate('JSON.stringify(window.__shot.renderer.info.render)')); } catch (e) {}
   const errs = events.filter((e) => e.method === 'Runtime.exceptionThrown').map((e) => JSON.stringify(e.params.exceptionDetails).slice(0, 200));
   if (errs.length) console.log('page errors:', errs.join('\n'));
   ws.close(); cleanup(); process.exit(0);

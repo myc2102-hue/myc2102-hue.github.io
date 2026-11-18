@@ -45,3 +45,14 @@ _notes/               기획 메모(푸시 제외)
    ```
 3. 저장소 Settings → Pages → Branch `main` / `/ (root)` 저장. 1~2분 뒤 공개.
 4. 이후 수정은 `git push` 만 하면 자동 반영.
+
+## Google Play 등록 (2026-11-18 준비분)
+웹 게임을 TWA(Trusted Web Activity) 껍데기로 감싸 올린다. 게임은 계속 GitHub Pages 에서 돌고, 앱은 그 주소를 전체 화면으로 연다.
+
+- 사이트 쪽 준비(완료): `manifest.webmanifest`(이름·아이콘·standalone), `sw.js` + `offline.html`(설치 조건용 최소 서비스 워커, 게임 파일은 캐시 안 함), `icons/`(키아트에서 512·192·180 자른 것), `privacy.html`(개인정보 처리방침, 연락처 `CONTACT_EMAIL` 은 올리기 전에 채울 것), `.well-known/assetlinks.json`(앱 서명 지문 자리 `REPLACE_WITH_PLAY_APP_SIGNING_SHA256`), `.nojekyll`(점으로 시작하는 폴더가 Pages 에 올라가도록).
+- 순서(사용자):
+  1. https://pwabuilder.com 에 `https://myc2102-hue.github.io/` 입력 → Package for stores → Android. 패키지 이름은 `io.github.myc2102hue.charlesforest`(assetlinks 와 같게), 서명 키는 새로 만들기(zip 안 `signing-key-info.txt` 보관).
+  2. Play Console(개인 계정, 25달러) → 앱 만들기 → 받은 `.aab` 를 **비공개 테스트** 트랙에 올린다. 개인 계정은 테스터 12명이 14일 이상 옵트인해야 정식 출시 신청이 열린다.
+  3. Play Console → 설정 → 앱 무결성 → 앱 서명 키 인증서의 **SHA-256** 을 복사해 `.well-known/assetlinks.json` 의 자리에 붙이고 push(찰비스에게 값을 주면 됨). 이게 맞아야 앱에서 주소창이 사라진다.
+  4. 스토어 등록정보: 아이콘 512, 그래픽 1024×500(키아트 자르면 됨), 스크린샷 폰 2장 이상, 개인정보처리방침 주소 `https://myc2102-hue.github.io/privacy.html`, 데이터 안전(익명 ID·닉네임·채팅 수집, 암호화 전송, 삭제 요청 가능), 콘텐츠 등급 설문(사용자 간 채팅 있음).
+- 확인: 설치 뒤 주소창이 보이면 3번 지문이 틀린 것. PWABuilder 가 만든 패키지 이름과 assetlinks 의 `package_name` 이 같은지도 본다.

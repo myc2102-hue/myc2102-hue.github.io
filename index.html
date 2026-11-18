@@ -406,7 +406,7 @@
 <div id="toast" role="status"></div>
 
 <div id="shop" class="panel" role="dialog" aria-label="매점">
-  <div class="head"><b>곰손 매점</b><span id="shopInfl"></span><button class="btn" id="shopClose" type="button">닫기</button></div>
+  <div class="head"><b>쪼랭이 매점</b><span id="shopInfl"></span><button class="btn" id="shopClose" type="button">닫기</button></div>
   <div class="tabs"><button class="btn" type="button" data-tab="buy" aria-selected="true">구매</button><button class="btn" type="button" data-tab="sell" aria-selected="false">판매</button></div>
   <div id="shopList"></div>
   <p id="shopNote"></p>
@@ -2474,7 +2474,7 @@ const shopGroup = new THREE.Group();
   addShopObstacles();
 }
 const npc = new Character('#c9a7eb', false, 'male-c', true);
-npc.setName('매점 곰손'); npc.nm.classList.add('npc');
+npc.setName('매점 쪼랭이'); npc.nm.classList.add('npc');
 { const [nx, nz] = shopWorld(0, 0.15); npc.place(nx, nz); npc.floorY = 0.47; npc.group.position.y = npc.floorY; npc.yaw = SHOP.yaw; npc.group.rotation.y = SHOP.yaw; }
 pickables.push(npc.group);
 

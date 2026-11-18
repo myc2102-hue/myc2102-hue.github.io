@@ -450,7 +450,28 @@ const fireOut = () => state.fuel <= 0;
 /* ================= 렌더러·카메라 ================= */
 const canvas = $('#scene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+/* 화질 자동 조절: 그리는 픽셀 총량에 상한을 둬 큰 화면(iPad)에서 배율을 낮춘다. 프레임이 계속 떨어지면 한 단계씩 더 낮추고 풀도 줄인다 */
+const PIXEL_BUDGET = [2.5e6, 1.7e6, 1.1e6];
+let qualityLevel = 0, grassMesh = null;
+function applyPixelRatio() {
+  const ratio = Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(PIXEL_BUDGET[qualityLevel] / (innerWidth * innerHeight)));
+  renderer.setPixelRatio(Math.max(0.75, ratio));
+}
+applyPixelRatio();
+let perfAcc = 0, perfN = 0, perfBad = 0, perfLastDrop = 0;
+function perfTick(dt) {
+  if ($('#gate') || state.time - surv.spawnAt < 8) return; // 대문·입장 직후 로딩 끊김은 재지 않음
+  perfAcc += dt; perfN++;
+  if (perfAcc < 1) return;
+  const avg = perfAcc / perfN; perfAcc = 0; perfN = 0;
+  perfBad = avg > 0.03 ? perfBad + 1 : 0; // 1초 평균 33fps 아래
+  if (perfBad >= 3 && qualityLevel < PIXEL_BUDGET.length - 1 && performance.now() - perfLastDrop > 6000) {
+    qualityLevel++; perfBad = 0; perfLastDrop = performance.now();
+    resize();
+    if (grassMesh) grassMesh.count = Math.round(1400 * (qualityLevel === 1 ? 0.6 : 0.3));
+    console.info('화질 단계 낮춤', qualityLevel, renderer.getPixelRatio().toFixed(2));
+  }
+}
 renderer.setSize(innerWidth, innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.15;
@@ -522,7 +543,7 @@ scene.add(ground);
   const geo = new THREE.ConeGeometry(0.05, 0.26, 4, 1, true);
   geo.translate(0, 0.13, 0);
   const gmat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, side: THREE.DoubleSide, vertexColors: false });
-  const grass = new THREE.InstancedMesh(geo, gmat, n);
+  const grass = new THREE.InstancedMesh(geo, gmat, n); grassMesh = grass;
   const d = new THREE.Object3D(), col = new THREE.Color();
   const rg = mulberry32(99);
   const tints = [0x7fb15a, 0x9ccc62, 0x6ea04f, 0xb6d47a, 0xd8c65a, 0x8bbf6a];
@@ -1843,8 +1864,10 @@ const shared = {
     return r.committed;
   }
 };
-buildForest().then(() => shared.applyPendingAnimals()).catch((e) => console.warn('숲 모델 읽기 실패, 기본 숲 유지', e));
-buildAnimals().catch((e) => console.warn('동물 모델 읽기 실패', e));
+const forestReady = buildForest().then(() => shared.applyPendingAnimals()).catch((e) => console.warn('숲 모델 읽기 실패, 기본 숲 유지', e));
+const animalsReady = buildAnimals().catch((e) => console.warn('동물 모델 읽기 실패', e));
+// 대문이 떠 있는 동안 모든 재질의 셰이더를 미리 컴파일해 입장 직후 끊김을 줄인다(Safari 는 첫 그리기 때 즉석 컴파일)
+Promise.allSettled([forestReady, animalsReady]).then(() => renderer.compileAsync(scene, camera).catch(() => {}));
 
 // 사람 캐릭터(Kenney Mini Forest 궁수 + Mini Characters 12명): 옷 색을 8가지 색조로 돌려 서로 구분
 const CHARS = 'assets/models/chars/';
@@ -2016,6 +2039,7 @@ class Character {
     m.rotation.y = 0; // Kenney 모델 정면은 +Z (머리·꼬리 좌표로 확인)
     m.traverse((o) => { o.userData.npc = this.isNpc; });
     this.model = m;
+    setTimeout(() => renderer.compileAsync(this.group, camera, scene).catch(() => {}), 0);
     this.capsule.visible = false;
     this.group.add(m);
     this.mixer = new THREE.AnimationMixer(m);
@@ -2903,6 +2927,7 @@ window.addEventListener('keydown', (e) => {
 function resize() {
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
+  applyPixelRatio();
   renderer.setSize(innerWidth, innerHeight);
   const s = innerHeight / 2 * renderer.getPixelRatio();
   fire.setScale(s); sparks.setScale(s); smoke.setScale(s);
@@ -2982,6 +3007,7 @@ function frame() {
     };
   }
   const dt = Math.min(0.05, clock.getDelta());
+  perfTick(dt);
   state.time += dt;
 
   state.fuel = Math.max(0, state.fuel - dt * 100 / 420);

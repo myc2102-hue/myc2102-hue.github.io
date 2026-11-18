@@ -211,7 +211,7 @@
   .tb:active { background: rgba(255,178,90,0.35); }
   #jumpBtn { width: 64px; height: 64px; font-size: 26px; }
   @media (orientation: landscape) and (max-height: 500px) {
-    body.mobile #bag { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 160px); }
+    body.mobile #bag { right: 136px; bottom: calc(max(14px, env(safe-area-inset-bottom)) + 12px); max-width: min(300px, calc(100% - 300px)); } /* 가로 폰: 버튼 열 왼쪽, MENU 와 안 겹치게 */
     body.mobile #chatBtn { bottom: auto; top: 110px; }
     body.mobile #menuPanel { bottom: 14px; left: 150px; right: 100px; max-height: calc(100% - 80px); }
   }
@@ -695,7 +695,11 @@ scene.add(sunLight);
  * 하루 = 24분(현실 1분 = 숲 1시간), 모두 같은 시계(서버 시각)를 쓴다. 06시 해 뜸, 18시 해 짐.
  * 밤에는 추위가 빨리, 낮에는 천천히 깎인다. */
 const DAY_MIN = 24;
-const dayClock = () => ((net.now() / 60000) % DAY_MIN + DAY_MIN) % DAY_MIN / DAY_MIN * 24; // 0~24 시
+// 촬영 모드(?shot=1): 스토어 스크린샷용. hour 고정·혼자 모드·가짜 친구 배치 도우미(window.__shot). 보통 플레이에는 영향 없음
+const SHOT = new URLSearchParams(location.search);
+let shotHour = SHOT.has('hour') ? Number(SHOT.get('hour')) : null;
+let shotExposure = 1;
+const dayClock = () => shotHour !== null ? shotHour : ((net.now() / 60000) % DAY_MIN + DAY_MIN) % DAY_MIN / DAY_MIN * 24; // 0~24 시
 const dayPhase = (h = dayClock()) => h < 5 ? 'night' : h < 7.5 ? 'dawn' : h < 17 ? 'day' : h < 19.5 ? 'dusk' : 'night';
 const PHASE_LABEL = { night: '밤', dawn: '아침', day: '낮', dusk: '저녁' };
 // 햇빛 세기 0(밤)~1(한낮): 06시·18시 가 0.5
@@ -734,7 +738,7 @@ function updateDaylight() {
   stars.material.opacity = clamp(1 - up * 1.6, 0, 1);
   moon.visible = moonHalo.visible = up < 0.6;
   moonHalo.material.opacity = 0.3 * clamp(1 - up * 1.6, 0, 1);
-  renderer.toneMappingExposure = 1.15 - 0.25 * up;
+  renderer.toneMappingExposure = (1.15 - 0.25 * up) * shotExposure;
 }
 
 /* ================= 파티클 ================= */
@@ -1294,8 +1298,7 @@ function showQuote() {
   el.style.setProperty('--qdur', Math.min(14, 7 + el.textContent.length * 0.12) + 's');
   el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');
 }
-setTimeout(showQuote, 12000);
-setInterval(showQuote, 30000);
+if (!SHOT.has('shot')) { setTimeout(showQuote, 12000); setInterval(showQuote, 30000); } // 촬영 모드에선 글귀 끔
 
 // 랜덤 멜로디 켜기/끄기
 const MELODY_KEY = 'charles-forest.melody';
@@ -2612,6 +2615,7 @@ const net = {
     return true;
   },
   async connect() {
+    if (SHOT.has('solo')) { this.on = false; $('#online').textContent = '혼자'; setPresence(null); return 'solo'; }
     try {
       await this.ready;
       const user = await this.signIn();
@@ -2891,6 +2895,18 @@ function updateUI() {
 
 function frame() {
   requestAnimationFrame(frame);
+  if (SHOT.has('shot') && !window.__shot) {
+    $('#toast').style.display = 'none'; $('#hint').style.display = 'none';
+    window.__shot = {
+      me, cam, state, surv, others, animals, npc, SEATS, SHOP, shopWorld, THREE, scene, camera,
+      setHour: (h) => { shotHour = h; }, setExposure: (e) => { shotExposure = e; }, collapse, get prof() { return prof; }, renderBag, renderVitals, renderWallet, renderRank, setPresence, toast,
+      friend(name, color, avatar, x, z, seat = -1, since = 0) {
+        const o = { ch: new Character(color, false, avatar), seat, sayAt: 0, emoteAt: 0, since: Date.now() - since * 1000 };
+        o.ch.place(x, z); o.ch.setName(name); if (seat >= 0) o.ch.sit(seat);
+        others.set('shot-' + others.size, o); setPresence(others.size + 1); return o.ch;
+      }
+    };
+  }
   const dt = Math.min(0.05, clock.getDelta());
   state.time += dt;
 

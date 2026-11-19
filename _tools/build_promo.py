@@ -21,6 +21,12 @@ FEATURES = [
     ('03_shop', '🛒 매점 쪼랭이', '모은 것은 팔고 성냥·열매를 사세요. 숲의 물가는 모두가 쓴 골드에 따라 오르내려요.'),
     ('07_lantern', '🏮 고민은 풍등에 태워 보내기', '고민 두루마리에 적은 글은 나만 보여요. 풍등이 하늘로 오르는 모습은 모두가 함께 봅니다.'),
 ]
+POSTERS = [
+    ('ai_01_bulmung', '고민을 태워버리고 힐링하세요'),
+    ('ai_02_hunt', '귀여운 동물친구들과 생존하세요'),
+    ('ai_03_shop', '쪼랭이 매점에서 장비를 챙기세요'),
+    ('ai_04_aurora', '친구들과 모닥불에 모여요'),
+]
 POINTS = [
     ('설치·가입 없음', '별명만 적으면 바로 입장'),
     ('PC·폰·태블릿', '브라우저만 있으면 어디서나'),
@@ -49,6 +55,8 @@ def build(src):
         f'<td width="25%" valign="top" align="center" style="padding:6px;font-family:{FONT};">'
         f'<div style="font-size:14px;line-height:1.4;font-weight:700;color:{GOLD};">{a}</div>'
         f'<div style="margin-top:4px;font-size:12.5px;line-height:1.5;color:{SUB};">{b}</div></td>' for a, b in POINTS)
+
+    posters = ''.join(f'<td width="25%" valign="top" style="padding:6px;">{img(n, a, "12px")}</td>' for n, a in POSTERS)
 
     return f'''<!doctype html>
 <html lang="ko">
@@ -79,7 +87,10 @@ def build(src):
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>{points}</tr></table>
     </td></tr></table>
   </td></tr>
-  <tr><td style="padding:14px 14px 0;">
+  <tr><td style="padding:16px 16px 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>{posters}</tr></table>
+  </td></tr>
+  <tr><td style="padding:8px 14px 0;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">{rows}</table>
   </td></tr>
   <tr><td style="padding:14px 22px 0;">{img('06_camp_day', '낮의 숲 캠프', '14px')}</td></tr>

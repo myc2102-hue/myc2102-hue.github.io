@@ -1,0 +1,43 @@
+name: 메타모아 접속자 수
+
+# 10분마다 숲에 있는 사람 수를 메타모아에 알린다.
+# 저장소 Secrets: METAMOA_KEY(공간 키), METAMOA_SPACE_ID(공간 id). 둘 다 없으면 아무것도 안 한다.
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: metamoa-live
+  cancel-in-progress: true
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: 접속자 수 보내기
+        env:
+          METAMOA_KEY: ${{ secrets.METAMOA_KEY }}
+          METAMOA_SPACE_ID: ${{ secrets.METAMOA_SPACE_ID }}
+          FIREBASE_API_KEY: AIzaSyC6hvcidn_Qb1nWTRakDSRi9h3j34kX7Fw
+          DB_URL: https://charles-forest-2026-default-rtdb.asia-southeast1.firebasedatabase.app
+        run: |
+          set -euo pipefail
+          if [ -z "${METAMOA_KEY:-}" ] || [ -z "${METAMOA_SPACE_ID:-}" ]; then
+            echo "키가 아직 없어 건너뜀"; exit 0
+          fi
+          # 규칙이 auth != null 이라 익명으로 잠깐 들어갔다가 계정을 지운다
+          TOKEN=$(curl -sS -X POST "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$FIREBASE_API_KEY" \
+            -H 'Content-Type: application/json' -d '{"returnSecureToken":true}' | jq -r '.idToken // empty')
+          if [ -z "$TOKEN" ]; then echo "익명 로그인 실패"; exit 1; fi
+          echo "::add-mask::$TOKEN"
+          COUNT=$(curl -sS "$DB_URL/rooms/lake/players.json?shallow=true&auth=$TOKEN" | jq 'if type == "object" then length else 0 end')
+          curl -sS -o /dev/null -X POST "https://identitytoolkit.googleapis.com/v1/accounts:delete?key=$FIREBASE_API_KEY" \
+            -H 'Content-Type: application/json' -d "{\"idToken\":\"$TOKEN\"}" || true
+          echo "접속자 $COUNT 명"
+          CODE=$(curl -sS -o /dev/null -w '%{http_code}' -X POST "https://metamoa.com/api/live/$METAMOA_SPACE_ID" \
+            -H "Authorization: Bearer $METAMOA_KEY" -H 'Content-Type: application/json' -d "{\"count\":$COUNT}")
+          echo "메타모아 응답 $CODE"
+          # 9분 안 재전송 거절(429)은 예약 실행이 밀려 붙은 경우라 실패로 보지 않는다
+          case "$CODE" in 2*|429) ;; *) exit 1 ;; esac

@@ -1,4 +1,4 @@
-// 찰스의 숲 스토어 스크린샷 촬영기: 로컬 http 서버 + 헤드리스 Chrome(CDP) 로 ?shot=1 모드 장면을 찍는다.
+// 촬스의 숲 스토어 스크린샷 촬영기: 로컬 http 서버 + 헤드리스 Chrome(CDP) 로 ?shot=1 모드 장면을 찍는다.
 // 사용: node shoot.js [장면번호들]   예) node shoot.js 1 3
 const { spawn } = require('child_process');
 const fs = require('fs');

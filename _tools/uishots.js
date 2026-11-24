@@ -1,4 +1,4 @@
-// 찰스의 숲 UI 점검용 캡처: 기기 크기별로 대문·HUD·메뉴·매점·고민 창을 찍는다.
+// 촬스의 숲 UI 점검용 캡처: 기기 크기별로 대문·HUD·메뉴·매점·고민 창을 찍는다.
 // 사용: node uishots.js [출력폴더] [설정이름…]
 const { spawn } = require('child_process');
 const fs = require('fs');

@@ -63,14 +63,14 @@ def build(src):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>모여봐요 찰스의 숲</title>
+<title>모여봐요 촬스의 숲</title>
 </head>
 <body style="margin:0;padding:0;background:#e9eef1;">
 <!-- 게시판에 붙일 때는 아래 표 전체(시작 ~ 끝 주석 사이)를 복사하세요 -->
 <!-- 시작 -->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#e9eef1;"><tr><td align="center" style="padding:24px 12px;">
 <table role="presentation" width="720" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:720px;background:{BG};border-radius:20px;">
-  <tr><td style="padding:14px 14px 0;">{img('hero', '모여봐요 찰스의 숲', '14px')}</td></tr>
+  <tr><td style="padding:14px 14px 0;">{img('hero', '모여봐요 촬스의 숲', '14px')}</td></tr>
   <tr><td align="center" style="padding:26px 28px 6px;font-family:{FONT};">
     <div style="font-size:13px;letter-spacing:2px;font-weight:700;color:{GOLD};">숲속 호숫가 힐링 생존 게임</div>
     <div style="margin-top:10px;font-size:28px;line-height:1.35;font-weight:800;color:{TEXT};">오늘 밤, 모닥불 앞에서 만나요</div>

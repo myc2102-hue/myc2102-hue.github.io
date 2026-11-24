@@ -1,7 +1,7 @@
 name: 메타모아 접속자 수
 
 # 10분마다 숲에 있는 사람 수를 메타모아에 알린다.
-# 저장소 Secrets: METAMOA_KEY(공간 키), METAMOA_SPACE_ID(공간 id). 둘 다 없으면 아무것도 안 한다.
+# 저장소 Secrets: METAMOA_KEY(공간 키). 없으면 아무것도 안 한다. 공간 id 는 목록 주소에 나오는 공개 값이라 여기 적는다.
 on:
   schedule:
     - cron: '*/10 * * * *'
@@ -19,13 +19,13 @@ jobs:
       - name: 접속자 수 보내기
         env:
           METAMOA_KEY: ${{ secrets.METAMOA_KEY }}
-          METAMOA_SPACE_ID: ${{ secrets.METAMOA_SPACE_ID }}
+          METAMOA_SPACE_ID: myc2102-hue-github-io-mwty0785
           FIREBASE_API_KEY: AIzaSyC6hvcidn_Qb1nWTRakDSRi9h3j34kX7Fw
           DB_URL: https://charles-forest-2026-default-rtdb.asia-southeast1.firebasedatabase.app
         run: |
           set -euo pipefail
-          if [ -z "${METAMOA_KEY:-}" ] || [ -z "${METAMOA_SPACE_ID:-}" ]; then
-            echo "키가 아직 없어 건너뜀"; exit 0
+          if [ -z "${METAMOA_KEY:-}" ]; then
+            echo "METAMOA_KEY 가 없어 건너뜀"; exit 0
           fi
           # 규칙이 auth != null 이라 익명으로 잠깐 들어갔다가 계정을 지운다
           TOKEN=$(curl -sS -X POST "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$FIREBASE_API_KEY" \
